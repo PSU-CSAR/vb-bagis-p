@@ -1793,7 +1793,6 @@ Public Class FrmProfileBuilder
         BtnProfileDelete.Visible = True
         BtnProfileCopy.Visible = True
         BtnApply.Visible = True
-        BtnImport.Visible = True
         BtnExportProfile.Visible = True
         BtnAddMethod.Visible = True
         BtnMethodDelete.Visible = True

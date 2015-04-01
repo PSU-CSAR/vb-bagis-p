@@ -2,7 +2,7 @@
 
 Public Class FrmProfilePassword
 
-    Dim m_adminPassword As String = "IHeartSnowPack"
+    Dim m_adminPassword As String = "NWCC_PSU"
     Dim m_frmProfile As FrmProfileBuilder
 
     Public Sub New(ByVal frmProfile As FrmProfileBuilder)
