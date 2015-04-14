@@ -10,7 +10,7 @@ Imports ESRI.ArcGIS.DataSourcesRaster
 
 Public Class FrmClipDataSource
 
-    Dim m_dataTable As Hashtable
+    Dim m_dataTable As Dictionary(Of String, DataSource)
     Dim m_selDataSources As IList(Of String)
     Const IDX_AOI As Integer = 0
     Const IDX_NAME As Integer = 1
@@ -19,7 +19,7 @@ Public Class FrmClipDataSource
     Const IDX_ERROR_MESSAGE As Integer = 4
     Const IDX_AOI_PATH As Integer = 5
 
-    Public Sub New(ByVal dataTable As Hashtable, ByVal selDataSources As IList(Of String))
+    Public Sub New(ByVal dataTable As Dictionary(Of String, DataSource), ByVal selDataSources As IList(Of String))
         InitializeComponent()
         m_dataTable = dataTable
         m_selDataSources = selDataSources

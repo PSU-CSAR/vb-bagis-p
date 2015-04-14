@@ -15,6 +15,8 @@ Public Class DataSource
     Dim m_measurementUnitType As MeasurementUnitType
     Dim m_measurementUnit As MeasurementUnit
     Dim m_slopeUnit As SlopeUnit
+    'If the data source is located in source location, is_valid is true
+    Dim m_isValid As Boolean
 
     ' Required for de-serialization. Do not use.
     Sub New()
@@ -133,6 +135,15 @@ Public Class DataSource
         End Set
         Get
             Return m_slopeUnit
+        End Get
+    End Property
+
+    Public Property IsValid() As Boolean
+        Set(ByVal value As Boolean)
+            m_isValid = value
+        End Set
+        Get
+            Return m_isValid
         End Get
     End Property
 

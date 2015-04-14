@@ -176,8 +176,74 @@ Module MethodModule
     End Function
 
     Public Function BA_LoadSettingsFile(ByVal settingsPath As String) As Hashtable
-        Dim pSettings As Settings = Nothing
+        Dim pSettings As Settings = CreateOrLoadSettingsFile(settingsPath)
         Dim layerTable As Hashtable = New Hashtable
+        If pSettings.DataSources IsNot Nothing AndAlso pSettings.DataSources.Count > 0 Then
+            Dim paramIdx = settingsPath.IndexOf(BA_EnumDescription(PublicPath.BagisParamFolder))
+            For Each dLayer As DataSource In pSettings.DataSources
+                Dim sourcePath As String = dLayer.Source
+                If paramIdx > -1 Then
+                    Dim parentPath = "Please Return"
+                    Dim tempFileName = BA_GetBareName(settingsPath, parentPath)
+                    'Trim trailing \
+                    parentPath = parentPath.Substring(0, parentPath.Length - 1)
+                    sourcePath = parentPath & BA_EnumDescription(PublicPath.BagisDataBinGdb) & "\" & dLayer.Source
+                End If
+                If dLayer.AoiLayer Then
+                    layerTable.Add(dLayer.Name, dLayer)
+                ElseIf dLayer.LayerType = LayerType.Raster Then
+                    Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(sourcePath)
+                    If BA_File_Exists(sourcePath, wType, ESRI.ArcGIS.Geodatabase.esriDatasetType.esriDTRasterDataset) Then
+                        dLayer.IsValid = True
+                        layerTable.Add(dLayer.Name, dLayer)
+                    Else
+                        dLayer.IsValid = False
+                    End If
+                Else
+                    Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(sourcePath)
+                    If BA_File_Exists(sourcePath, wType, ESRI.ArcGIS.Geodatabase.esriDatasetType.esriDTFeatureClass) Then
+                        layerTable.Add(dLayer.Name, dLayer)
+                        dLayer.IsValid = True
+                    Else
+                        dLayer.IsValid = False
+                    End If
+                End If
+            Next
+        End If
+        Return layerTable
+    End Function
+
+    Public Function BA_LoadAllSettingsFile(ByVal settingsPath As String) As Dictionary(Of String, DataSource)
+        Dim pSettings As Settings = CreateOrLoadSettingsFile(settingsPath)
+        Dim layerTable As Dictionary(Of String, DataSource) = New Dictionary(Of String, DataSource)
+        If pSettings.DataSources IsNot Nothing AndAlso pSettings.DataSources.Count > 0 Then
+            Dim paramIdx = settingsPath.IndexOf(BA_EnumDescription(PublicPath.BagisParamFolder))
+            For Each dLayer As DataSource In pSettings.DataSources
+                Dim sourcePath As String = dLayer.Source
+                If paramIdx > -1 Then
+                    Dim parentPath = "Please Return"
+                    Dim tempFileName = BA_GetBareName(settingsPath, parentPath)
+                    'Trim trailing \
+                    parentPath = parentPath.Substring(0, parentPath.Length - 1)
+                    sourcePath = parentPath & BA_EnumDescription(PublicPath.BagisDataBinGdb) & "\" & dLayer.Source
+                End If
+                If dLayer.AoiLayer Then
+                    dLayer.IsValid = True
+                ElseIf dLayer.LayerType = LayerType.Raster Then
+                    Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(sourcePath)
+                    dLayer.IsValid = BA_File_Exists(sourcePath, wType, ESRI.ArcGIS.Geodatabase.esriDatasetType.esriDTRasterDataset)
+                Else
+                    Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(sourcePath)
+                    dLayer.IsValid = BA_File_Exists(sourcePath, wType, ESRI.ArcGIS.Geodatabase.esriDatasetType.esriDTFeatureClass)
+                End If
+                layerTable.Add(dLayer.Name, dLayer)
+            Next
+        End If
+        Return layerTable
+    End Function
+
+    Private Function CreateOrLoadSettingsFile(ByVal settingsPath As String) As Settings
+        Dim pSettings As Settings = Nothing
         'First try to load an existing settings file
         If BA_File_ExistsWindowsIO(settingsPath) Then
             Dim obj As Object = SerializableData.Load(settingsPath, GetType(Settings))
@@ -201,33 +267,7 @@ Module MethodModule
             pSettings.DataSources = dataLayerList
             pSettings.Save(settingsPath)
         End If
-        If pSettings.DataSources IsNot Nothing AndAlso pSettings.DataSources.Count > 0 Then
-            Dim paramIdx = settingsPath.IndexOf(BA_EnumDescription(PublicPath.BagisParamFolder))
-            For Each dLayer As DataSource In pSettings.DataSources
-                Dim sourcePath As String = dLayer.Source
-                If paramIdx > -1 Then
-                    Dim parentPath = "Please Return"
-                    Dim tempFileName = BA_GetBareName(settingsPath, parentPath)
-                    'Trim trailing \
-                    parentPath = parentPath.Substring(0, parentPath.Length - 1)
-                    sourcePath = parentPath & BA_EnumDescription(PublicPath.BagisDataBinGdb) & "\" & dLayer.Source
-                End If
-                If dLayer.AoiLayer Then
-                    layerTable.Add(dLayer.Name, dLayer)
-                ElseIf dLayer.LayerType = LayerType.Raster Then
-                    Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(sourcePath)
-                    If BA_File_Exists(sourcePath, wType, ESRI.ArcGIS.Geodatabase.esriDatasetType.esriDTRasterDataset) Then
-                        layerTable.Add(dLayer.Name, dLayer)
-                    End If
-                Else
-                    Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(sourcePath)
-                    If BA_File_Exists(sourcePath, wType, ESRI.ArcGIS.Geodatabase.esriDatasetType.esriDTFeatureClass) Then
-                        layerTable.Add(dLayer.Name, dLayer)
-                    End If
-                End If
-            Next
-        End If
-        Return layerTable
+        Return pSettings
     End Function
 
     Public Function BA_GetLocalMethodsDir(ByVal aoiPath As String) As String
@@ -258,14 +298,14 @@ Module MethodModule
         Return Nothing
     End Function
 
-    'Pass in an array of data sources to check their units and populate, if appropriate
+    'Pass in an Hashtable of data sources to check their units and populate, if appropriate
     Public Function BA_AppendUnitsToDataSources(ByRef pDataTable As Hashtable, ByVal aoiPath As String) As BA_ReturnCode
         If pDataTable IsNot Nothing AndAlso pDataTable.Keys.Count > 0 Then
             For Each pKey As String In pDataTable.Keys
                 Dim pDataSource As DataSource = pDataTable(pKey)
                 Dim inputFolder As String = Nothing
                 Dim inputFile As String = Nothing
-                If pDataSource.AoiLayer = False Then
+                If pDataSource.AoiLayer = False AndAlso pDataSource.IsValid = True Then
                     If String.IsNullOrEmpty(aoiPath) Then
                         'This is a public data source
                         inputFolder = "PleaseReturn"
@@ -304,6 +344,21 @@ Module MethodModule
                         Next
                     End If
                 End If
+            Next
+        End If
+    End Function
+
+    'Wrapper function to allow Dictionary as input to BA_AppendUnitsToDataSources
+    Public Function BA_AppendUnitsToDataSources(ByRef pDataTable As Dictionary(Of String, DataSource), ByVal aoiPath As String) As BA_ReturnCode
+        Dim addTable As Hashtable = New Hashtable
+        For Each kvp As KeyValuePair(Of String, DataSource) In pDataTable
+            addTable.Add(kvp.Key, kvp.Value)
+        Next kvp
+        Dim success As BA_ReturnCode = BA_AppendUnitsToDataSources(addTable, aoiPath)
+        If success = BA_ReturnCode.Success Then
+            For Each key As String In addTable.Keys
+                Dim dSource As DataSource = addTable(key)
+                pDataTable(key) = dSource
             Next
         End If
     End Function

@@ -9,13 +9,14 @@ Imports ESRI.ArcGIS.Catalog
 
 Public Class FrmDataManager
 
-    Dim m_dataTable As Hashtable
+    Dim m_dataTable As Dictionary(Of String, DataSource)
     Dim m_settingsPath As String
     Dim m_aoi As Aoi
     Const idx_IsAoi As Int16 = 0
-    Const idx_Name As Int16 = 1
-    Const idx_Descr As Int16 = 2
-    Const idx_Source As Int16 = 3
+    Const idx_IsValid As Int16 = 1
+    Const idx_Name As Int16 = 2
+    Const idx_Descr As Int16 = 3
+    Const idx_Source As Int16 = 4
     Dim m_slopeUnit As SlopeUnit
     Dim m_elevUnit As MeasurementUnit
     Dim m_depthUnit As MeasurementUnit
@@ -32,7 +33,7 @@ Public Class FrmDataManager
             Dim pnt1 As System.Drawing.Point = New System.Drawing.Point(2, 2)
             PnlMain.Location = pnt1
             m_settingsPath = BA_GetBagisPSettingsPath()
-            m_dataTable = BA_LoadSettingsFile(m_settingsPath)
+            m_dataTable = BA_LoadAllSettingsFile(m_settingsPath)
             BA_AppendUnitsToDataSources(m_dataTable, Nothing)
             BtnAdd.Enabled = True
             Me.Text = "Data Manager (Public)"
@@ -45,9 +46,11 @@ Public Class FrmDataManager
             Me.Text = "Data Manager (AOI: Not selected)"
         End If
 
-        ' Format checkbox column
-        Dim col0 As DataGridViewCheckBoxColumn = DataGridView1.Columns(0)
+        ' Format checkbox columns
+        Dim col0 As DataGridViewCheckBoxColumn = DataGridView1.Columns(idx_IsAoi)
         col0.FlatStyle = FlatStyle.Flat
+        Dim col1 As DataGridViewCheckBoxColumn = DataGridView1.Columns(idx_IsValid)
+        col1.FlatStyle = FlatStyle.Flat
 
         ReloadGrid()
     End Sub
@@ -64,7 +67,7 @@ Public Class FrmDataManager
         Dim frmAddDataLayer As FrmAddData = New FrmAddData(m_dataTable, aoiPath)
         frmAddDataLayer.ShowDialog()
         If frmAddDataLayer.DirtyFlag = True Then
-            m_dataTable = BA_LoadSettingsFile(m_settingsPath)
+            m_dataTable = BA_LoadAllSettingsFile(m_settingsPath)
             BA_AppendUnitsToDataSources(m_dataTable, Nothing)
             ReloadGrid()
         End If
@@ -82,6 +85,7 @@ Public Class FrmDataManager
                 item.CreateCells(DataGridView1)
                 With item
                     .Cells(idx_IsAoi).Value = pSource.AoiLayer
+                    .Cells(idx_IsValid).Value = pSource.IsValid
                     .Cells(idx_Name).Value = key
                     .Cells(idx_Descr).Value = pSource.Description
                     'Pre-pend the local source path to the custom layer name if
@@ -213,7 +217,7 @@ Public Class FrmDataManager
         Dim frmAddDataLayer As FrmAddData = New FrmAddData(m_dataTable, pName, aoiPath)
         frmAddDataLayer.ShowDialog()
         If frmAddDataLayer.DirtyFlag = True Then
-            m_dataTable = BA_LoadSettingsFile(m_settingsPath)
+            m_dataTable = BA_LoadAllSettingsFile(m_settingsPath)
             BA_AppendUnitsToDataSources(m_dataTable, Nothing)
             ReloadGrid()
         End If
@@ -226,12 +230,20 @@ Public Class FrmDataManager
             For Each pRow As DataGridViewRow In pCollection
                 Dim aoiData As Boolean = CBool(pRow.Cells(idx_IsAoi).Value)
                 If Not aoiData Then
-                    Dim key As String = CStr(pRow.Cells(idx_Name).Value)
-                    selDataSources.Add(key)
+                    Dim isValid As Boolean = CBool(pRow.Cells(idx_IsValid).Value)
+                    If isValid Then
+                        Dim key As String = CStr(pRow.Cells(idx_Name).Value)
+                        selDataSources.Add(key)
+                    End If
                 End If
             Next
-            Dim frmClipDataSource As FrmClipDataSource = New FrmClipDataSource(m_dataTable, selDataSources)
-            frmClipDataSource.ShowDialog()
+            If selDataSources.Count > 0 Then
+                Dim frmClipDataSource As FrmClipDataSource = New FrmClipDataSource(m_dataTable, selDataSources)
+                frmClipDataSource.ShowDialog()
+            Else
+                Dim msg As String = "No valid data sources that are not built-in aoi data sources were selected to clip"
+                MessageBox.Show(msg, "No valid data sources selected", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
         Catch ex As Exception
             Debug.Print("BtnClip_Click Exception: " & ex.Message)
         Finally
@@ -297,9 +309,9 @@ Public Class FrmDataManager
                 bagisPExt.aoi = m_aoi
                 SetDatumInExtension(m_aoi.FilePath)
                 m_settingsPath = BA_GetLocalSettingsPath(m_aoi.FilePath)
-                m_dataTable = BA_LoadSettingsFile(m_settingsPath)
-                BA_AppendUnitsToDataSources(m_dataTable, m_aoi.FilePath)
-                BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
+                Dim aoiHashtable As Hashtable = BA_LoadSettingsFile(m_settingsPath)
+                BA_AppendUnitsToDataSources(aoiHashtable, m_aoi.FilePath)
+                BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, aoiHashtable, m_slopeUnit, m_elevUnit, _
                                              m_depthUnit, m_degreeUnit)
                 If m_slopeUnit = SlopeUnit.Missing Or _
                     m_elevUnit = MeasurementUnit.Missing Or _
@@ -307,14 +319,18 @@ Public Class FrmDataManager
                     Dim frmDataUnits As FrmDataUnits = New FrmDataUnits(m_aoi, m_slopeUnit, m_elevUnit, m_depthUnit)
                     frmDataUnits.ShowDialog()
                     'Update with changes
-                    BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
+                    BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, aoiHashtable, m_slopeUnit, m_elevUnit, _
                                                  m_depthUnit, m_degreeUnit)
                 End If
-                Dim errorMsg As String = BA_ValidateMeasurementUnitsForAoi(m_dataTable, m_depthUnit, m_elevUnit, _
+                Dim errorMsg As String = BA_ValidateMeasurementUnitsForAoi(aoiHashtable, m_depthUnit, m_elevUnit, _
                                                                            m_slopeUnit, m_degreeUnit)
                 If errorMsg.Length > 0 Then
                     MessageBox.Show(errorMsg, "Measurement unit error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 End If
+                m_dataTable = New Dictionary(Of String, DataSource)
+                For Each key In aoiHashtable.Keys
+                    m_dataTable.Add(key, aoiHashtable(key))
+                Next
                 ReloadGrid()
             End If
         Catch ex As Exception

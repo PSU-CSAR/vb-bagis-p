@@ -18,13 +18,17 @@ Public Class FrmAddData
     Dim m_settingsPath As String = Nothing
     Dim m_aoiPath As String = Nothing
 
-    Public Sub New(ByVal layerTable As Hashtable, ByVal aoiPath As String)
+    Public Sub New(ByVal layerTable As Dictionary(Of String, DataSource), ByVal aoiPath As String)
 
         ' This call is required by the designer.
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
-        m_layerTable = layerTable
+        m_layerTable = New Hashtable
+        For Each kvp As KeyValuePair(Of String, DataSource) In layerTable
+            m_layerTable.Add(kvp.Key, kvp.Value)
+        Next kvp
+
         If String.IsNullOrEmpty(aoiPath) Then
             m_settingsPath = BA_GetBagisPSettingsPath()
         Else
@@ -36,13 +40,16 @@ Public Class FrmAddData
 
     End Sub
 
-    Public Sub New(ByVal layerTable As Hashtable, ByVal selLayerName As String, ByVal aoiPath As String)
+    Public Sub New(ByVal layerTable As Dictionary(Of String, DataSource), ByVal selLayerName As String, ByVal aoiPath As String)
 
         ' This call is required by the designer.
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
-        m_layerTable = layerTable
+        m_layerTable = New Hashtable
+        For Each kvp As KeyValuePair(Of String, DataSource) In layerTable
+            m_layerTable.Add(kvp.Key, kvp.Value)
+        Next kvp
         m_selLayerName = selLayerName
         If String.IsNullOrEmpty(aoiPath) Then
             m_settingsPath = BA_GetBagisPSettingsPath()
@@ -55,7 +62,7 @@ Public Class FrmAddData
         TxtName.Text = selLayerName
         TxtDescription.Text = m_selDataSource.Description
         TxtSource.Text = m_selDataSource.Source
-        m_LayerType = m_selDataSource.LayerType
+        m_layerType = m_selDataSource.LayerType
 
         '24-APR-2012 As of this date we aren't saving the data field
         'PopulateCboDataField(pGeoDataset, dataType, pLayer.DataField)
