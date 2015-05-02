@@ -37,6 +37,9 @@ Public Class FrmDataManager
             BA_AppendUnitsToDataSources(m_dataTable, Nothing)
             BtnAdd.Enabled = True
             Me.Text = "Data Manager (Public)"
+            'Enable admin capabilities if user has entered the admin password
+            Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+            If bExt.ProfileAdministrator = True Then EnableAdminButtons()
         Else
             PnlAoi.Visible = True
             BtnClip.Visible = False
@@ -45,12 +48,6 @@ Public Class FrmDataManager
             BtnDelete.Location = New System.Drawing.Point(4, 329)
             Me.Text = "Data Manager (AOI: Not selected)"
         End If
-
-        ' Format checkbox columns
-        Dim col0 As DataGridViewCheckBoxColumn = DataGridView1.Columns(idx_IsAoi)
-        col0.FlatStyle = FlatStyle.Flat
-        Dim col1 As DataGridViewCheckBoxColumn = DataGridView1.Columns(idx_IsValid)
-        col1.FlatStyle = FlatStyle.Flat
 
         ReloadGrid()
     End Sub
@@ -84,8 +81,8 @@ Public Class FrmDataManager
                 Dim item As New DataGridViewRow
                 item.CreateCells(DataGridView1)
                 With item
-                    .Cells(idx_IsAoi).Value = pSource.AoiLayer
-                    .Cells(idx_IsValid).Value = pSource.IsValid
+                    .Cells(idx_IsAoi).Value = pSource.AoiLayerDescr
+                    .Cells(idx_IsValid).Value = pSource.IsValidDescr
                     .Cells(idx_Name).Value = key
                     .Cells(idx_Descr).Value = pSource.Description
                     'Pre-pend the local source path to the custom layer name if
@@ -114,8 +111,8 @@ Public Class FrmDataManager
         Dim pCollection As DataGridViewSelectedRowCollection = DataGridView1.SelectedRows
         Dim modCount As Integer = 0
         For Each pRow As DataGridViewRow In pCollection
-            Dim isAoi As Boolean = pRow.Cells(idx_IsAoi).Value
-            If isAoi = False Then modCount += 1
+            Dim isAoi As String = pRow.Cells(idx_IsAoi).Value
+            If isAoi = BA_User_Data Then modCount += 1
         Next
         If modCount > 0 Then
             If m_aoi Is Nothing Then
@@ -134,8 +131,8 @@ Public Class FrmDataManager
         Dim pCollection As DataGridViewSelectedRowCollection = DataGridView1.SelectedRows
         Dim modCount As Integer = 0
         For Each pRow As DataGridViewRow In pCollection
-            Dim isAoi As Boolean = pRow.Cells(idx_IsAoi).Value
-            If isAoi = False Then modCount += 1
+            Dim isAoi As String = pRow.Cells(idx_IsAoi).Value
+            If isAoi = BA_User_Data Then modCount += 1
         Next
 
         If modCount > 0 Then
@@ -147,10 +144,10 @@ Public Class FrmDataManager
             Dim result As DialogResult = MessageBox.Show(sb.ToString, "Delete data layer(s)", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
             If result = DialogResult.Yes Then
                 For Each pRow As DataGridViewRow In pCollection
-                    Dim isAoi As Boolean = CBool(pRow.Cells(idx_IsAoi).Value)
+                    Dim isAoi As String = CBool(pRow.Cells(idx_IsAoi).Value)
                     'Only delete layer if it isn't an aoi layer
                     Dim success As Integer = 1
-                    If isAoi = False Then
+                    If isAoi = BA_User_Data Then
                         Dim layerName As String = CStr(pRow.Cells(idx_Name).Value)
                         If m_aoi IsNot Nothing Then
                             'Delete data if it is associated with the databin of an AOI
@@ -194,8 +191,8 @@ Public Class FrmDataManager
         Dim editRow As Integer = 0
         Dim i As Integer = 0
         For Each tRow As DataGridViewRow In pCollection
-            Dim isAoi As Boolean = tRow.Cells(idx_IsAoi).Value
-            If isAoi = False Then
+            Dim isAoi As String = tRow.Cells(idx_IsAoi).Value
+            If isAoi = BA_User_Data Then
                 modCount += 1
                 editRow = i
             End If
@@ -221,6 +218,10 @@ Public Class FrmDataManager
             BA_AppendUnitsToDataSources(m_dataTable, Nothing)
             ReloadGrid()
         End If
+
+        'Enable admin capabilities if user has entered the admin password from the edit screen
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        If bExt.ProfileAdministrator = True Then EnableAdminButtons()
     End Sub
 
     Private Sub BtnClip_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnClip.Click
@@ -228,10 +229,10 @@ Public Class FrmDataManager
             Dim pCollection As DataGridViewSelectedRowCollection = DataGridView1.SelectedRows
             Dim selDataSources As IList(Of String) = New List(Of String)
             For Each pRow As DataGridViewRow In pCollection
-                Dim aoiData As Boolean = CBool(pRow.Cells(idx_IsAoi).Value)
-                If Not aoiData Then
-                    Dim isValid As Boolean = CBool(pRow.Cells(idx_IsValid).Value)
-                    If isValid Then
+                Dim aoiData As String = CStr(pRow.Cells(idx_IsAoi).Value)
+                If aoiData = BA_User_Data Then
+                    Dim isValid As String = CStr(pRow.Cells(idx_IsValid).Value)
+                    If isValid = BA_Valid_Data Then
                         Dim key As String = CStr(pRow.Cells(idx_Name).Value)
                         selDataSources.Add(key)
                     End If
@@ -352,5 +353,17 @@ Public Class FrmDataManager
             BA_XPATH_TAGS, sb.ToString, BA_BAGIS_TAG_PREFIX.Length)
     End Sub
 
+    Public Sub EnableAdminButtons()
+        BtnAdd.Visible = True
+        BtnDelete.Visible = True
+    End Sub
 
+    Private Sub DataGridView1_CellContentClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DataGridViewCellEventArgs) Handles DataGridView1.CellContentClick
+        'Check to see if admin capabilities are already enabled before asking again
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        If bExt.ProfileAdministrator = False Then
+            Dim frmPassword As FrmProfilePassword = New FrmProfilePassword(Me)
+            frmPassword.ShowDialog()
+        End If
+    End Sub
 End Class

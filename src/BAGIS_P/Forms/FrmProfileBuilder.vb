@@ -1783,8 +1783,11 @@ Public Class FrmProfileBuilder
     End Function
 
     Private Sub TxtProfileName_DoubleClick(ByVal sender As Object, ByVal e As System.EventArgs) Handles TxtProfileName.DoubleClick
-        Dim frmPassword As FrmProfilePassword = New FrmProfilePassword(Me)
-        frmPassword.ShowDialog()
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        If bExt.ProfileAdministrator = True Then
+            Dim frmPassword As FrmProfilePassword = New FrmProfilePassword(Me)
+            frmPassword.ShowDialog()
+        End If
     End Sub
 
     Public Sub EnableAdminButtons()

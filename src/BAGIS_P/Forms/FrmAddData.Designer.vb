@@ -55,6 +55,7 @@ Partial Class FrmAddData
         Me.TxtName.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtName.Location = New System.Drawing.Point(95, 7)
         Me.TxtName.Name = "TxtName"
+        Me.TxtName.ReadOnly = True
         Me.TxtName.Size = New System.Drawing.Size(288, 22)
         Me.TxtName.TabIndex = 13
         '
@@ -74,6 +75,7 @@ Partial Class FrmAddData
         Me.TxtDescription.Location = New System.Drawing.Point(95, 41)
         Me.TxtDescription.Multiline = True
         Me.TxtDescription.Name = "TxtDescription"
+        Me.TxtDescription.ReadOnly = True
         Me.TxtDescription.Size = New System.Drawing.Size(288, 58)
         Me.TxtDescription.TabIndex = 31
         '
@@ -138,6 +140,7 @@ Partial Class FrmAddData
         Me.CkUnits.Text = "Define the unit of the field values"
         Me.CkUnits.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         Me.CkUnits.UseVisualStyleBackColor = True
+        Me.CkUnits.Visible = False
         '
         'Label4
         '
@@ -162,6 +165,7 @@ Partial Class FrmAddData
         'CboUnitType
         '
         Me.CboUnitType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.CboUnitType.Enabled = False
         Me.CboUnitType.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CboUnitType.FormattingEnabled = True
         Me.CboUnitType.Location = New System.Drawing.Point(70, 2)
@@ -184,6 +188,7 @@ Partial Class FrmAddData
         'CboUnits
         '
         Me.CboUnits.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.CboUnits.Enabled = False
         Me.CboUnits.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CboUnits.FormattingEnabled = True
         Me.CboUnits.Location = New System.Drawing.Point(70, 32)

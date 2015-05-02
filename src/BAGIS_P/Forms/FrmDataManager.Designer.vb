@@ -26,6 +26,8 @@ Partial Class FrmDataManager
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.DataGridView1 = New System.Windows.Forms.DataGridView()
         Me.BtnAdd = New System.Windows.Forms.Button()
         Me.BtnEdit = New System.Windows.Forms.Button()
@@ -37,8 +39,8 @@ Partial Class FrmDataManager
         Me.BtnSelectAoi = New System.Windows.Forms.Button()
         Me.PnlAoi = New System.Windows.Forms.Panel()
         Me.PnlMain = New System.Windows.Forms.Panel()
-        Me.AoiData = New System.Windows.Forms.DataGridViewCheckBoxColumn()
-        Me.IsValid = New System.Windows.Forms.DataGridViewCheckBoxColumn()
+        Me.AoiData = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.IsValid = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.SourceName = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.Description = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.DataLayerSource = New System.Windows.Forms.DataGridViewTextBoxColumn()
@@ -80,6 +82,7 @@ Partial Class FrmDataManager
         Me.BtnAdd.TabIndex = 5
         Me.BtnAdd.Text = "Add"
         Me.BtnAdd.UseVisualStyleBackColor = True
+        Me.BtnAdd.Visible = False
         '
         'BtnEdit
         '
@@ -100,6 +103,7 @@ Partial Class FrmDataManager
         Me.BtnDelete.TabIndex = 7
         Me.BtnDelete.Text = "Delete"
         Me.BtnDelete.UseVisualStyleBackColor = True
+        Me.BtnDelete.Visible = False
         '
         'BtnClose
         '
@@ -178,24 +182,32 @@ Partial Class FrmDataManager
         '
         'AoiData
         '
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.AoiData.DefaultCellStyle = DataGridViewCellStyle2
         Me.AoiData.HeaderText = "Aoi Data"
         Me.AoiData.Name = "AoiData"
         Me.AoiData.ReadOnly = True
+        Me.AoiData.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.AoiData.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
         Me.AoiData.Width = 90
         '
         'IsValid
         '
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.IsValid.DefaultCellStyle = DataGridViewCellStyle3
         Me.IsValid.HeaderText = "Valid ?"
         Me.IsValid.Name = "IsValid"
         Me.IsValid.ReadOnly = True
+        Me.IsValid.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.IsValid.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
         Me.IsValid.Width = 90
         '
         'SourceName
         '
         Me.SourceName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black
-        Me.SourceName.DefaultCellStyle = DataGridViewCellStyle2
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.Black
+        Me.SourceName.DefaultCellStyle = DataGridViewCellStyle4
         Me.SourceName.HeaderText = "Name"
         Me.SourceName.Name = "SourceName"
         Me.SourceName.ReadOnly = True
@@ -203,8 +215,8 @@ Partial Class FrmDataManager
         '
         'Description
         '
-        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Description.DefaultCellStyle = DataGridViewCellStyle3
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Description.DefaultCellStyle = DataGridViewCellStyle5
         Me.Description.HeaderText = "Description"
         Me.Description.Name = "Description"
         Me.Description.ReadOnly = True
@@ -213,8 +225,8 @@ Partial Class FrmDataManager
         'DataLayerSource
         '
         Me.DataLayerSource.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells
-        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.DataLayerSource.DefaultCellStyle = DataGridViewCellStyle4
+        DataGridViewCellStyle6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.DataLayerSource.DefaultCellStyle = DataGridViewCellStyle6
         Me.DataLayerSource.HeaderText = "Data Source"
         Me.DataLayerSource.Name = "DataLayerSource"
         Me.DataLayerSource.ReadOnly = True
@@ -248,8 +260,8 @@ Partial Class FrmDataManager
     Friend WithEvents BtnSelectAoi As System.Windows.Forms.Button
     Friend WithEvents PnlAoi As System.Windows.Forms.Panel
     Friend WithEvents PnlMain As System.Windows.Forms.Panel
-    Friend WithEvents AoiData As System.Windows.Forms.DataGridViewCheckBoxColumn
-    Friend WithEvents IsValid As System.Windows.Forms.DataGridViewCheckBoxColumn
+    Friend WithEvents AoiData As System.Windows.Forms.DataGridViewTextBoxColumn
+    Friend WithEvents IsValid As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents SourceName As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents Description As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents DataLayerSource As System.Windows.Forms.DataGridViewTextBoxColumn

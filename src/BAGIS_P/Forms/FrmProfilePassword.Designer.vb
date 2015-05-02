@@ -38,7 +38,7 @@ Partial Class FrmProfilePassword
         Me.TextBox1.Size = New System.Drawing.Size(397, 15)
         Me.TextBox1.TabIndex = 0
         Me.TextBox1.TabStop = False
-        Me.TextBox1.Text = "Enter administrator password to enable profile editing capabilities:"
+        Me.TextBox1.Text = "Enter password to enable administrator capabilities:"
         '
         'TxtPassword
         '

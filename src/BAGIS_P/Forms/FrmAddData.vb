@@ -38,6 +38,9 @@ Public Class FrmAddData
 
         LoadMeasurementUnitTypes()
 
+        'Enable admin capabilities if user has entered the admin password
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        If bExt.ProfileAdministrator = True Then EnableAdminActions()
     End Sub
 
     Public Sub New(ByVal layerTable As Dictionary(Of String, DataSource), ByVal selLayerName As String, ByVal aoiPath As String)
@@ -129,6 +132,14 @@ Public Class FrmAddData
             BtnApply.Enabled = False
         Else
             BtnApply.Enabled = True
+        End If
+    End Sub
+
+    Private Sub TxtName_DoubleClick(ByVal sender As Object, ByVal e As System.EventArgs) Handles TxtName.DoubleClick
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        If bExt.ProfileAdministrator = False Then
+            Dim frmPassword As FrmProfilePassword = New FrmProfilePassword(Me)
+            frmPassword.ShowDialog()
         End If
     End Sub
 
@@ -639,4 +650,12 @@ Public Class FrmAddData
         sb.Append(BA_BAGIS_TAG_SUFFIX)
         Return sb.ToString
     End Function
+
+    Public Sub EnableAdminActions()
+        TxtName.ReadOnly = False
+        TxtDescription.ReadOnly = False
+        CkUnits.Visible = True
+        CboUnitType.Enabled = True
+        CboUnits.Enabled = True
+    End Sub
 End Class

@@ -80,6 +80,16 @@ Public Class DataSource
         End Get
     End Property
 
+    Public ReadOnly Property AoiLayerDescr() As String
+        Get
+            If m_aoiLayer = True Then
+                Return BA_Aoi_Data
+            Else
+                Return BA_User_Data
+            End If
+        End Get
+    End Property
+
     '24-APR-2012 As of this date we aren't saving the data field
     'Public Property DataField() As String
     '    Set(ByVal value As String)
@@ -144,6 +154,16 @@ Public Class DataSource
         End Set
         Get
             Return m_isValid
+        End Get
+    End Property
+
+    Public ReadOnly Property IsValidDescr() As String
+        Get
+            If m_isValid = True Then
+                Return BA_Valid_Data
+            Else
+                Return BA_Invalid_Data
+            End If
         End Get
     End Property
 
