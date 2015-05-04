@@ -190,6 +190,8 @@ Module MethodModule
                     sourcePath = parentPath & BA_EnumDescription(PublicPath.BagisDataBinGdb) & "\" & dLayer.Source
                 End If
                 If dLayer.AoiLayer Then
+                    'If the layer is an aoi layer, we assume it is valid
+                    dLayer.IsValid = dLayer.AoiLayer
                     layerTable.Add(dLayer.Name, dLayer)
                 ElseIf dLayer.LayerType = LayerType.Raster Then
                     Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(sourcePath)

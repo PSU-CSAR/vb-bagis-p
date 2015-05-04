@@ -46,6 +46,8 @@ Public Class FrmDataManager
             BtnAdd.Visible = False
             BtnEdit.Visible = False
             BtnDelete.Location = New System.Drawing.Point(4, 329)
+            'Delete button always visible for local data manager
+            BtnDelete.Visible = True
             Me.Text = "Data Manager (AOI: Not selected)"
         End If
 
@@ -358,12 +360,18 @@ Public Class FrmDataManager
         BtnDelete.Visible = True
     End Sub
 
-    Private Sub DataGridView1_CellContentClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DataGridViewCellEventArgs) Handles DataGridView1.CellContentClick
-        'Check to see if admin capabilities are already enabled before asking again
-        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
-        If bExt.ProfileAdministrator = False Then
-            Dim frmPassword As FrmProfilePassword = New FrmProfilePassword(Me)
-            frmPassword.ShowDialog()
+    Private Sub DataGridView1_CellContentClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DataGridViewCellEventArgs) Handles DataGridView1.CellContentDoubleClick
+        'Only fire if name column is double-clicked
+        If e.ColumnIndex = idx_Name Then
+            'Check to see if admin capabilities are already enabled before asking again
+            Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+            If bExt.ProfileAdministrator = False Then
+                Dim frmPassword As FrmProfilePassword = New FrmProfilePassword()
+                frmPassword.ShowDialog()
+                'If user supplied the admin password, admin rights will now be set to true in extension
+                If bExt.ProfileAdministrator = True Then EnableAdminButtons()
+            End If
         End If
     End Sub
+
 End Class

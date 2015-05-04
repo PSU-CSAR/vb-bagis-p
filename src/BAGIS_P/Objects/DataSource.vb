@@ -31,6 +31,8 @@ Public Class DataSource
         m_description = description
         m_source = source
         m_aoiLayer = aoiLayer
+        'If the layer is an aoi layer, we assume it is valid
+        m_isValid = aoiLayer
         'm_dataField = dataField
         m_layerType = layerType
     End Sub

@@ -200,7 +200,7 @@ Partial Class FrmDataManager
         Me.IsValid.ReadOnly = True
         Me.IsValid.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
         Me.IsValid.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
-        Me.IsValid.Width = 90
+        Me.IsValid.Width = 75
         '
         'SourceName
         '

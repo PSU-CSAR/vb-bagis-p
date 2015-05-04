@@ -71,6 +71,10 @@ Public Class FrmAddData
         'PopulateCboDataField(pGeoDataset, dataType, pLayer.DataField)
 
         LoadMeasurementUnitTypes()
+
+        'Enable admin capabilities if user has entered the admin password
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        If bExt.ProfileAdministrator = True Then EnableAdminActions()
     End Sub
 
     Private Sub BtnCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCancel.Click
@@ -138,8 +142,10 @@ Public Class FrmAddData
     Private Sub TxtName_DoubleClick(ByVal sender As Object, ByVal e As System.EventArgs) Handles TxtName.DoubleClick
         Dim bExt As BagisPExtension = BagisPExtension.GetExtension
         If bExt.ProfileAdministrator = False Then
-            Dim frmPassword As FrmProfilePassword = New FrmProfilePassword(Me)
+            Dim frmPassword As FrmProfilePassword = New FrmProfilePassword()
             frmPassword.ShowDialog()
+            'If user supplied an admin password, admin rights will now be set to true in extension
+            If bExt.ProfileAdministrator = True Then EnableAdminActions()
         End If
     End Sub
 
