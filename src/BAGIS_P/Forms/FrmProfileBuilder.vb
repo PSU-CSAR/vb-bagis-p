@@ -1784,7 +1784,7 @@ Public Class FrmProfileBuilder
 
     Private Sub TxtProfileName_DoubleClick(ByVal sender As Object, ByVal e As System.EventArgs) Handles TxtProfileName.DoubleClick
         Dim bExt As BagisPExtension = BagisPExtension.GetExtension
-        If bExt.ProfileAdministrator = True Then
+        If bExt.ProfileAdministrator = False Then
             Dim frmPassword As FrmProfilePassword = New FrmProfilePassword()
             frmPassword.ShowDialog()
             'If user supplied the admin password, admin rights will now be set to true in extension
