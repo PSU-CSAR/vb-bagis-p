@@ -354,6 +354,11 @@ Public Class FrmProfileBuilder
             MessageBox.Show("You must supply a profile name before creating or updating a profile.")
             Exit Sub
         End If
+        'Check for other invalid characters
+        If Not IsValidProfileName(TxtProfileName.Text) Then
+            MessageBox.Show("Please enter a valid profile name without spaces or special characters", "Invalid profile name", MessageBoxButtons.OK, _
+                           MessageBoxIcon.Information)
+        End If
         Dim profilesPath As String = Nothing
         Dim bExt As BagisPExtension = BagisPExtension.GetExtension
         If m_mode = BA_BAGISP_MODE_PUBLIC Then
@@ -369,6 +374,8 @@ Public Class FrmProfileBuilder
                 Dim pName As String = Trim(TxtProfileName.Text)
                 'Replace remaining spaces with "_" in name
                 pName = pName.Replace(" ", "_")
+                'Replace hyphens with "_" in name; ArcMap doesn't allow hyphens in parameter table names
+                pName = pName.Replace("-", "_")
                 'We are updating an existing profile
                 If m_selProfile IsNot Nothing Then
                     If m_selProfile.Name <> pName Then
@@ -1441,9 +1448,12 @@ Public Class FrmProfileBuilder
                         LblStatus.Text = "Verifying output parameter table"
                         If success = BA_ReturnCode.Success Then
                             success = BA_CheckParamsTable(hruPath, m_selProfile.Name, True)
-                        Else
-                            MessageBox.Show("Unable to create parameter output table for HRU: " & selHruName, "Write error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                            Exit Sub
+                            If success <> BA_ReturnCode.Success Then
+                                MessageBox.Show("Unable to create parameter output table for profile: " & m_selProfile.Name & ", for HRU: " & selHruName, "Write error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                ManageVerifyButton()
+                                ManageRecalculateButton()
+                                Exit Sub
+                            End If
                         End If
                     Else
                         MessageBox.Show("No valid methods are associated with this HRU", "No valid methods", MessageBoxButtons.OK, _
@@ -1803,4 +1813,13 @@ Public Class FrmProfileBuilder
         BtnMethodDelete.Visible = True
         BtnMethodNew.Visible = True
     End Sub
+
+    Private Function IsValidProfileName(ByVal fn As String) As Boolean
+        Try
+            Dim fi As New IO.FileInfo(fn)
+        Catch ex As Exception
+            Return False
+        End Try
+        Return True
+    End Function
 End Class

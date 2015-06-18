@@ -228,15 +228,32 @@ Module ToolboxModule
         Try
             pGPEnvironmentManager = New GPEnvironmentManager
             pModel.Execute(paramValues, mcancel, pGPEnvironmentManager, pGPmessages)
-            'For Counter As Integer = 0 To pGPmessages.Count
-            '    Debug.Print("GP Msg: " & pGPmessages.GetMessage(Counter).Description)
-            'Next
+            'Look for error or abort messages
+            Dim isError As Boolean = False
+            Dim gpMessage As IGPMessage = Nothing
+            For Counter As Integer = 0 To pGPmessages.Count - 1
+                gpMessage = pGPmessages.GetMessage(Counter)
+                If gpMessage.IsError Or gpMessage.IsAbort Then
+                    isError = True
+                    Exit For
+                End If
+            Next
+
+            'If there was an error, dump it to the console and return an error code
+            If isError Then
+                For Counter As Integer = 0 To pGPmessages.Count - 1
+                    Debug.Print("GP Msg: " & pGPmessages.GetMessage(Counter).Description)
+                Next
+                Return BA_ReturnCode.UnknownError
+            End If
+
             Return BA_ReturnCode.Success
         Catch ex As Exception
             Dim lastLine As String = Nothing
             If pGPmessages IsNot Nothing Then
-                For counter As Integer = 0 To pGPmessages.Count
+                For counter As Integer = 0 To pGPmessages.Count - 1
                     lastLine = pGPmessages.GetMessage(counter).Description
+                    Debug.Print("BA_ExecuteModel Exception GP Msg: " & lastLine)
                 Next
             End If
             If lastLine IsNot Nothing AndAlso lastLine.IndexOf("Succeeded") > -1 Then
