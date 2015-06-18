@@ -7,6 +7,5 @@ Public Enum GeodatabaseNames
     <Description("prism.gdb")> Prism
     <Description("layers.gdb")> Layers
     <Description("surfaces.gdb")> Surfaces
-    <Description("param.gdb")> Parameters
     <Description("analysis.gdb")> Analysis
 End Enum
