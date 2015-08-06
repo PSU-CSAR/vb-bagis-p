@@ -57,6 +57,18 @@ Partial Class FrmExportParametersEwsf
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.BtnDefaultTemplate = New System.Windows.Forms.Button()
         Me.CkExportZipped = New System.Windows.Forms.CheckBox()
+        Me.CboResampleHru = New System.Windows.Forms.ComboBox()
+        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.TxtHruResample = New System.Windows.Forms.TextBox()
+        Me.TextBox8 = New System.Windows.Forms.TextBox()
+        Me.TextBox7 = New System.Windows.Forms.TextBox()
+        Me.TxtHruResolution = New System.Windows.Forms.TextBox()
+        Me.CboResampleDem = New System.Windows.Forms.ComboBox()
+        Me.TextBox3 = New System.Windows.Forms.TextBox()
+        Me.TxtDemResample = New System.Windows.Forms.TextBox()
+        Me.TextBox9 = New System.Windows.Forms.TextBox()
+        Me.TxtDemResolution = New System.Windows.Forms.TextBox()
+        Me.TextBox11 = New System.Windows.Forms.TextBox()
         Me.SuspendLayout()
         '
         'TxtAoiPath
@@ -151,7 +163,7 @@ Partial Class FrmExportParametersEwsf
         'BtnClose
         '
         Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnClose.Location = New System.Drawing.Point(776, 328)
+        Me.BtnClose.Location = New System.Drawing.Point(803, 341)
         Me.BtnClose.Name = "BtnClose"
         Me.BtnClose.Size = New System.Drawing.Size(65, 25)
         Me.BtnClose.TabIndex = 81
@@ -250,7 +262,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.BtnExport.Enabled = False
         Me.BtnExport.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnExport.Location = New System.Drawing.Point(705, 328)
+        Me.BtnExport.Location = New System.Drawing.Point(732, 341)
         Me.BtnExport.Name = "BtnExport"
         Me.BtnExport.Size = New System.Drawing.Size(65, 25)
         Me.BtnExport.TabIndex = 91
@@ -267,7 +279,7 @@ Partial Class FrmExportParametersEwsf
         Me.Label7.Size = New System.Drawing.Size(549, 16)
         Me.Label7.TabIndex = 92
         Me.Label7.Text = "The output file is saved as a plain text ASCII file in eWSF parameter file format" & _
-            "."
+    "."
         '
         'LstProfiles
         '
@@ -383,7 +395,7 @@ Partial Class FrmExportParametersEwsf
         Me.TextBox1.Size = New System.Drawing.Size(650, 15)
         Me.TextBox1.TabIndex = 105
         Me.TextBox1.Text = "HRU parameter values not calculated by BAGIS-P will be copied from the parameter " & _
-            "template"
+    "template"
         '
         'BtnDefaultTemplate
         '
@@ -401,18 +413,154 @@ Partial Class FrmExportParametersEwsf
         Me.CkExportZipped.Checked = True
         Me.CkExportZipped.CheckState = System.Windows.Forms.CheckState.Checked
         Me.CkExportZipped.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CkExportZipped.Location = New System.Drawing.Point(726, 216)
+        Me.CkExportZipped.Location = New System.Drawing.Point(722, 315)
         Me.CkExportZipped.Name = "CkExportZipped"
         Me.CkExportZipped.Size = New System.Drawing.Size(147, 20)
         Me.CkExportZipped.TabIndex = 107
         Me.CkExportZipped.Text = "Save a zipped copy"
         Me.CkExportZipped.UseVisualStyleBackColor = True
         '
-        'FrmExportParametersOms
+        'CboResampleHru
+        '
+        Me.CboResampleHru.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CboResampleHru.FormattingEnabled = True
+        Me.CboResampleHru.Location = New System.Drawing.Point(695, 245)
+        Me.CboResampleHru.Name = "CboResampleHru"
+        Me.CboResampleHru.Size = New System.Drawing.Size(100, 24)
+        Me.CboResampleHru.TabIndex = 123
+        '
+        'TextBox2
+        '
+        Me.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TextBox2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox2.Location = New System.Drawing.Point(534, 247)
+        Me.TextBox2.Name = "TextBox2"
+        Me.TextBox2.ReadOnly = True
+        Me.TextBox2.Size = New System.Drawing.Size(166, 15)
+        Me.TextBox2.TabIndex = 122
+        Me.TextBox2.Text = "Resampling technique"
+        '
+        'TxtHruResample
+        '
+        Me.TxtHruResample.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtHruResample.Location = New System.Drawing.Point(455, 245)
+        Me.TxtHruResample.Name = "TxtHruResample"
+        Me.TxtHruResample.Size = New System.Drawing.Size(67, 22)
+        Me.TxtHruResample.TabIndex = 121
+        '
+        'TextBox8
+        '
+        Me.TextBox8.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TextBox8.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox8.Location = New System.Drawing.Point(362, 247)
+        Me.TextBox8.Name = "TextBox8"
+        Me.TextBox8.ReadOnly = True
+        Me.TextBox8.Size = New System.Drawing.Size(90, 15)
+        Me.TextBox8.TabIndex = 120
+        Me.TextBox8.Text = "Resample to"
+        '
+        'TextBox7
+        '
+        Me.TextBox7.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TextBox7.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox7.Location = New System.Drawing.Point(169, 247)
+        Me.TextBox7.Name = "TextBox7"
+        Me.TextBox7.ReadOnly = True
+        Me.TextBox7.Size = New System.Drawing.Size(121, 15)
+        Me.TextBox7.TabIndex = 119
+        Me.TextBox7.Text = "HRU resolution"
+        '
+        'TxtHruResolution
+        '
+        Me.TxtHruResolution.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.TxtHruResolution.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TxtHruResolution.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtHruResolution.ForeColor = System.Drawing.Color.Black
+        Me.TxtHruResolution.Location = New System.Drawing.Point(279, 247)
+        Me.TxtHruResolution.Name = "TxtHruResolution"
+        Me.TxtHruResolution.ReadOnly = True
+        Me.TxtHruResolution.Size = New System.Drawing.Size(75, 15)
+        Me.TxtHruResolution.TabIndex = 124
+        '
+        'CboResampleDem
+        '
+        Me.CboResampleDem.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CboResampleDem.FormattingEnabled = True
+        Me.CboResampleDem.Location = New System.Drawing.Point(695, 274)
+        Me.CboResampleDem.Name = "CboResampleDem"
+        Me.CboResampleDem.Size = New System.Drawing.Size(100, 24)
+        Me.CboResampleDem.TabIndex = 130
+        '
+        'TextBox3
+        '
+        Me.TextBox3.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TextBox3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox3.Location = New System.Drawing.Point(534, 276)
+        Me.TextBox3.Name = "TextBox3"
+        Me.TextBox3.ReadOnly = True
+        Me.TextBox3.Size = New System.Drawing.Size(166, 15)
+        Me.TextBox3.TabIndex = 129
+        Me.TextBox3.Text = "Resampling technique"
+        '
+        'TxtDemResample
+        '
+        Me.TxtDemResample.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtDemResample.Location = New System.Drawing.Point(455, 273)
+        Me.TxtDemResample.Name = "TxtDemResample"
+        Me.TxtDemResample.Size = New System.Drawing.Size(67, 22)
+        Me.TxtDemResample.TabIndex = 128
+        '
+        'TextBox9
+        '
+        Me.TextBox9.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TextBox9.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox9.Location = New System.Drawing.Point(362, 277)
+        Me.TextBox9.Name = "TextBox9"
+        Me.TextBox9.ReadOnly = True
+        Me.TextBox9.Size = New System.Drawing.Size(90, 15)
+        Me.TextBox9.TabIndex = 127
+        Me.TextBox9.Text = "Resample to"
+        '
+        'TxtDemResolution
+        '
+        Me.TxtDemResolution.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.TxtDemResolution.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TxtDemResolution.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtDemResolution.ForeColor = System.Drawing.Color.Black
+        Me.TxtDemResolution.Location = New System.Drawing.Point(279, 277)
+        Me.TxtDemResolution.Name = "TxtDemResolution"
+        Me.TxtDemResolution.ReadOnly = True
+        Me.TxtDemResolution.Size = New System.Drawing.Size(75, 15)
+        Me.TxtDemResolution.TabIndex = 126
+        '
+        'TextBox11
+        '
+        Me.TextBox11.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TextBox11.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox11.Location = New System.Drawing.Point(170, 277)
+        Me.TextBox11.Name = "TextBox11"
+        Me.TextBox11.ReadOnly = True
+        Me.TextBox11.Size = New System.Drawing.Size(121, 15)
+        Me.TextBox11.TabIndex = 125
+        Me.TextBox11.Text = "DEM resolution"
+        '
+        'FrmExportParametersEwsf
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(880, 361)
+        Me.ClientSize = New System.Drawing.Size(880, 375)
+        Me.Controls.Add(Me.CboResampleDem)
+        Me.Controls.Add(Me.TextBox3)
+        Me.Controls.Add(Me.TxtDemResample)
+        Me.Controls.Add(Me.TextBox9)
+        Me.Controls.Add(Me.TxtDemResolution)
+        Me.Controls.Add(Me.TextBox11)
+        Me.Controls.Add(Me.TxtHruResolution)
+        Me.Controls.Add(Me.CboResampleHru)
+        Me.Controls.Add(Me.TextBox2)
+        Me.Controls.Add(Me.TxtHruResample)
+        Me.Controls.Add(Me.TextBox8)
+        Me.Controls.Add(Me.TextBox7)
         Me.Controls.Add(Me.CkExportZipped)
         Me.Controls.Add(Me.BtnDefaultTemplate)
         Me.Controls.Add(Me.TextBox1)
@@ -446,7 +594,7 @@ Partial Class FrmExportParametersEwsf
         Me.Controls.Add(Me.TxtAoiPath)
         Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.BtnSelectAoi)
-        Me.Name = "FrmExportParametersOms"
+        Me.Name = "FrmExportParametersEwsf"
         Me.ShowIcon = False
         Me.Text = "Export Parameters"
         Me.ResumeLayout(False)
@@ -488,4 +636,16 @@ Partial Class FrmExportParametersEwsf
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
     Friend WithEvents BtnDefaultTemplate As System.Windows.Forms.Button
     Friend WithEvents CkExportZipped As System.Windows.Forms.CheckBox
+    Friend WithEvents CboResampleHru As System.Windows.Forms.ComboBox
+    Friend WithEvents TextBox2 As System.Windows.Forms.TextBox
+    Friend WithEvents TxtHruResample As System.Windows.Forms.TextBox
+    Friend WithEvents TextBox8 As System.Windows.Forms.TextBox
+    Friend WithEvents TextBox7 As System.Windows.Forms.TextBox
+    Friend WithEvents TxtHruResolution As System.Windows.Forms.TextBox
+    Friend WithEvents CboResampleDem As System.Windows.Forms.ComboBox
+    Friend WithEvents TextBox3 As System.Windows.Forms.TextBox
+    Friend WithEvents TxtDemResample As System.Windows.Forms.TextBox
+    Friend WithEvents TextBox9 As System.Windows.Forms.TextBox
+    Friend WithEvents TxtDemResolution As System.Windows.Forms.TextBox
+    Friend WithEvents TextBox11 As System.Windows.Forms.TextBox
 End Class
