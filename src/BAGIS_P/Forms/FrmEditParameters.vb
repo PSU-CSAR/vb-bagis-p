@@ -4,14 +4,14 @@ Imports BAGIS_ClassLibrary
 
 Public Class FrmEditParameters
 
-    Dim m_parentForm As FrmExportParametersOms
+    Dim m_parentForm As FrmExportParametersEwsf
     Dim m_paramsTable As Hashtable
     Dim m_tablesTable As Hashtable
     'key: dimension name, value: List of ParameterTables
     Dim m_dimensionTables As Hashtable
     Dim m_modifiedParameterTable As ParameterTable
 
-    Public Sub New(ByVal parentForm As FrmExportParametersOms, ByVal paramsTable As Hashtable, ByVal tablesTable As Hashtable, _
+    Public Sub New(ByVal parentForm As FrmExportParametersEwsf, ByVal paramsTable As Hashtable, ByVal tablesTable As Hashtable, _
                    ByVal parameterPath As String)
 
         ' This call is required by the designer.

@@ -8,7 +8,7 @@ Imports ESRI.ArcGIS.Geodatabase
 Imports ESRI.ArcGIS.esriSystem
 Imports Microsoft.VisualBasic.FileIO
 
-Public Class FrmExportParametersOms
+Public Class FrmExportParametersEwsf
 
     Dim m_aoi As Aoi
     Dim m_paramsTable As Hashtable
@@ -108,7 +108,7 @@ Public Class FrmExportParametersOms
         Me.Close()
     End Sub
 
-    Private Sub LstHruLayers_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles LstHruLayers.SelectedIndexChanged
+    Private Sub LstHruLayers_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LstHruLayers.SelectedIndexChanged
         If LstHruLayers.SelectedIndex > -1 Then
             'Derive the file path for the HRU vector to be displayed
             Dim selItem As LayerListItem = TryCast(LstHruLayers.SelectedItem, LayerListItem)
@@ -124,7 +124,7 @@ Public Class FrmExportParametersOms
         End If
     End Sub
 
-    Private Sub BtnSetTemplate_Click(sender As System.Object, e As System.EventArgs) Handles BtnSetTemplate.Click
+    Private Sub BtnSetTemplate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSetTemplate.Click
         If OpenFileDialog1.ShowDialog = DialogResult.OK Then
             SetTemplate(OpenFileDialog1.FileName)
         End If
@@ -174,7 +174,7 @@ Public Class FrmExportParametersOms
         Return BA_ReturnCode.UnknownError
     End Function
 
-    Private Sub BtnSetOutput_Click(sender As System.Object, e As System.EventArgs) Handles BtnSetOutput.Click
+    Private Sub BtnSetOutput_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSetOutput.Click
         Try
             If SaveFileDialog1.ShowDialog = DialogResult.OK Then
                 Dim fName As String = SaveFileDialog1.FileName
@@ -191,7 +191,7 @@ Public Class FrmExportParametersOms
         End Try
     End Sub
 
-    Private Sub LstProfiles_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles LstProfiles.SelectedIndexChanged
+    Private Sub LstProfiles_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LstProfiles.SelectedIndexChanged
         TxtNumParameters.Text = Nothing
         Dim paramTable As ITable = Nothing
         Dim pFields As IFields = Nothing
@@ -225,7 +225,7 @@ Public Class FrmExportParametersOms
         End Try
     End Sub
 
-    Private Sub BtnEditParameters_Click(sender As System.Object, e As System.EventArgs) Handles BtnEditParameters.Click
+    Private Sub BtnEditParameters_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnEditParameters.Click
         If TxtParameterTemplate.Text.Length > 1 Then
             Try
                 Dim frmEditParameters As FrmEditParameters = New FrmEditParameters(Me, m_paramsTable, m_tablesTable, TxtParameterTemplate.Text)
@@ -306,20 +306,20 @@ Public Class FrmExportParametersOms
         End If
     End Sub
 
-    Private Sub TxtParameterTemplate_TextChanged(sender As System.Object, e As System.EventArgs) Handles TxtParameterTemplate.TextChanged
+    Private Sub TxtParameterTemplate_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtParameterTemplate.TextChanged
         ManageExportButton()
         ManageEditParametersButton()
     End Sub
 
-    Private Sub TxtOutputFolder_TextChanged(sender As System.Object, e As System.EventArgs) Handles TxtOutputFolder.TextChanged
+    Private Sub TxtOutputFolder_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtOutputFolder.TextChanged
         ManageExportButton()
     End Sub
 
-    Private Sub TxtNHru_TextChanged(sender As Object, e As System.EventArgs) Handles TxtNHru.TextChanged
+    Private Sub TxtNHru_TextChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles TxtNHru.TextChanged
         ManageEditParametersButton()
     End Sub
 
-    Private Sub BtnExport_Click(sender As System.Object, e As System.EventArgs) Handles BtnExport.Click
+    Private Sub BtnExport_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnExport.Click
         'If we did not edit the paramsTable, it will be nothing and we need to initialize it from the template
         If m_paramsTable Is Nothing Then
             m_paramsTable = BA_GetParameterMap(TxtParameterTemplate.Text, ",", CInt(TxtNHru.Text), TxtAoiPath.Text)
@@ -411,24 +411,24 @@ Public Class FrmExportParametersOms
     End Sub
 
     Public WriteOnly Property ParamsTable As Hashtable
-        Set(value As Hashtable)
+        Set(ByVal value As Hashtable)
             m_paramsTable = value
         End Set
     End Property
 
     Public WriteOnly Property TablesTable As Hashtable
-        Set(value As Hashtable)
+        Set(ByVal value As Hashtable)
             m_tablesTable = value
         End Set
     End Property
 
     Public WriteOnly Property SpatialParamsTable As Hashtable
-        Set(value As Hashtable)
+        Set(ByVal value As Hashtable)
             m_spatialParamsTable = value
         End Set
     End Property
 
-    Private Sub BtnEditHruParameters_Click(sender As System.Object, e As System.EventArgs) Handles BtnEditHruParameters.Click
+    Private Sub BtnEditHruParameters_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnEditHruParameters.Click
         Dim nhru As Integer = CInt(TxtNHru.Text)
         If m_reqSpatialParameters Is Nothing Then
             ReadBagisParameterNames()
@@ -557,7 +557,7 @@ Public Class FrmExportParametersOms
         End Try
     End Function
 
-    Private Sub LblParameterTemplate_Click(sender As Object, e As System.EventArgs) Handles LblParameterTemplate.Click
+    Private Sub LblParameterTemplate_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles LblParameterTemplate.Click
         Dim mText = "BAGIS-P's export function uses an input parameter file template to"
         mText = mText & " produce an output parameter file. It stores non-spatial parameters,"
         mText = mText & " spatial parameters that have a dimension of ""nhru"" (i.e., the number"

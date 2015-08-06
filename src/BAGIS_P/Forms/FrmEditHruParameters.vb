@@ -5,7 +5,7 @@ Imports ESRI.ArcGIS.Geodatabase
 Imports System.ComponentModel
 
 Public Class FrmEditHruParameters
-    Dim m_parentForm As FrmExportParametersOms
+    Dim m_parentForm As FrmExportParametersEwsf
     Dim m_spatialParamsTable As Hashtable
     Dim m_templatePath As String
     Dim m_token As String
@@ -14,7 +14,7 @@ Public Class FrmEditHruParameters
     Dim m_missingSpatialParameters As IList(Of String)
     Dim m_missingValue As Integer
 
-    Public Sub New(ByVal parentForm As FrmExportParametersOms, ByVal templatePath As String, ByVal token As String, _
+    Public Sub New(ByVal parentForm As FrmExportParametersEwsf, ByVal templatePath As String, ByVal token As String, _
                    ByVal reqSpatialParameters As IList(Of String), ByVal missingSpatialParameters As IList(Of String), _
                    ByVal spatialParamsTable As Hashtable, ByVal missingValue As Integer)
 

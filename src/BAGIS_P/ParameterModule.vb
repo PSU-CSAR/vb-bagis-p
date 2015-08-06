@@ -216,8 +216,15 @@ Module ParameterModule
                         Exit Do
                     End If
                     If tName Is Nothing Then
-                        'This is a regular table
-                        'We will name the table after the first column of the header row; 
+                        'Don't know why I wasn't just using the table name
+                        ''This is a regular table
+                        ''We will name the table after the first column of the header row; 
+                        'tName = Trim(headerFields(1))
+                        dimension1 = Trim(fields(1))
+                        tName = dimension1
+                        Dim colHeader As String = Nothing
+                        Dim count As Integer = 0
+                        'How many column headers (parameters) do we have?
                         'Assume a parameter is only listed once in a file
                         Dim firstCell As String = Trim(headerFields(0))
                         'We may have to skip the description to get to the header
@@ -225,11 +232,7 @@ Module ParameterModule
                             headerFields = parser.ReadFields
                             firstCell = Trim(headerFields(0))
                         Loop
-                        tName = Trim(headerFields(1))
-                        dimension1 = Trim(fields(1))
-                        Dim colHeader As String = tName
-                        Dim count As Integer = 0
-                        'How many column headers (parameters) do we have?
+
                         Dim maxColumns As Integer = headerFields.GetUpperBound(0)
                         Do While count < maxColumns
                             colHeader = Trim(headerFields(count + 1))
@@ -419,7 +422,9 @@ Module ParameterModule
             'Write all tables except nhru and nradpl dimensions
             Dim tableKeys As ICollection = tableMap.Keys
             Dim paramTable As ParameterTable = Nothing
-            For Each pKey As String In tableKeys
+            'Sort table names so tables come out in alphabetical order
+            Dim keysA() As String = GetSortedTableNames(tableKeys, tableMap)
+            For Each pKey As String In keysA
                 paramTable = tableMap(pKey)
                 If paramTable.Dimension1 <> NHRU And _
                     paramTable.Dimension1 <> NRADPL Then
@@ -1534,6 +1539,28 @@ Module ParameterModule
         Else
             Return False
         End If
+    End Function
+
+    Private Function GetSortedTableNames(ByVal tableNames As ICollection, ByVal tableMap As Hashtable) As String()
+        'Regular tables
+        Dim tables1 As List(Of String) = New List(Of String)
+        '2D tables
+        Dim tables2 As List(Of String) = New List(Of String)
+        For Each tName As String In tableNames
+            Dim paramTable As ParameterTable = tableMap(tName)
+            If String.IsNullOrEmpty(paramTable.Dimension2) Then
+                'Regular table, add to its list
+                tables1.Add(tName)
+            Else
+                tables2.Add(tName)
+            End If
+        Next
+        Dim keysA(tableMap.Count - 1) As String
+        tables1.Sort()
+        tables2.Sort()
+        tables1.CopyTo(keysA, 0)
+        tables2.CopyTo(keysA, tables1.Count)
+        Return keysA
     End Function
 
 End Module

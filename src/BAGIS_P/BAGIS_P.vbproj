@@ -154,7 +154,7 @@
     <Compile Include="Buttons\BtnParameterDescription.vb" />
     <Compile Include="Forms\BagisPExtension.vb" />
     <Compile Include="Buttons\BtnExportParameters.vb" />
-    <Compile Include="Buttons\BtnExportParametersOms.vb" />
+    <Compile Include="Buttons\BtnExportParametersEwsf.vb" />
     <Compile Include="Buttons\BtnHelp.vb" />
     <Compile Include="Buttons\BtnAbout.vb" />
     <Compile Include="Buttons\BtnDataManager.vb" />
@@ -189,10 +189,10 @@
     <Compile Include="Forms\FrmEditHruParameters.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmExportParametersOms.Designer.vb">
-      <DependentUpon>FrmExportParametersOms.vb</DependentUpon>
+    <Compile Include="Forms\FrmExportParametersEwsf.Designer.vb">
+      <DependentUpon>FrmExportParametersEwsf.vb</DependentUpon>
     </Compile>
-    <Compile Include="Forms\FrmExportParametersOms.vb">
+    <Compile Include="Forms\FrmExportParametersEwsf.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FrmAbout.Designer.vb">
@@ -353,8 +353,8 @@
     <EmbeddedResource Include="Forms\FrmEditHruParameters.resx">
       <DependentUpon>FrmEditHruParameters.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FrmExportParametersOms.resx">
-      <DependentUpon>FrmExportParametersOms.vb</DependentUpon>
+    <EmbeddedResource Include="Forms\FrmExportParametersEwsf.resx">
+      <DependentUpon>FrmExportParametersEwsf.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmAbout.resx">
       <DependentUpon>FrmAbout.vb</DependentUpon>
