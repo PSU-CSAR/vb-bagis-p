@@ -7,6 +7,7 @@ Imports System.Text
 Imports ESRI.ArcGIS.Geodatabase
 Imports ESRI.ArcGIS.esriSystem
 Imports Microsoft.VisualBasic.FileIO
+Imports ESRI.ArcGIS.GeoAnalyst
 
 Public Class FrmExportParametersEwsf
 
@@ -127,7 +128,7 @@ Public Class FrmExportParametersEwsf
         Me.Close()
     End Sub
 
-    Private Sub LstHruLayers_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles LstHruLayers.SelectedIndexChanged
+    Private Sub LstHruLayers_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LstHruLayers.SelectedIndexChanged
         If LstHruLayers.SelectedIndex > -1 Then
             'Derive the file path for the HRU vector to be displayed
             Dim selItem As LayerListItem = TryCast(LstHruLayers.SelectedItem, LayerListItem)
@@ -144,7 +145,7 @@ Public Class FrmExportParametersEwsf
         End If
     End Sub
 
-    Private Sub BtnSetTemplate_Click(sender As System.Object, e As System.EventArgs) Handles BtnSetTemplate.Click
+    Private Sub BtnSetTemplate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSetTemplate.Click
         If OpenFileDialog1.ShowDialog = DialogResult.OK Then
             SetTemplate(OpenFileDialog1.FileName)
         End If
@@ -194,7 +195,7 @@ Public Class FrmExportParametersEwsf
         Return BA_ReturnCode.UnknownError
     End Function
 
-    Private Sub BtnSetOutput_Click(sender As System.Object, e As System.EventArgs) Handles BtnSetOutput.Click
+    Private Sub BtnSetOutput_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSetOutput.Click
         Try
             If SaveFileDialog1.ShowDialog = DialogResult.OK Then
                 Dim fName As String = SaveFileDialog1.FileName
@@ -211,7 +212,7 @@ Public Class FrmExportParametersEwsf
         End Try
     End Sub
 
-    Private Sub LstProfiles_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles LstProfiles.SelectedIndexChanged
+    Private Sub LstProfiles_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LstProfiles.SelectedIndexChanged
         TxtNumParameters.Text = Nothing
         Dim paramTable As ITable = Nothing
         Dim pFields As IFields = Nothing
@@ -245,7 +246,7 @@ Public Class FrmExportParametersEwsf
         End Try
     End Sub
 
-    Private Sub BtnEditParameters_Click(sender As System.Object, e As System.EventArgs) Handles BtnEditParameters.Click
+    Private Sub BtnEditParameters_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnEditParameters.Click
         If TxtParameterTemplate.Text.Length > 1 Then
             Try
                 Dim frmEditParameters As FrmEditParameters = New FrmEditParameters(Me, m_paramsTable, m_tablesTable, TxtParameterTemplate.Text)
@@ -326,20 +327,31 @@ Public Class FrmExportParametersEwsf
         End If
     End Sub
 
-    Private Sub TxtParameterTemplate_TextChanged(sender As System.Object, e As System.EventArgs) Handles TxtParameterTemplate.TextChanged
+    Private Sub EnableButtons(ByVal enabled As Boolean)
+        BtnSelectAoi.Enabled = enabled
+        BtnSetTemplate.Enabled = enabled
+        BtnDefaultTemplate.Enabled = enabled
+        BtnEditParameters.Enabled = enabled
+        BtnEditHruParameters.Enabled = enabled
+        BtnSetOutput.Enabled = enabled
+        BtnExport.Enabled = enabled
+    End Sub
+
+    Private Sub TxtParameterTemplate_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtParameterTemplate.TextChanged
         ManageExportButton()
         ManageEditParametersButton()
     End Sub
 
-    Private Sub TxtOutputFolder_TextChanged(sender As System.Object, e As System.EventArgs) Handles TxtOutputFolder.TextChanged
+    Private Sub TxtOutputFolder_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtOutputFolder.TextChanged
         ManageExportButton()
     End Sub
 
-    Private Sub TxtNHru_TextChanged(sender As Object, e As System.EventArgs) Handles TxtNHru.TextChanged
+    Private Sub TxtNHru_TextChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles TxtNHru.TextChanged
         ManageEditParametersButton()
     End Sub
 
-    Private Sub BtnExport_Click(sender As System.Object, e As System.EventArgs) Handles BtnExport.Click
+    Private Sub BtnExport_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnExport.Click
+        EnableButtons(False)
         'If we did not edit the paramsTable, it will be nothing and we need to initialize it from the template
         If m_paramsTable Is Nothing Then
             m_paramsTable = BA_GetParameterMap(TxtParameterTemplate.Text, ",", CInt(TxtNHru.Text), TxtAoiPath.Text)
@@ -417,39 +429,47 @@ Public Class FrmExportParametersEwsf
                 retVal = BA_ConvertGDBToShapefile(hruGdbName, vName, zipFolder, targetFile)
                 'Copy the parameter file into the tempBagisFolder
                 File.Copy(TxtOutputFolder.Text, zipFolder & "\" & BA_GetBareName(TxtOutputFolder.Text), True)
-                success = AddDemToZipFolder(zipFolder, hruGdbName & "\" & vName)
+                retVal = AddDemToZipFolder(zipFolder, hruGdbName & "\" & vName, targetFile)
+                If retVal <> BA_ReturnCode.Success Then
+                    MessageBox.Show("An error occurred while packaging the DEM for eWsf. It is not included in the zip file.", "DEM error", MessageBoxButtons.OK)
+                End If
+                retVal = AddZonesToZipFolder(zipFolder, hruGdbName, targetFile)
+                If retVal <> BA_ReturnCode.Success Then
+                    MessageBox.Show("An error occurred while packaging the HRU zones for eWsf. It is not included in the zip file.", "HRU zones error", MessageBoxButtons.OK)
+                End If
                 'Zip up the folder
                 Dim zipFileName As String = BA_StandardizeShapefileName(targetFile, False) & ".zip"
                 retVal = BA_ZipFolder(zipFolder, zipFileName)
             End If
 
             If success = True And retVal = BA_ReturnCode.Success Then
-                ' BA_Remove_Folder(zipFolder)
+                BA_Remove_Folder(zipFolder)
                 MessageBox.Show("Parameter file export complete !", _
                                 "File export", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
         End If
+        EnableButtons(True)
     End Sub
 
     Public WriteOnly Property ParamsTable As Hashtable
-        Set(value As Hashtable)
+        Set(ByVal value As Hashtable)
             m_paramsTable = value
         End Set
     End Property
 
     Public WriteOnly Property TablesTable As Hashtable
-        Set(value As Hashtable)
+        Set(ByVal value As Hashtable)
             m_tablesTable = value
         End Set
     End Property
 
     Public WriteOnly Property SpatialParamsTable As Hashtable
-        Set(value As Hashtable)
+        Set(ByVal value As Hashtable)
             m_spatialParamsTable = value
         End Set
     End Property
 
-    Private Sub BtnEditHruParameters_Click(sender As System.Object, e As System.EventArgs) Handles BtnEditHruParameters.Click
+    Private Sub BtnEditHruParameters_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnEditHruParameters.Click
         Dim nhru As Integer = CInt(TxtNHru.Text)
         If m_reqSpatialParameters Is Nothing Then
             ReadBagisParameterNames()
@@ -567,7 +587,7 @@ Public Class FrmExportParametersEwsf
         End Try
     End Function
 
-    Private Sub LblParameterTemplate_Click(sender As Object, e As System.EventArgs) Handles LblParameterTemplate.Click
+    Private Sub LblParameterTemplate_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles LblParameterTemplate.Click
         Dim mText = "BAGIS-P's export function uses an input parameter file template to"
         mText = mText & " produce an output parameter file. It stores non-spatial parameters,"
         mText = mText & " spatial parameters that have a dimension of ""nhru"" (i.e., the number"
@@ -620,8 +640,12 @@ Public Class FrmExportParametersEwsf
         End If
     End Sub
 
-    Private Function AddDemToZipFolder(ByVal zipFolder As String, ByVal hruVectorPath As String) As BA_ReturnCode
-
+    Private Function AddDemToZipFolder(ByVal zipFolder As String, ByVal hruVectorPath As String, ByVal outputFileBase As String) As BA_ReturnCode
+        Dim demCellSize As Double = 0
+        Dim inputDataSet As IGeoDataset = Nothing
+        Dim demDataSet As IGeoDataset = Nothing
+        Dim transformOp As ITransformationOp = New RasterTransformationOp
+        Dim exportOp As IRasterExportOp = New RasterConversionOp
         Try
             Dim surfacesFolder As String = BA_GeodatabasePath(m_aoi.FilePath, GeodatabaseNames.Surfaces, True)
             Dim inputRasterPath As String = surfacesFolder & BA_EnumDescription(MapsFileName.filled_dem_gdb)
@@ -629,13 +653,96 @@ Public Class FrmExportParametersEwsf
             Dim outputRasterPath As String = zipFolder & "\" & clippedDem
             'Clip DEM to hru layer
             Dim success As BA_ReturnCode = BA_ExtractByMask(hruVectorPath, inputRasterPath, Nothing, outputRasterPath)
-            Return BA_ReturnCode.Success
+            If success = BA_ReturnCode.Success Then
+                If Not String.IsNullOrEmpty(TxtDemResample.Text) Then
+                    demCellSize = CDbl(TxtDemResample.Text)
+                End If
+                If demCellSize > 0 Then
+                    'Need to resample
+                    inputDataSet = BA_OpenRasterFromFile(zipFolder, clippedDem)
+                    'Get resample method from form
+                    Dim resampleEnum As esriGeoAnalysisResampleEnum = GetResampleEnum(CboResampleDem.SelectedItem.ToString)
+                    demDataSet = transformOp.Resample(inputDataSet, demCellSize, resampleEnum)
+                Else
+                    'Open the dataset directly
+                    demDataSet = BA_OpenRasterFromFile(zipFolder, clippedDem)
+                End If
+                inputDataSet = Nothing
+                If demDataSet IsNot Nothing Then
+                    exportOp.ExportToASCII(demDataSet, zipFolder & "\" & outputFileBase & "_dem.asc")
+                    Dim retVal As Integer = BA_Remove_Raster(zipFolder, clippedDem)
+                    Return BA_ReturnCode.Success
+                End If
+            End If
+            Return BA_ReturnCode.UnknownError
         Catch ex As Exception
             Debug.Print("AddDemToZipFolder" & ex.Message)
+            Return BA_ReturnCode.UnknownError
         Finally
-
+            inputDataSet = Nothing
+            demDataSet = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
         End Try
+    End Function
 
+    Private Function AddZonesToZipFolder(ByVal zipFolder As String, ByVal hruGdbName As String, ByVal outputFileBase As String) As BA_ReturnCode
+        Dim hruCellSize As Double = 0
+        Dim inputDataSet As IGeoDataset = Nothing
+        Dim hruDataSet As IGeoDataset = Nothing
+        Dim exportOp As IRasterExportOp = New RasterConversionOp
+        Try
+            If Not String.IsNullOrEmpty(TxtHruResample.Text) Then
+                hruCellSize = CDbl(TxtHruResample.Text)
+            End If
+            Dim tempFileName As String = "tmpResample"
+            If hruCellSize > 0 Then
+                'Need to resample
+                'inputDataSet = BA_OpenRasterFromGDB(hruGdbName, GRID)
+                Dim outputRaster As String = hruGdbName & "\" & tempFileName
+                Dim snapRasterPath As String = BA_GeodatabasePath(m_aoi.FilePath, GeodatabaseNames.Aoi, True) & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
+                Dim success As BA_ReturnCode = BA_Resample_Raster(hruGdbName & "\" & GRID, outputRaster, hruCellSize, snapRasterPath, CboResampleHru.SelectedItem.ToString)
+                If success = BA_ReturnCode.Success Then
+                    hruDataSet = BA_OpenRasterFromGDB(hruGdbName, tempFileName)
+                Else
+                    Throw New System.Exception("Unable to resample hru raster dataset.")
+                End If
+            Else
+                'Open the dataset directly
+                hruDataSet = BA_OpenRasterFromGDB(hruGdbName, GRID)
+            End If
+            If hruDataSet IsNot Nothing Then
+                exportOp.ExportToASCII(hruDataSet, zipFolder & "\" & outputFileBase & "_hru.asc")
+                'Delete the temporary hru dataset if it exists
+                If BA_File_Exists(hruGdbName & "\" & tempFileName, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
+                    BA_RemoveRasterFromGDB(hruGdbName, tempFileName)
+                    Return BA_ReturnCode.Success
+                Else
+                    Return BA_ReturnCode.Success
+                End If
+            End If
+            Return BA_ReturnCode.UnknownError
+        Catch ex As Exception
+            Debug.Print("AddZonesToZipFolder" & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+            inputDataSet = Nothing
+            hruDataSet = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
+    End Function
+
+    Private Function GetResampleEnum(ByVal txtResample As String) As esriGeoAnalysisResampleEnum
+        Select Case txtResample
+            Case BA_Resample_Nearest
+                Return esriGeoAnalysisResampleEnum.esriGeoAnalysisResampleNearest
+            Case BA_Resample_Cubic
+                Return esriGeoAnalysisResampleEnum.esriGeoAnalysisResampleCubic
+            Case Else
+                'Per design, bilinear is the default for DEM
+                Return esriGeoAnalysisResampleEnum.esriGeoAnalysisResampleBilinear
+        End Select
     End Function
 
 End Class
