@@ -152,7 +152,7 @@
   <ItemGroup>
     <Compile Include="Buttons\BtnExportToAscii.vb" />
     <Compile Include="Buttons\BtnParameterDescription.vb" />
-    <Compile Include="Forms\BagisPExtension.vb" />
+    <Compile Include="BagisPExtension.vb" />
     <Compile Include="Buttons\BtnExportParameters.vb" />
     <Compile Include="Buttons\BtnExportParametersEwsf.vb" />
     <Compile Include="Buttons\BtnHelp.vb" />

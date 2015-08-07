@@ -5,3 +5,5 @@
 5. Add export to ASCII function
 6. Update export to ASCII function so that user can specify resampling method
 7. Hide profile editing buttons on Profile Builder screens and secure them with an administrator password
+8. Fix bugs related to radiation planes and parameter export
+9. Remove export parameters (shapefile) and export to ascii menu items. Rename and update export parameters (eWSF)
