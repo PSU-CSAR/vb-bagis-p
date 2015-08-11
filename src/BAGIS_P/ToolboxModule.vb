@@ -156,7 +156,7 @@ Module ToolboxModule
             'Set workspace for geoprocessor; Don't set this for now per JDuh
             'GP.SetEnvironmentValue("workspace", scratchDir)
             'Set scratchworkspace for geoprocessor
-            GP.SetEnvironmentValue("scratchworkspace", scratchDir)
+            GP.SetEnvironmentValue("scratchWorkspace", scratchDir)
             'GP.AddToolbox("C:\Documents and Settings\Lesley\Application Data\ESRI\Desktop10.0\ArcToolbox\My Toolboxes\BAGIS-P.tbx")
             GP.AddToolbox(toolboxPath)
             'Return GP.Execute("VegCov-Density", pParamArray, Nothing)
