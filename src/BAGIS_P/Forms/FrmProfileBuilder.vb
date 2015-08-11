@@ -1805,7 +1805,6 @@ Public Class FrmProfileBuilder
     Public Sub EnableAdminButtons()
         BtnProfileNew.Visible = True
         BtnEditProfile.Visible = True
-        BtnProfileDelete.Visible = True
         BtnProfileCopy.Visible = True
         BtnApply.Visible = True
         BtnExportProfile.Visible = True

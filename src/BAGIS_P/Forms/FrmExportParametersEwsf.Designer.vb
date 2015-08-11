@@ -56,7 +56,6 @@ Partial Class FrmExportParametersEwsf
         Me.TxtDescription = New System.Windows.Forms.TextBox()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.BtnDefaultTemplate = New System.Windows.Forms.Button()
-        Me.CkExportZipped = New System.Windows.Forms.CheckBox()
         Me.CboResampleHru = New System.Windows.Forms.ComboBox()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.TxtHruResample = New System.Windows.Forms.TextBox()
@@ -69,6 +68,8 @@ Partial Class FrmExportParametersEwsf
         Me.TextBox9 = New System.Windows.Forms.TextBox()
         Me.TxtDemResolution = New System.Windows.Forms.TextBox()
         Me.TextBox11 = New System.Windows.Forms.TextBox()
+        Me.TextBox5 = New System.Windows.Forms.TextBox()
+        Me.CkParametersOnly = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'TxtAoiPath
@@ -163,7 +164,7 @@ Partial Class FrmExportParametersEwsf
         'BtnClose
         '
         Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnClose.Location = New System.Drawing.Point(803, 341)
+        Me.BtnClose.Location = New System.Drawing.Point(805, 372)
         Me.BtnClose.Name = "BtnClose"
         Me.BtnClose.Size = New System.Drawing.Size(65, 25)
         Me.BtnClose.TabIndex = 81
@@ -262,7 +263,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.BtnExport.Enabled = False
         Me.BtnExport.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnExport.Location = New System.Drawing.Point(732, 341)
+        Me.BtnExport.Location = New System.Drawing.Point(734, 372)
         Me.BtnExport.Name = "BtnExport"
         Me.BtnExport.Size = New System.Drawing.Size(65, 25)
         Me.BtnExport.TabIndex = 91
@@ -279,7 +280,7 @@ Partial Class FrmExportParametersEwsf
         Me.Label7.Size = New System.Drawing.Size(549, 16)
         Me.Label7.TabIndex = 92
         Me.Label7.Text = "The output file is saved as a plain text ASCII file in eWSF parameter file format" & _
-    "."
+            "."
         '
         'LstProfiles
         '
@@ -395,7 +396,7 @@ Partial Class FrmExportParametersEwsf
         Me.TextBox1.Size = New System.Drawing.Size(650, 15)
         Me.TextBox1.TabIndex = 105
         Me.TextBox1.Text = "HRU parameter values not calculated by BAGIS-P will be copied from the parameter " & _
-    "template"
+            "template"
         '
         'BtnDefaultTemplate
         '
@@ -406,19 +407,6 @@ Partial Class FrmExportParametersEwsf
         Me.BtnDefaultTemplate.TabIndex = 106
         Me.BtnDefaultTemplate.Text = "Default Template"
         Me.BtnDefaultTemplate.UseVisualStyleBackColor = True
-        '
-        'CkExportZipped
-        '
-        Me.CkExportZipped.AutoSize = True
-        Me.CkExportZipped.Checked = True
-        Me.CkExportZipped.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.CkExportZipped.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CkExportZipped.Location = New System.Drawing.Point(722, 315)
-        Me.CkExportZipped.Name = "CkExportZipped"
-        Me.CkExportZipped.Size = New System.Drawing.Size(147, 20)
-        Me.CkExportZipped.TabIndex = 107
-        Me.CkExportZipped.Text = "Save a zipped copy"
-        Me.CkExportZipped.UseVisualStyleBackColor = True
         '
         'CboResampleHru
         '
@@ -544,11 +532,39 @@ Partial Class FrmExportParametersEwsf
         Me.TextBox11.TabIndex = 125
         Me.TextBox11.Text = "DEM resolution"
         '
+        'TextBox5
+        '
+        Me.TextBox5.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.TextBox5.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TextBox5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox5.ForeColor = System.Drawing.Color.Black
+        Me.TextBox5.Location = New System.Drawing.Point(170, 299)
+        Me.TextBox5.Multiline = True
+        Me.TextBox5.Name = "TextBox5"
+        Me.TextBox5.ReadOnly = True
+        Me.TextBox5.Size = New System.Drawing.Size(600, 17)
+        Me.TextBox5.TabIndex = 132
+        Me.TextBox5.Text = "If no resampling resolution is provided, the data layers will be exported using t" & _
+            "heir original resolution"
+        '
+        'CkParametersOnly
+        '
+        Me.CkParametersOnly.AutoSize = True
+        Me.CkParametersOnly.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CkParametersOnly.Location = New System.Drawing.Point(693, 346)
+        Me.CkParametersOnly.Name = "CkParametersOnly"
+        Me.CkParametersOnly.Size = New System.Drawing.Size(178, 20)
+        Me.CkParametersOnly.TabIndex = 133
+        Me.CkParametersOnly.Text = "Output parameter file only"
+        Me.CkParametersOnly.UseVisualStyleBackColor = True
+        '
         'FrmExportParametersEwsf
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(880, 375)
+        Me.ClientSize = New System.Drawing.Size(880, 403)
+        Me.Controls.Add(Me.CkParametersOnly)
+        Me.Controls.Add(Me.TextBox5)
         Me.Controls.Add(Me.CboResampleDem)
         Me.Controls.Add(Me.TextBox3)
         Me.Controls.Add(Me.TxtDemResample)
@@ -561,7 +577,6 @@ Partial Class FrmExportParametersEwsf
         Me.Controls.Add(Me.TxtHruResample)
         Me.Controls.Add(Me.TextBox8)
         Me.Controls.Add(Me.TextBox7)
-        Me.Controls.Add(Me.CkExportZipped)
         Me.Controls.Add(Me.BtnDefaultTemplate)
         Me.Controls.Add(Me.TextBox1)
         Me.Controls.Add(Me.TxtDescription)
@@ -635,7 +650,6 @@ Partial Class FrmExportParametersEwsf
     Friend WithEvents TxtDescription As System.Windows.Forms.TextBox
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
     Friend WithEvents BtnDefaultTemplate As System.Windows.Forms.Button
-    Friend WithEvents CkExportZipped As System.Windows.Forms.CheckBox
     Friend WithEvents CboResampleHru As System.Windows.Forms.ComboBox
     Friend WithEvents TextBox2 As System.Windows.Forms.TextBox
     Friend WithEvents TxtHruResample As System.Windows.Forms.TextBox
@@ -648,4 +662,6 @@ Partial Class FrmExportParametersEwsf
     Friend WithEvents TextBox9 As System.Windows.Forms.TextBox
     Friend WithEvents TxtDemResolution As System.Windows.Forms.TextBox
     Friend WithEvents TextBox11 As System.Windows.Forms.TextBox
+    Friend WithEvents TextBox5 As System.Windows.Forms.TextBox
+    Friend WithEvents CkParametersOnly As System.Windows.Forms.CheckBox
 End Class

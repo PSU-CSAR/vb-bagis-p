@@ -188,7 +188,6 @@ Partial Class FrmProfileBuilder
         Me.BtnProfileDelete.TabIndex = 61
         Me.BtnProfileDelete.Text = "Delete"
         Me.BtnProfileDelete.UseVisualStyleBackColor = True
-        Me.BtnProfileDelete.Visible = False
         '
         'BtnProfileNew
         '

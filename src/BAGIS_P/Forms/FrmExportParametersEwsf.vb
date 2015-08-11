@@ -407,7 +407,7 @@ Public Class FrmExportParametersEwsf
             BA_ExportParameterFile(TxtOutputFolder.Text, TxtDescription.Text, TxtVersion.Text, m_paramsTable, m_tablesTable, hruParamPath, _
                                    tableName, CInt(TxtNHru.Text), m_spatialParamsTable, missingData, m_radplSpatialParameters)
             Dim zipFolder As String = Nothing
-            If CkExportZipped.Checked = True Then
+            If CkParametersOnly.Checked = False Then
                 'Export Geodatabase file to shapefile
                 Dim targetFolder As String = "Please Return"
                 Dim targetFile As String = BA_GetBareName(TxtOutputFolder.Text, targetFolder)
