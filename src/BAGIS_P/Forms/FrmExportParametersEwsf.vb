@@ -351,6 +351,13 @@ Public Class FrmExportParametersEwsf
     End Sub
 
     Private Sub BtnExport_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnExport.Click
+        'Check to make sure resample resolutions are the same
+        If Not TxtDemResample.Text.Equals(TxtHruResample.Text) Then
+            MessageBox.Show("The HRU and DEM resample resolutions must be the same in eWSF", "Resample resolution mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            TxtHruResample.Focus()
+            TxtHruResample.SelectAll()
+            Exit Sub
+        End If
         EnableButtons(False)
         'If we did not edit the paramsTable, it will be nothing and we need to initialize it from the template
         If m_paramsTable Is Nothing Then
@@ -429,13 +436,19 @@ Public Class FrmExportParametersEwsf
                 retVal = BA_ConvertGDBToShapefile(hruGdbName, vName, zipFolder, targetFile)
                 'Copy the parameter file into the tempBagisFolder
                 File.Copy(TxtOutputFolder.Text, zipFolder & "\" & BA_GetBareName(TxtOutputFolder.Text), True)
-                retVal = AddDemToZipFolder(zipFolder, hruGdbName & "\" & vName, targetFile)
-                If retVal <> BA_ReturnCode.Success Then
-                    MessageBox.Show("An error occurred while packaging the DEM for eWsf. It is not included in the zip file.", "DEM error", MessageBoxButtons.OK)
-                End If
-                retVal = AddZonesToZipFolder(zipFolder, hruGdbName, targetFile)
-                If retVal <> BA_ReturnCode.Success Then
-                    MessageBox.Show("An error occurred while packaging the HRU zones for eWsf. It is not included in the zip file.", "HRU zones error", MessageBoxButtons.OK)
+                Dim hruClipPath As String = AddZonesToZipFolder(zipFolder, hruGdbName, targetFile)
+                If String.IsNullOrEmpty(hruClipPath) Then
+                    MessageBox.Show("An error occurred while packaging the HRU zones and DEM for eWsf. They are not included in the zip file.", "HRU zones error", MessageBoxButtons.OK)
+                Else
+                    'Need to use the hru raster instead of vector to get exactly the right number of columns and rows
+                    retVal = AddDemToZipFolder(zipFolder, hruClipPath, targetFile)
+                    If retVal <> BA_ReturnCode.Success Then
+                        MessageBox.Show("An error occurred while packaging the DEM for eWsf. It is not included in the zip file.", "DEM error", MessageBoxButtons.OK)
+                    End If
+                    Dim hruClipName As String = BA_GetBareName(hruClipPath)
+                    If Not hruClipName.Equals(GRID) Then
+                        BA_RemoveRasterFromGDB(hruGdbName, hruClipPath)
+                    End If
                 End If
                 'Zip up the folder
                 Dim zipFileName As String = BA_StandardizeShapefileName(targetFile, False) & ".zip"
@@ -640,7 +653,7 @@ Public Class FrmExportParametersEwsf
         End If
     End Sub
 
-    Private Function AddDemToZipFolder(ByVal zipFolder As String, ByVal hruVectorPath As String, ByVal outputFileBase As String) As BA_ReturnCode
+    Private Function AddDemToZipFolder(ByVal zipFolder As String, ByVal hruRasterPath As String, ByVal outputFileBase As String) As BA_ReturnCode
         Dim demCellSize As Double = 0
         Dim inputDataSet As IGeoDataset = Nothing
         Dim demDataSet As IGeoDataset = Nothing
@@ -650,30 +663,42 @@ Public Class FrmExportParametersEwsf
             Dim surfacesFolder As String = BA_GeodatabasePath(m_aoi.FilePath, GeodatabaseNames.Surfaces, True)
             Dim inputRasterPath As String = surfacesFolder & BA_EnumDescription(MapsFileName.filled_dem_gdb)
             Dim clippedDem As String = "clipDem"
+            Dim resampleDem As String = "reDem"
             Dim outputRasterPath As String = zipFolder & "\" & clippedDem
-            'Clip DEM to hru layer
-            Dim success As BA_ReturnCode = BA_ExtractByMask(hruVectorPath, inputRasterPath, Nothing, outputRasterPath)
-            If success = BA_ReturnCode.Success Then
-                If Not String.IsNullOrEmpty(TxtDemResample.Text) Then
-                    demCellSize = CDbl(TxtDemResample.Text)
-                End If
-                If demCellSize > 0 Then
-                    'Need to resample
-                    inputDataSet = BA_OpenRasterFromFile(zipFolder, clippedDem)
-                    'Get resample method from form
-                    Dim resampleEnum As esriGeoAnalysisResampleEnum = GetResampleEnum(CboResampleDem.SelectedItem.ToString)
-                    demDataSet = transformOp.Resample(inputDataSet, demCellSize, resampleEnum)
+            Dim readyToResample As Boolean = True
+            If Not String.IsNullOrEmpty(TxtDemResample.Text) Then
+                demCellSize = CDbl(TxtDemResample.Text)
+            End If
+            If demCellSize > 0 Then
+                'Need to resample
+                inputDataSet = BA_OpenRasterFromGDB(surfacesFolder, BA_EnumDescription(MapsFileName.filled_dem_gdb))
+                'Get resample method from form
+                Dim resampleEnum As esriGeoAnalysisResampleEnum = GetResampleEnum(CboResampleDem.SelectedItem.ToString)
+                demDataSet = transformOp.Resample(inputDataSet, demCellSize, resampleEnum)
+                Dim retVal As Short = BA_SaveRasterDataset(demDataSet, zipFolder, resampleDem)
+                If retVal = 1 Then
+                    inputRasterPath = zipFolder & "\" & resampleDem
                 Else
-                    'Open the dataset directly
-                    demDataSet = BA_OpenRasterFromFile(zipFolder, clippedDem)
+                    readyToResample = False
                 End If
-                inputDataSet = Nothing
-                If demDataSet IsNot Nothing Then
+                demDataSet = Nothing
+            End If
+            If readyToResample Then
+                'Clip DEM to hru raster layer
+                Dim snapRasterPath As String = BA_GeodatabasePath(m_aoi.FilePath, GeodatabaseNames.Aoi, True) & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
+                Dim success As BA_ReturnCode = BA_ExtractByMask(hruRasterPath, inputRasterPath, snapRasterPath, outputRasterPath)
+                If success = BA_ReturnCode.Success Then
+                    demDataSet = BA_OpenRasterFromFile(zipFolder, clippedDem)
                     exportOp.ExportToASCII(demDataSet, zipFolder & "\" & outputFileBase & "_dem.asc")
+                    'Remove source files after ASCII dataset is created
+                    If BA_File_ExistsRaster(zipFolder, resampleDem) Then
+                        BA_Remove_Raster(zipFolder, resampleDem)
+                    End If
                     Dim retVal As Integer = BA_Remove_Raster(zipFolder, clippedDem)
                     Return BA_ReturnCode.Success
                 End If
             End If
+            'End If
             Return BA_ReturnCode.UnknownError
         Catch ex As Exception
             Debug.Print("AddDemToZipFolder" & ex.Message)
@@ -686,7 +711,7 @@ Public Class FrmExportParametersEwsf
         End Try
     End Function
 
-    Private Function AddZonesToZipFolder(ByVal zipFolder As String, ByVal hruGdbName As String, ByVal outputFileBase As String) As BA_ReturnCode
+    Private Function AddZonesToZipFolder(ByVal zipFolder As String, ByVal hruGdbName As String, ByVal outputFileBase As String) As String
         Dim hruCellSize As Double = 0
         Dim inputDataSet As IGeoDataset = Nothing
         Dim hruDataSet As IGeoDataset = Nothing
@@ -695,6 +720,8 @@ Public Class FrmExportParametersEwsf
             If Not String.IsNullOrEmpty(TxtHruResample.Text) Then
                 hruCellSize = CDbl(TxtHruResample.Text)
             End If
+            'This is the path that will be used to clip the dem so the extents are EXACTLY the same
+            Dim hruClipPath As String = hruGdbName & "\" & GRID
             Dim tempFileName As String = "tmpResample"
             If hruCellSize > 0 Then
                 'Need to resample
@@ -704,6 +731,7 @@ Public Class FrmExportParametersEwsf
                 Dim success As BA_ReturnCode = BA_Resample_Raster(hruGdbName & "\" & GRID, outputRaster, hruCellSize, snapRasterPath, CboResampleHru.SelectedItem.ToString)
                 If success = BA_ReturnCode.Success Then
                     hruDataSet = BA_OpenRasterFromGDB(hruGdbName, tempFileName)
+                    hruClipPath = outputRaster
                 Else
                     Throw New System.Exception("Unable to resample hru raster dataset.")
                 End If
@@ -713,18 +741,12 @@ Public Class FrmExportParametersEwsf
             End If
             If hruDataSet IsNot Nothing Then
                 exportOp.ExportToASCII(hruDataSet, zipFolder & "\" & outputFileBase & "_hru.asc")
-                'Delete the temporary hru dataset if it exists
-                If BA_File_Exists(hruGdbName & "\" & tempFileName, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
-                    BA_RemoveRasterFromGDB(hruGdbName, tempFileName)
-                    Return BA_ReturnCode.Success
-                Else
-                    Return BA_ReturnCode.Success
-                End If
+                Return hruClipPath
             End If
-            Return BA_ReturnCode.UnknownError
+            Return Nothing
         Catch ex As Exception
             Debug.Print("AddZonesToZipFolder" & ex.Message)
-            Return BA_ReturnCode.UnknownError
+            Return Nothing
         Finally
             inputDataSet = Nothing
             hruDataSet = Nothing
