@@ -514,6 +514,9 @@ Public Class FrmAddData
     End Sub
 
     Private Sub UpdateMeasurementUnits()
+        Dim errorSb As StringBuilder = New StringBuilder()
+        errorSb.Append("An error occurred while trying to update the measurement units ")
+        errorSb.Append("in the layer metadata. The measurement units could not be updated.")
         Dim inputFolder As String = Nothing
         Dim inputFile As String = Nothing
         If String.IsNullOrEmpty(m_aoiPath) Then
@@ -624,22 +627,34 @@ Public Class FrmAddData
                     Dim newInnerText As String = sb.ToString
                     newInnerText = newInnerText.Remove(Len(newInnerText) - 1, 1)
                     newInnerText = newInnerText & BA_BAGIS_TAG_SUFFIX
-                    BA_UpdateMetadata(inputFolder, inputFile, m_selDataSource.LayerType, _
-                                      BA_XPATH_TAGS, newInnerText, BA_BAGIS_TAG_PREFIX.Length)
+                    Dim success As BA_ReturnCode = BA_UpdateMetadata(inputFolder, inputFile, m_selDataSource.LayerType, _
+                                                                     BA_XPATH_TAGS, newInnerText, BA_BAGIS_TAG_PREFIX.Length)
+                    If success <> BA_ReturnCode.Success Then
+                        MessageBox.Show(errorSb.ToString, "Update error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        Exit Sub
+                    End If
                     updateBagisTag = True
                 End If
             Next
             'We had existing "keyword" tags but no BAGIS tag; Need to add
             If updateBagisTag = False Then
-            Dim bagisTag As String = CreateBagisTag()
-                BA_UpdateMetadata(inputFolder, inputFile, m_selDataSource.LayerType, _
-                    BA_XPATH_TAGS, bagisTag, BA_BAGIS_TAG_PREFIX.Length)
+                Dim bagisTag As String = CreateBagisTag()
+                Dim success As BA_ReturnCode = BA_UpdateMetadata(inputFolder, inputFile, m_selDataSource.LayerType, _
+                                                                 BA_XPATH_TAGS, bagisTag, BA_BAGIS_TAG_PREFIX.Length)
+                If success <> BA_ReturnCode.Success Then
+                    MessageBox.Show(errorSb.ToString, "Update error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Exit Sub
+                End If
             End If
         Else
             'We need to add a new tag at "/metadata/dataIdInfo/searchKeys/keyword"
             Dim bagisTag As String = CreateBagisTag()
-            BA_UpdateMetadata(inputFolder, inputFile, m_selDataSource.LayerType, _
-                BA_XPATH_TAGS, bagisTag, BA_BAGIS_TAG_PREFIX.Length)
+            Dim success As BA_ReturnCode = BA_UpdateMetadata(inputFolder, inputFile, m_selDataSource.LayerType, _
+                                                             BA_XPATH_TAGS, bagisTag, BA_BAGIS_TAG_PREFIX.Length)
+            If success <> BA_ReturnCode.Success Then
+                MessageBox.Show(errorSb.ToString, "Update error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                Exit Sub
+            End If
         End If
 
     End Sub

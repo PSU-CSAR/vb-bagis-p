@@ -39,6 +39,8 @@ Public Module MetadataModule
         Finally
             pMeta = Nothing
             pXmlPropertySet = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
         End Try
 
     End Function
@@ -139,6 +141,8 @@ Public Module MetadataModule
         Finally
             pMeta = Nothing
             pXmlPropertySet = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
         End Try
     End Function
 
