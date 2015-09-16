@@ -12,6 +12,7 @@ Public Class FrmClipDataSource
 
     Dim m_dataTable As Dictionary(Of String, DataSource)
     Dim m_selDataSources As IList(Of String)
+    Dim m_existingLayers As IList(Of String)
     Const IDX_AOI As Integer = 0
     Const IDX_NAME As Integer = 1
     Const IDX_FILE_PATH As Integer = 2
@@ -153,6 +154,7 @@ Public Class FrmClipDataSource
         BtnAddAoi.Enabled = False
         BtnRemove.Enabled = False
         BtnCancel.Enabled = False
+        m_existingLayers = New List(Of String)
         Try
             If GrdAoi.Rows.Count > 0 Then
                 pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, GrdAoi.Rows.Count + 4)
@@ -302,6 +304,7 @@ Public Class FrmClipDataSource
                                         sb.Append("A data source with file name " & BA_GetBareName(pDS.Source) & " already exists in target AOI.")
                                         'isValid = False
                                         UpdateDataSourceStatusOnGrid(aoiName, dsName, NO, sb.ToString)
+                                        m_existingLayers.Add(fullPath)
                                     End If
                                 End If
                             End If
@@ -309,7 +312,17 @@ Public Class FrmClipDataSource
                         End If
                     End If
                 Next
-
+                'Warning message if any data sources could not be clipped
+                If m_existingLayers.Count > 0 Then
+                    Dim sb As StringBuilder = New StringBuilder
+                    sb.Append("The following data layers already exist in a target AOI ")
+                    sb.Append("and cannot be overwritten. Please delete the layers manually ")
+                    sb.Append("using ArcCatalog and try again if they should be replaced. " & vbCrLf & vbCrLf)
+                    For Each lPath As String In m_existingLayers
+                        sb.Append(lPath & vbCrLf)
+                    Next
+                    MessageBox.Show(sb.ToString, "Existing layers", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
             End If
         Catch ex As Exception
             Debug.Print("BtnClip_Click Exception: " & ex.Message)
