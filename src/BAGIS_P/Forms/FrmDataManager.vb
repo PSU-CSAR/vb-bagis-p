@@ -146,7 +146,7 @@ Public Class FrmDataManager
             Dim result As DialogResult = MessageBox.Show(sb.ToString, "Delete data layer(s)", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
             If result = DialogResult.Yes Then
                 For Each pRow As DataGridViewRow In pCollection
-                    Dim isAoi As String = CBool(pRow.Cells(idx_IsAoi).Value)
+                    Dim isAoi As String = pRow.Cells(idx_IsAoi).Value
                     'Only delete layer if it isn't an aoi layer
                     Dim success As Integer = 1
                     If isAoi = BA_User_Data Then
