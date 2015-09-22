@@ -31,13 +31,17 @@ Partial Class FrmAddData
         Me.BtnSelectSource = New System.Windows.Forms.Button()
         Me.BtnApply = New System.Windows.Forms.Button()
         Me.BtnCancel = New System.Windows.Forms.Button()
-        Me.CkUnits = New System.Windows.Forms.CheckBox()
+        Me.PnlJhCoeff = New System.Windows.Forms.Panel()
+        Me.rdoAugTMax = New System.Windows.Forms.RadioButton()
+        Me.rdoAugTMin = New System.Windows.Forms.RadioButton()
+        Me.rdoJulTMax = New System.Windows.Forms.RadioButton()
+        Me.rdoJulTMin = New System.Windows.Forms.RadioButton()
+        Me.rdoOtherTemp = New System.Windows.Forms.RadioButton()
         Me.Label4 = New System.Windows.Forms.Label()
+        Me.CboDataType = New System.Windows.Forms.ComboBox()
         Me.Label5 = New System.Windows.Forms.Label()
-        Me.CboUnitType = New System.Windows.Forms.ComboBox()
-        Me.PnlUnits = New System.Windows.Forms.Panel()
         Me.CboUnits = New System.Windows.Forms.ComboBox()
-        Me.PnlUnits.SuspendLayout()
+        Me.PnlJhCoeff.SuspendLayout()
         Me.SuspendLayout()
         '
         'Label2
@@ -53,17 +57,17 @@ Partial Class FrmAddData
         'TxtName
         '
         Me.TxtName.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtName.Location = New System.Drawing.Point(95, 7)
+        Me.TxtName.Location = New System.Drawing.Point(88, 7)
         Me.TxtName.Name = "TxtName"
         Me.TxtName.ReadOnly = True
-        Me.TxtName.Size = New System.Drawing.Size(288, 22)
+        Me.TxtName.Size = New System.Drawing.Size(295, 22)
         Me.TxtName.TabIndex = 13
         '
         'Label1
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(2, 41)
+        Me.Label1.Location = New System.Drawing.Point(2, 97)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(91, 16)
         Me.Label1.TabIndex = 16
@@ -72,18 +76,18 @@ Partial Class FrmAddData
         'TxtDescription
         '
         Me.TxtDescription.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtDescription.Location = New System.Drawing.Point(95, 41)
+        Me.TxtDescription.Location = New System.Drawing.Point(95, 97)
         Me.TxtDescription.Multiline = True
         Me.TxtDescription.Name = "TxtDescription"
         Me.TxtDescription.ReadOnly = True
-        Me.TxtDescription.Size = New System.Drawing.Size(288, 58)
+        Me.TxtDescription.Size = New System.Drawing.Size(570, 58)
         Me.TxtDescription.TabIndex = 31
         '
         'Label3
         '
         Me.Label3.AutoSize = True
         Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(2, 112)
+        Me.Label3.Location = New System.Drawing.Point(2, 168)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(61, 16)
         Me.Label3.TabIndex = 33
@@ -92,16 +96,16 @@ Partial Class FrmAddData
         'TxtSource
         '
         Me.TxtSource.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtSource.Location = New System.Drawing.Point(95, 110)
+        Me.TxtSource.Location = New System.Drawing.Point(95, 166)
         Me.TxtSource.Name = "TxtSource"
         Me.TxtSource.ReadOnly = True
-        Me.TxtSource.Size = New System.Drawing.Size(288, 22)
+        Me.TxtSource.Size = New System.Drawing.Size(502, 22)
         Me.TxtSource.TabIndex = 32
         '
         'BtnSelectSource
         '
         Me.BtnSelectSource.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnSelectSource.Location = New System.Drawing.Point(392, 109)
+        Me.BtnSelectSource.Location = New System.Drawing.Point(603, 165)
         Me.BtnSelectSource.Name = "BtnSelectSource"
         Me.BtnSelectSource.Size = New System.Drawing.Size(64, 25)
         Me.BtnSelectSource.TabIndex = 34
@@ -112,7 +116,7 @@ Partial Class FrmAddData
         '
         Me.BtnApply.Enabled = False
         Me.BtnApply.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnApply.Location = New System.Drawing.Point(392, 216)
+        Me.BtnApply.Location = New System.Drawing.Point(607, 220)
         Me.BtnApply.Name = "BtnApply"
         Me.BtnApply.Size = New System.Drawing.Size(64, 25)
         Me.BtnApply.TabIndex = 36
@@ -122,68 +126,118 @@ Partial Class FrmAddData
         'BtnCancel
         '
         Me.BtnCancel.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnCancel.Location = New System.Drawing.Point(322, 216)
+        Me.BtnCancel.Location = New System.Drawing.Point(537, 220)
         Me.BtnCancel.Name = "BtnCancel"
         Me.BtnCancel.Size = New System.Drawing.Size(64, 25)
         Me.BtnCancel.TabIndex = 35
         Me.BtnCancel.Text = "Cancel"
         Me.BtnCancel.UseVisualStyleBackColor = True
         '
-        'CkUnits
+        'PnlJhCoeff
         '
-        Me.CkUnits.AutoSize = True
-        Me.CkUnits.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CkUnits.Location = New System.Drawing.Point(4, 138)
-        Me.CkUnits.Name = "CkUnits"
-        Me.CkUnits.Size = New System.Drawing.Size(251, 20)
-        Me.CkUnits.TabIndex = 41
-        Me.CkUnits.Text = "Define the unit of the field values"
-        Me.CkUnits.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.CkUnits.UseVisualStyleBackColor = True
-        Me.CkUnits.Visible = False
+        Me.PnlJhCoeff.Controls.Add(Me.rdoOtherTemp)
+        Me.PnlJhCoeff.Controls.Add(Me.rdoAugTMax)
+        Me.PnlJhCoeff.Controls.Add(Me.rdoAugTMin)
+        Me.PnlJhCoeff.Controls.Add(Me.rdoJulTMax)
+        Me.PnlJhCoeff.Controls.Add(Me.rdoJulTMin)
+        Me.PnlJhCoeff.Enabled = False
+        Me.PnlJhCoeff.Location = New System.Drawing.Point(217, 36)
+        Me.PnlJhCoeff.Name = "PnlJhCoeff"
+        Me.PnlJhCoeff.Size = New System.Drawing.Size(454, 30)
+        Me.PnlJhCoeff.TabIndex = 47
+        Me.PnlJhCoeff.Visible = False
+        '
+        'rdoAugTMax
+        '
+        Me.rdoAugTMax.AutoSize = True
+        Me.rdoAugTMax.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.rdoAugTMax.Location = New System.Drawing.Point(233, 3)
+        Me.rdoAugTMax.Name = "rdoAugTMax"
+        Me.rdoAugTMax.Size = New System.Drawing.Size(78, 20)
+        Me.rdoAugTMax.TabIndex = 3
+        Me.rdoAugTMax.TabStop = True
+        Me.rdoAugTMax.Text = "Aug Max"
+        Me.rdoAugTMax.UseVisualStyleBackColor = True
+        '
+        'rdoAugTMin
+        '
+        Me.rdoAugTMin.AutoSize = True
+        Me.rdoAugTMin.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.rdoAugTMin.Location = New System.Drawing.Point(153, 3)
+        Me.rdoAugTMin.Name = "rdoAugTMin"
+        Me.rdoAugTMin.Size = New System.Drawing.Size(74, 20)
+        Me.rdoAugTMin.TabIndex = 2
+        Me.rdoAugTMin.TabStop = True
+        Me.rdoAugTMin.Text = "Aug Min"
+        Me.rdoAugTMin.UseVisualStyleBackColor = True
+        '
+        'rdoJulTMax
+        '
+        Me.rdoJulTMax.AutoSize = True
+        Me.rdoJulTMax.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.rdoJulTMax.Location = New System.Drawing.Point(76, 3)
+        Me.rdoJulTMax.Name = "rdoJulTMax"
+        Me.rdoJulTMax.Size = New System.Drawing.Size(71, 20)
+        Me.rdoJulTMax.TabIndex = 1
+        Me.rdoJulTMax.TabStop = True
+        Me.rdoJulTMax.Text = "Jul Max"
+        Me.rdoJulTMax.UseVisualStyleBackColor = True
+        '
+        'rdoJulTMin
+        '
+        Me.rdoJulTMin.AutoSize = True
+        Me.rdoJulTMin.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.rdoJulTMin.Location = New System.Drawing.Point(3, 3)
+        Me.rdoJulTMin.Name = "rdoJulTMin"
+        Me.rdoJulTMin.Size = New System.Drawing.Size(67, 20)
+        Me.rdoJulTMin.TabIndex = 0
+        Me.rdoJulTMin.TabStop = True
+        Me.rdoJulTMin.Text = "Jul Min"
+        Me.rdoJulTMin.UseVisualStyleBackColor = True
+        '
+        'rdoOtherTemp
+        '
+        Me.rdoOtherTemp.AutoSize = True
+        Me.rdoOtherTemp.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.rdoOtherTemp.Location = New System.Drawing.Point(317, 3)
+        Me.rdoOtherTemp.Name = "rdoOtherTemp"
+        Me.rdoOtherTemp.Size = New System.Drawing.Size(139, 20)
+        Me.rdoOtherTemp.TabIndex = 4
+        Me.rdoOtherTemp.TabStop = True
+        Me.rdoOtherTemp.Text = "Other Temperature"
+        Me.rdoOtherTemp.UseVisualStyleBackColor = True
         '
         'Label4
         '
         Me.Label4.AutoSize = True
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(1, 4)
+        Me.Label4.Location = New System.Drawing.Point(2, 38)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(73, 16)
+        Me.Label4.Size = New System.Drawing.Size(79, 16)
         Me.Label4.TabIndex = 42
-        Me.Label4.Text = "Unit type:"
+        Me.Label4.Text = "Data type:"
+        '
+        'CboDataType
+        '
+        Me.CboDataType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.CboDataType.Enabled = False
+        Me.CboDataType.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CboDataType.FormattingEnabled = True
+        Me.CboDataType.Location = New System.Drawing.Point(88, 36)
+        Me.CboDataType.Name = "CboDataType"
+        Me.CboDataType.Size = New System.Drawing.Size(121, 24)
+        Me.CboDataType.TabIndex = 44
         '
         'Label5
         '
         Me.Label5.AutoSize = True
         Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(1, 35)
+        Me.Label5.Location = New System.Drawing.Point(2, 69)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(39, 16)
         Me.Label5.TabIndex = 43
         Me.Label5.Text = "Unit:"
-        '
-        'CboUnitType
-        '
-        Me.CboUnitType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.CboUnitType.Enabled = False
-        Me.CboUnitType.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CboUnitType.FormattingEnabled = True
-        Me.CboUnitType.Location = New System.Drawing.Point(70, 2)
-        Me.CboUnitType.Name = "CboUnitType"
-        Me.CboUnitType.Size = New System.Drawing.Size(121, 24)
-        Me.CboUnitType.TabIndex = 44
-        '
-        'PnlUnits
-        '
-        Me.PnlUnits.Controls.Add(Me.CboUnits)
-        Me.PnlUnits.Controls.Add(Me.Label5)
-        Me.PnlUnits.Controls.Add(Me.CboUnitType)
-        Me.PnlUnits.Controls.Add(Me.Label4)
-        Me.PnlUnits.Location = New System.Drawing.Point(0, 163)
-        Me.PnlUnits.Name = "PnlUnits"
-        Me.PnlUnits.Size = New System.Drawing.Size(311, 61)
-        Me.PnlUnits.TabIndex = 45
-        Me.PnlUnits.Visible = False
+        Me.Label5.Visible = False
         '
         'CboUnits
         '
@@ -191,18 +245,22 @@ Partial Class FrmAddData
         Me.CboUnits.Enabled = False
         Me.CboUnits.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CboUnits.FormattingEnabled = True
-        Me.CboUnits.Location = New System.Drawing.Point(70, 32)
+        Me.CboUnits.Location = New System.Drawing.Point(88, 66)
         Me.CboUnits.Name = "CboUnits"
         Me.CboUnits.Size = New System.Drawing.Size(121, 24)
         Me.CboUnits.TabIndex = 45
+        Me.CboUnits.Visible = False
         '
         'FrmAddData
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(465, 253)
-        Me.Controls.Add(Me.PnlUnits)
-        Me.Controls.Add(Me.CkUnits)
+        Me.ClientSize = New System.Drawing.Size(677, 248)
+        Me.Controls.Add(Me.CboUnits)
+        Me.Controls.Add(Me.PnlJhCoeff)
+        Me.Controls.Add(Me.Label5)
+        Me.Controls.Add(Me.CboDataType)
+        Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.BtnApply)
         Me.Controls.Add(Me.BtnCancel)
         Me.Controls.Add(Me.BtnSelectSource)
@@ -216,8 +274,8 @@ Partial Class FrmAddData
         Me.Name = "FrmAddData"
         Me.ShowIcon = False
         Me.Text = "Data Source Editor"
-        Me.PnlUnits.ResumeLayout(False)
-        Me.PnlUnits.PerformLayout()
+        Me.PnlJhCoeff.ResumeLayout(False)
+        Me.PnlJhCoeff.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -231,10 +289,14 @@ Partial Class FrmAddData
     Friend WithEvents BtnSelectSource As System.Windows.Forms.Button
     Friend WithEvents BtnApply As System.Windows.Forms.Button
     Friend WithEvents BtnCancel As System.Windows.Forms.Button
-    Friend WithEvents CkUnits As System.Windows.Forms.CheckBox
+    Friend WithEvents PnlJhCoeff As System.Windows.Forms.Panel
+    Friend WithEvents rdoAugTMax As System.Windows.Forms.RadioButton
+    Friend WithEvents rdoAugTMin As System.Windows.Forms.RadioButton
+    Friend WithEvents rdoJulTMax As System.Windows.Forms.RadioButton
+    Friend WithEvents rdoJulTMin As System.Windows.Forms.RadioButton
+    Friend WithEvents rdoOtherTemp As System.Windows.Forms.RadioButton
     Friend WithEvents Label4 As System.Windows.Forms.Label
+    Friend WithEvents CboDataType As System.Windows.Forms.ComboBox
     Friend WithEvents Label5 As System.Windows.Forms.Label
-    Friend WithEvents CboUnitType As System.Windows.Forms.ComboBox
-    Friend WithEvents PnlUnits As System.Windows.Forms.Panel
     Friend WithEvents CboUnits As System.Windows.Forms.ComboBox
 End Class

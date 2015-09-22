@@ -17,6 +17,7 @@ Public Class FrmAddData
     Dim m_DirtyFlag As Boolean = False
     Dim m_settingsPath As String = Nothing
     Dim m_aoiPath As String = Nothing
+    Dim m_jhDict As IDictionary(Of String, String)
 
     Public Sub New(ByVal layerTable As Dictionary(Of String, DataSource), ByVal aoiPath As String)
 
@@ -36,6 +37,12 @@ Public Class FrmAddData
             m_aoiPath = aoiPath
         End If
 
+        'Build reference data structure for  
+        m_jhDict = New Dictionary(Of String, String)
+        m_jhDict.Add(rdoJulTMin.Text, BA_EnumDescription(PublicPath.JH_Coef_Jul_Tmin))
+        m_jhDict.Add(rdoJulTMax.Text, BA_EnumDescription(PublicPath.JH_Coef_Jul_Tmax))
+        m_jhDict.Add(rdoAugTMin.Text, BA_EnumDescription(PublicPath.JH_Coef_Aug_Tmin))
+        m_jhDict.Add(rdoAugTMax.Text, BA_EnumDescription(PublicPath.JH_Coef_Aug_Tmax))
         LoadMeasurementUnitTypes()
 
         'Enable admin capabilities if user has entered the admin password
@@ -67,8 +74,12 @@ Public Class FrmAddData
         TxtSource.Text = m_selDataSource.Source
         m_layerType = m_selDataSource.LayerType
 
-        '24-APR-2012 As of this date we aren't saving the data field
-        'PopulateCboDataField(pGeoDataset, dataType, pLayer.DataField)
+        'Build reference data structure for  
+        m_jhDict = New Dictionary(Of String, String)
+        m_jhDict.Add(rdoJulTMin.Text, BA_EnumDescription(PublicPath.JH_Coef_Jul_Tmin))
+        m_jhDict.Add(rdoJulTMax.Text, BA_EnumDescription(PublicPath.JH_Coef_Jul_Tmax))
+        m_jhDict.Add(rdoAugTMin.Text, BA_EnumDescription(PublicPath.JH_Coef_Aug_Tmin))
+        m_jhDict.Add(rdoAugTMax.Text, BA_EnumDescription(PublicPath.JH_Coef_Aug_Tmax))
 
         LoadMeasurementUnitTypes()
 
@@ -177,13 +188,11 @@ Public Class FrmAddData
         'Get layerType enumeration
         Dim pLayerType As LayerType = m_layerType
 
-        Dim selUnitType As MeasurementUnitType
+        Dim selUnitType As MeasurementUnitType = MeasurementUnitType.Missing
         Dim selUnit As MeasurementUnit
         Dim selSlopeUnit As SlopeUnit
-        If CkUnits.Checked Then
-            If CboUnitType.SelectedIndex > -1 Then
-                selUnitType = BA_GetMeasurementUnitType(CboUnitType.SelectedItem)
-            End If
+        If CboDataType.SelectedIndex > -1 Then
+            selUnitType = BA_GetMeasurementUnitType(CboDataType.SelectedItem)
             If selUnitType = MeasurementUnitType.Slope And CboUnits.SelectedIndex > -1 Then
                 selSlopeUnit = BA_GetSlopeUnit(CboUnits.SelectedItem)
             ElseIf CboUnits.SelectedIndex > -1 Then
@@ -277,7 +286,7 @@ Public Class FrmAddData
             '24-APR-2012 As of this date we aren't saving the data field
             'pLayer.DataField = CStr(CboDataField.SelectedItem)
             pLayer.LayerType = pLayerType
-            If CkUnits.Checked Then
+            If CboDataType.SelectedIndex > -1 Then
                 pLayer.MeasurementUnitType = selUnitType
                 If pLayer.MeasurementUnitType = MeasurementUnitType.Slope Then
                     pLayer.MeasurementUnit = MeasurementUnit.Missing
@@ -300,7 +309,7 @@ Public Class FrmAddData
             Dim id As Integer = BA_GetNextDataSourceId(m_settingsPath)
             Dim newLayer As DataSource = New DataSource(id, layerName, TxtDescription.Text, source, False, _
                                                         pLayerType)
-            If CkUnits.Checked Then
+            If CboDataType.SelectedIndex > -1 Then
                 newLayer.MeasurementUnitType = selUnitType
                 If newLayer.MeasurementUnitType = MeasurementUnitType.Slope Then
                     newLayer.MeasurementUnit = MeasurementUnit.Missing
@@ -448,26 +457,21 @@ Public Class FrmAddData
         GC.Collect()
     End Sub
 
-    Private Sub CkUnits_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CkUnits.CheckedChanged
-        PnlUnits.Visible = CkUnits.Checked
-    End Sub
-
     Private Sub LoadMeasurementUnitTypes()
-        CboUnitType.Items.Clear()
+        CboDataType.Items.Clear()
         Dim enumValues As System.Array = System.[Enum].GetValues(GetType(MeasurementUnitType))
         'Start adding at position 1 to exclude "Missing" value
         For i As Integer = 1 To enumValues.Length - 1
-            CboUnitType.Items.Add(enumValues(i).ToString)
+            CboDataType.Items.Add(enumValues(i).ToString)
         Next
 
         'Set the measurement unit in the UI, if appropriate
-        CboUnitType.SelectedIndex = 0
+        CboDataType.SelectedIndex = 0
         If m_selDataSource IsNot Nothing AndAlso _
             m_selDataSource.MeasurementUnitType <> MeasurementUnitType.Missing Then
-            CkUnits.Checked = True
-            For Each strItem As String In CboUnitType.Items
+            For Each strItem As String In CboDataType.Items
                 If strItem = m_selDataSource.MeasurementUnitType.ToString Then
-                    CboUnitType.SelectedItem = strItem
+                    CboDataType.SelectedItem = strItem
                 End If
             Next
         End If
@@ -476,7 +480,7 @@ Public Class FrmAddData
 
     Private Sub LoadMeasurementUnits()
         CboUnits.Items.Clear()
-        Dim strUnitType As String = CboUnitType.SelectedItem
+        Dim strUnitType As String = CboDataType.SelectedItem
         Dim measUnitType As MeasurementUnitType = BA_GetMeasurementUnitType(strUnitType)
         Select Case measUnitType
             Case MeasurementUnitType.Depth
@@ -497,9 +501,10 @@ Public Class FrmAddData
         End If
     End Sub
 
-    Private Sub CboUnitType_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CboUnitType.SelectedIndexChanged
-        If CboUnitType.SelectedItem IsNot Nothing Then
+    Private Sub CboUnitType_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CboDataType.SelectedIndexChanged
+        If CboDataType.SelectedItem IsNot Nothing Then
             LoadMeasurementUnits()
+            CboUnits.Visible = True
             If m_selDataSource IsNot Nothing Then
                 For Each strItem As String In CboUnits.Items
                     If m_selDataSource.MeasurementUnitType = MeasurementUnitType.Slope And _
@@ -509,6 +514,10 @@ Public Class FrmAddData
                         CboUnits.SelectedItem = strItem
                     End If
                 Next
+                If CboDataType.SelectedItem.Equals(BA_EnumDescription(MeasurementUnitType.Temperature)) Then
+                    PnlJhCoeff.Visible = True
+                    CheckHCoeffRadioButton(m_selDataSource.JH_Coeff)
+                End If
             End If
         End If
     End Sub
@@ -563,7 +572,7 @@ Public Class FrmAddData
                         innerText = pInnerText.Substring(BA_BAGIS_TAG_PREFIX.Length, finalLength)
                     End If
                     Dim pContents As String() = innerText.Split(";")
-                    If CkUnits.Checked Then
+                    If CboDataType.SelectedIndex > -1 Then
                         'We need to record the units in the tag
                         Dim updateCategory As Boolean = False
                         Dim updateValue As Boolean = False
@@ -675,8 +684,37 @@ Public Class FrmAddData
     Public Sub EnableAdminActions()
         TxtName.ReadOnly = False
         TxtDescription.ReadOnly = False
-        CkUnits.Visible = True
-        CboUnitType.Enabled = True
+        CboDataType.Enabled = True
         CboUnits.Enabled = True
+        PnlJhCoeff.Enabled = True
+    End Sub
+
+    Private Function GetJHCoeff() As String
+        Dim retVal As String = Nothing
+        For Each ctrl As Control In PnlJhCoeff.Controls
+            If ctrl.GetType() Is GetType(RadioButton) Then
+                Dim rButton As RadioButton = CType(ctrl, RadioButton)
+                retVal = m_jhDict(rButton.Text)
+            End If
+        Next
+        Return retVal
+    End Function
+
+    Private Sub CheckHCoeffRadioButton(ByVal jh_coeff As String)
+        Dim checkVal As String = Nothing
+        For Each ctrl As Control In PnlJhCoeff.Controls
+            If ctrl.GetType() Is GetType(RadioButton) Then
+                Dim rButton As RadioButton = CType(ctrl, RadioButton)
+                If m_jhDict.ContainsKey(rButton.Text) Then
+                    checkVal = m_jhDict(rButton.Text)
+                    If checkVal.Equals(jh_coeff) Then
+                        rButton.Checked = True
+                        Exit Sub
+                    End If
+                End If
+            End If
+        Next
+        ' Check "other" radio button if a match wasn't found
+        rdoOtherTemp.Checked = True
     End Sub
 End Class

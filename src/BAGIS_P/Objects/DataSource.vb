@@ -17,6 +17,8 @@ Public Class DataSource
     Dim m_slopeUnit As SlopeUnit
     'If the data source is located in source location, is_valid is true
     Dim m_isValid As Boolean
+    'Data source is used for JH_Coef calculation
+    Dim m_jh_coeff As String
 
     ' Required for de-serialization. Do not use.
     Sub New()
@@ -166,6 +168,15 @@ Public Class DataSource
             Else
                 Return BA_Invalid_Data
             End If
+        End Get
+    End Property
+
+    Public Property JH_Coeff() As String
+        Set(ByVal value As String)
+            m_jh_coeff = value
+        End Set
+        Get
+            Return m_jh_coeff
         End Get
     End Property
 
