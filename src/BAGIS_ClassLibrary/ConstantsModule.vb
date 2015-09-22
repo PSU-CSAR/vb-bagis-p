@@ -1,7 +1,7 @@
 ﻿Public Module ConstantsModule
 
     'Class library version; Update with each change to class library
-    Public Const BA_CLASS_LIBRARY_VERSION As String = "L035"
+    Public Const BA_CLASS_LIBRARY_VERSION As String = "L036"
 
     ' Used with BA_QueryAttributeTable to customize query
     Public Const BA_STRING_ATTRIBUTE As String = "string_attribute"
@@ -182,6 +182,12 @@
     Public Const BA_User_Data As String = "User defined"
     Public Const BA_Invalid_Data As String = "Invalid"
     Public Const BA_Valid_Data As String = ""
+
+    'Constant layer names for BAGIS-P JH_Coeff calculation
+    Public Const BA_JH_Coef_Aug_Tmax As String = "JH_Coef_Aug_Tmax"
+    Public Const BA_JH_Coef_Aug_Tmin As String = "JH_Coef_Aug_Tmin"
+    Public Const BA_JH_Coef_Jul_Tmax As String = "JH_Coef_Jul_Tmax"
+    Public Const BA_JH_Coef_Jul_Tmin As String = "JH_Coef_Jul_Tmin"
 End Module
 
 

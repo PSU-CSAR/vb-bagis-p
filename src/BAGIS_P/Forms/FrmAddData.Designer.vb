@@ -32,14 +32,14 @@ Partial Class FrmAddData
         Me.BtnApply = New System.Windows.Forms.Button()
         Me.BtnCancel = New System.Windows.Forms.Button()
         Me.PnlJhCoeff = New System.Windows.Forms.Panel()
+        Me.rdoOtherTemp = New System.Windows.Forms.RadioButton()
         Me.rdoAugTMax = New System.Windows.Forms.RadioButton()
         Me.rdoAugTMin = New System.Windows.Forms.RadioButton()
         Me.rdoJulTMax = New System.Windows.Forms.RadioButton()
         Me.rdoJulTMin = New System.Windows.Forms.RadioButton()
-        Me.rdoOtherTemp = New System.Windows.Forms.RadioButton()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.CboDataType = New System.Windows.Forms.ComboBox()
-        Me.Label5 = New System.Windows.Forms.Label()
+        Me.LblUnits = New System.Windows.Forms.Label()
         Me.CboUnits = New System.Windows.Forms.ComboBox()
         Me.PnlJhCoeff.SuspendLayout()
         Me.SuspendLayout()
@@ -48,7 +48,7 @@ Partial Class FrmAddData
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(2, 9)
+        Me.Label2.Location = New System.Drawing.Point(2, 69)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(53, 16)
         Me.Label2.TabIndex = 14
@@ -57,7 +57,7 @@ Partial Class FrmAddData
         'TxtName
         '
         Me.TxtName.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtName.Location = New System.Drawing.Point(88, 7)
+        Me.TxtName.Location = New System.Drawing.Point(95, 66)
         Me.TxtName.Name = "TxtName"
         Me.TxtName.ReadOnly = True
         Me.TxtName.Size = New System.Drawing.Size(295, 22)
@@ -141,11 +141,23 @@ Partial Class FrmAddData
         Me.PnlJhCoeff.Controls.Add(Me.rdoJulTMax)
         Me.PnlJhCoeff.Controls.Add(Me.rdoJulTMin)
         Me.PnlJhCoeff.Enabled = False
-        Me.PnlJhCoeff.Location = New System.Drawing.Point(217, 36)
+        Me.PnlJhCoeff.Location = New System.Drawing.Point(217, 6)
         Me.PnlJhCoeff.Name = "PnlJhCoeff"
         Me.PnlJhCoeff.Size = New System.Drawing.Size(454, 30)
         Me.PnlJhCoeff.TabIndex = 47
         Me.PnlJhCoeff.Visible = False
+        '
+        'rdoOtherTemp
+        '
+        Me.rdoOtherTemp.AutoSize = True
+        Me.rdoOtherTemp.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.rdoOtherTemp.Location = New System.Drawing.Point(317, 3)
+        Me.rdoOtherTemp.Name = "rdoOtherTemp"
+        Me.rdoOtherTemp.Size = New System.Drawing.Size(139, 20)
+        Me.rdoOtherTemp.TabIndex = 4
+        Me.rdoOtherTemp.TabStop = True
+        Me.rdoOtherTemp.Text = "Other Temperature"
+        Me.rdoOtherTemp.UseVisualStyleBackColor = True
         '
         'rdoAugTMax
         '
@@ -195,23 +207,11 @@ Partial Class FrmAddData
         Me.rdoJulTMin.Text = "Jul Min"
         Me.rdoJulTMin.UseVisualStyleBackColor = True
         '
-        'rdoOtherTemp
-        '
-        Me.rdoOtherTemp.AutoSize = True
-        Me.rdoOtherTemp.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.rdoOtherTemp.Location = New System.Drawing.Point(317, 3)
-        Me.rdoOtherTemp.Name = "rdoOtherTemp"
-        Me.rdoOtherTemp.Size = New System.Drawing.Size(139, 20)
-        Me.rdoOtherTemp.TabIndex = 4
-        Me.rdoOtherTemp.TabStop = True
-        Me.rdoOtherTemp.Text = "Other Temperature"
-        Me.rdoOtherTemp.UseVisualStyleBackColor = True
-        '
         'Label4
         '
         Me.Label4.AutoSize = True
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(2, 38)
+        Me.Label4.Location = New System.Drawing.Point(2, 8)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(79, 16)
         Me.Label4.TabIndex = 42
@@ -223,21 +223,21 @@ Partial Class FrmAddData
         Me.CboDataType.Enabled = False
         Me.CboDataType.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CboDataType.FormattingEnabled = True
-        Me.CboDataType.Location = New System.Drawing.Point(88, 36)
+        Me.CboDataType.Location = New System.Drawing.Point(88, 6)
         Me.CboDataType.Name = "CboDataType"
         Me.CboDataType.Size = New System.Drawing.Size(121, 24)
         Me.CboDataType.TabIndex = 44
         '
-        'Label5
+        'LblUnits
         '
-        Me.Label5.AutoSize = True
-        Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(2, 69)
-        Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(39, 16)
-        Me.Label5.TabIndex = 43
-        Me.Label5.Text = "Unit:"
-        Me.Label5.Visible = False
+        Me.LblUnits.AutoSize = True
+        Me.LblUnits.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblUnits.Location = New System.Drawing.Point(2, 39)
+        Me.LblUnits.Name = "LblUnits"
+        Me.LblUnits.Size = New System.Drawing.Size(39, 16)
+        Me.LblUnits.TabIndex = 43
+        Me.LblUnits.Text = "Unit:"
+        Me.LblUnits.Visible = False
         '
         'CboUnits
         '
@@ -245,7 +245,7 @@ Partial Class FrmAddData
         Me.CboUnits.Enabled = False
         Me.CboUnits.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CboUnits.FormattingEnabled = True
-        Me.CboUnits.Location = New System.Drawing.Point(88, 66)
+        Me.CboUnits.Location = New System.Drawing.Point(88, 36)
         Me.CboUnits.Name = "CboUnits"
         Me.CboUnits.Size = New System.Drawing.Size(121, 24)
         Me.CboUnits.TabIndex = 45
@@ -258,7 +258,7 @@ Partial Class FrmAddData
         Me.ClientSize = New System.Drawing.Size(677, 248)
         Me.Controls.Add(Me.CboUnits)
         Me.Controls.Add(Me.PnlJhCoeff)
-        Me.Controls.Add(Me.Label5)
+        Me.Controls.Add(Me.LblUnits)
         Me.Controls.Add(Me.CboDataType)
         Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.BtnApply)
@@ -297,6 +297,6 @@ Partial Class FrmAddData
     Friend WithEvents rdoOtherTemp As System.Windows.Forms.RadioButton
     Friend WithEvents Label4 As System.Windows.Forms.Label
     Friend WithEvents CboDataType As System.Windows.Forms.ComboBox
-    Friend WithEvents Label5 As System.Windows.Forms.Label
+    Friend WithEvents LblUnits As System.Windows.Forms.Label
     Friend WithEvents CboUnits As System.Windows.Forms.ComboBox
 End Class

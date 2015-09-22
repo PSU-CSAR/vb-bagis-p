@@ -60,8 +60,4 @@ Public Enum PublicPath
     <Description("\ExportProfile.xml")> ExportProfileXml
     <Description("\export_report.html")> ExportReportHtml
     <Description("\BAGIS_Parameters.csv")> DefaultParameterTemplate
-    <Description("\JH_Coef_Aug_Tmax")> JH_Coef_Aug_Tmax
-    <Description("\JH_Coef_Aug_Tmin")> JH_Coef_Aug_Tmin
-    <Description("\JH_Coef_Jul_Tmax")> JH_Coef_Jul_Tmax
-    <Description("\JH_Coef_Jul_Tmin")> JH_Coef_Jul_Tmin
 End Enum

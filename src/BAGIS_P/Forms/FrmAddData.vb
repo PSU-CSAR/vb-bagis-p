@@ -18,6 +18,7 @@ Public Class FrmAddData
     Dim m_settingsPath As String = Nothing
     Dim m_aoiPath As String = Nothing
     Dim m_jhDict As IDictionary(Of String, String)
+    Dim m_jhDescrDict As IDictionary(Of String, String)
 
     Public Sub New(ByVal layerTable As Dictionary(Of String, DataSource), ByVal aoiPath As String)
 
@@ -37,13 +38,9 @@ Public Class FrmAddData
             m_aoiPath = aoiPath
         End If
 
-        'Build reference data structure for  
-        m_jhDict = New Dictionary(Of String, String)
-        m_jhDict.Add(rdoJulTMin.Text, BA_EnumDescription(PublicPath.JH_Coef_Jul_Tmin))
-        m_jhDict.Add(rdoJulTMax.Text, BA_EnumDescription(PublicPath.JH_Coef_Jul_Tmax))
-        m_jhDict.Add(rdoAugTMin.Text, BA_EnumDescription(PublicPath.JH_Coef_Aug_Tmin))
-        m_jhDict.Add(rdoAugTMax.Text, BA_EnumDescription(PublicPath.JH_Coef_Aug_Tmax))
+        InitJHCoeff()
         LoadMeasurementUnitTypes()
+        AddHandlersToJHButtons()    'Has to be after LoadMeasurementTypes so events don't fire when loading
 
         'Enable admin capabilities if user has entered the admin password
         Dim bExt As BagisPExtension = BagisPExtension.GetExtension
@@ -74,18 +71,36 @@ Public Class FrmAddData
         TxtSource.Text = m_selDataSource.Source
         m_layerType = m_selDataSource.LayerType
 
-        'Build reference data structure for  
-        m_jhDict = New Dictionary(Of String, String)
-        m_jhDict.Add(rdoJulTMin.Text, BA_EnumDescription(PublicPath.JH_Coef_Jul_Tmin))
-        m_jhDict.Add(rdoJulTMax.Text, BA_EnumDescription(PublicPath.JH_Coef_Jul_Tmax))
-        m_jhDict.Add(rdoAugTMin.Text, BA_EnumDescription(PublicPath.JH_Coef_Aug_Tmin))
-        m_jhDict.Add(rdoAugTMax.Text, BA_EnumDescription(PublicPath.JH_Coef_Aug_Tmax))
-
+        InitJHCoeff()
         LoadMeasurementUnitTypes()
+        AddHandlersToJHButtons()    'Has to be after LoadMeasurementTypes so events don't fire when loading
 
         'Enable admin capabilities if user has entered the admin password
         Dim bExt As BagisPExtension = BagisPExtension.GetExtension
         If bExt.ProfileAdministrator = True Then EnableAdminActions()
+    End Sub
+
+    Private Sub InitJHCoeff()
+        m_jhDict = New Dictionary(Of String, String)
+        m_jhDict.Add(rdoJulTMin.Text, BA_JH_Coef_Jul_Tmin)
+        m_jhDict.Add(rdoJulTMax.Text, BA_JH_Coef_Jul_Tmax)
+        m_jhDict.Add(rdoAugTMin.Text, BA_JH_Coef_Aug_Tmin)
+        m_jhDict.Add(rdoAugTMax.Text, BA_JH_Coef_Aug_Tmax)
+
+        m_jhDescrDict = New Dictionary(Of String, String)
+        m_jhDescrDict.Add(BA_JH_Coef_Jul_Tmin, "July Min Temperature for JH_Coef estimation")
+        m_jhDescrDict.Add(BA_JH_Coef_Jul_Tmax, "July Max Temperature for JH_Coef estimation")
+        m_jhDescrDict.Add(BA_JH_Coef_Aug_Tmin, "August Min Temperature for JH_Coef estimation")
+        m_jhDescrDict.Add(BA_JH_Coef_Aug_Tmax, "August Max Temperature for JH_Coef estimation")
+
+    End Sub
+
+    Private Sub AddHandlersToJHButtons()
+        'Add listener to JH radio buttons
+        AddHandler Me.rdoJulTMin.CheckedChanged, AddressOf OnJhButtonChange
+        AddHandler Me.rdoJulTMax.CheckedChanged, AddressOf OnJhButtonChange
+        AddHandler Me.rdoAugTMin.CheckedChanged, AddressOf OnJhButtonChange
+        AddHandler Me.rdoAugTMax.CheckedChanged, AddressOf OnJhButtonChange
     End Sub
 
     Private Sub BtnCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCancel.Click
@@ -188,10 +203,11 @@ Public Class FrmAddData
         'Get layerType enumeration
         Dim pLayerType As LayerType = m_layerType
 
+        'Determine the measurement unit type and units
         Dim selUnitType As MeasurementUnitType = MeasurementUnitType.Missing
-        Dim selUnit As MeasurementUnit
+        Dim selUnit As MeasurementUnit = MeasurementUnit.Missing
         Dim selSlopeUnit As SlopeUnit
-        If CboDataType.SelectedIndex > -1 Then
+        If CboDataType.SelectedIndex > 0 Then
             selUnitType = BA_GetMeasurementUnitType(CboDataType.SelectedItem)
             If selUnitType = MeasurementUnitType.Slope And CboUnits.SelectedIndex > -1 Then
                 selSlopeUnit = BA_GetSlopeUnit(CboUnits.SelectedItem)
@@ -286,8 +302,8 @@ Public Class FrmAddData
             '24-APR-2012 As of this date we aren't saving the data field
             'pLayer.DataField = CStr(CboDataField.SelectedItem)
             pLayer.LayerType = pLayerType
-            If CboDataType.SelectedIndex > -1 Then
-                pLayer.MeasurementUnitType = selUnitType
+            pLayer.MeasurementUnitType = selUnitType
+            If CboDataType.SelectedIndex > 0 Then
                 If pLayer.MeasurementUnitType = MeasurementUnitType.Slope Then
                     pLayer.MeasurementUnit = MeasurementUnit.Missing
                     pLayer.SlopeUnit = selSlopeUnit
@@ -296,9 +312,11 @@ Public Class FrmAddData
                     pLayer.SlopeUnit = SlopeUnit.Missing
                 End If
             Else
-                pLayer.MeasurementUnitType = MeasurementUnitType.Missing
-                pLayer.MeasurementUnit = MeasurementUnit.Missing
+                pLayer.MeasurementUnit = selUnit
             End If
+            'Update jh_coef property
+            pLayer.JH_Coeff = GetJHCoeff()
+
             'Update layer in table
             m_layerTable.Item(m_selLayerName) = pLayer
             m_selDataSource = pLayer
@@ -309,7 +327,7 @@ Public Class FrmAddData
             Dim id As Integer = BA_GetNextDataSourceId(m_settingsPath)
             Dim newLayer As DataSource = New DataSource(id, layerName, TxtDescription.Text, source, False, _
                                                         pLayerType)
-            If CboDataType.SelectedIndex > -1 Then
+            If CboDataType.SelectedIndex > 0 Then
                 newLayer.MeasurementUnitType = selUnitType
                 If newLayer.MeasurementUnitType = MeasurementUnitType.Slope Then
                     newLayer.MeasurementUnit = MeasurementUnit.Missing
@@ -322,6 +340,9 @@ Public Class FrmAddData
                 newLayer.MeasurementUnitType = MeasurementUnitType.Missing
                 newLayer.MeasurementUnit = MeasurementUnit.Missing
             End If
+
+            'Update jh_coef property
+            newLayer.JH_Coeff = GetJHCoeff()
 
             'This is a new source; We need to add it to the table
             m_layerTable.Item(layerName) = newLayer
@@ -459,6 +480,8 @@ Public Class FrmAddData
 
     Private Sub LoadMeasurementUnitTypes()
         CboDataType.Items.Clear()
+        'Add blank to first position
+        CboDataType.Items.Add("")
         Dim enumValues As System.Array = System.[Enum].GetValues(GetType(MeasurementUnitType))
         'Start adding at position 1 to exclude "Missing" value
         For i As Integer = 1 To enumValues.Length - 1
@@ -501,10 +524,13 @@ Public Class FrmAddData
         End If
     End Sub
 
-    Private Sub CboUnitType_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CboDataType.SelectedIndexChanged
-        If CboDataType.SelectedItem IsNot Nothing Then
+    Private Sub CboDataType_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CboDataType.SelectedIndexChanged
+        If Not String.IsNullOrEmpty(CboDataType.SelectedItem) Then
             LoadMeasurementUnits()
             CboUnits.Visible = True
+            LblUnits.Visible = True
+            If CboDataType.SelectedItem.Equals(BA_EnumDescription(MeasurementUnitType.Temperature)) Then PnlJhCoeff.Visible = True
+
             If m_selDataSource IsNot Nothing Then
                 For Each strItem As String In CboUnits.Items
                     If m_selDataSource.MeasurementUnitType = MeasurementUnitType.Slope And _
@@ -514,11 +540,11 @@ Public Class FrmAddData
                         CboUnits.SelectedItem = strItem
                     End If
                 Next
-                If CboDataType.SelectedItem.Equals(BA_EnumDescription(MeasurementUnitType.Temperature)) Then
-                    PnlJhCoeff.Visible = True
-                    CheckHCoeffRadioButton(m_selDataSource.JH_Coeff)
-                End If
+                If CboDataType.SelectedItem.Equals(BA_EnumDescription(MeasurementUnitType.Temperature)) Then CheckHCoeffRadioButton(m_selDataSource.JH_Coeff)
             End If
+        Else
+            CboUnits.Visible = False
+            LblUnits.Visible = False
         End If
     End Sub
 
@@ -694,13 +720,22 @@ Public Class FrmAddData
         For Each ctrl As Control In PnlJhCoeff.Controls
             If ctrl.GetType() Is GetType(RadioButton) Then
                 Dim rButton As RadioButton = CType(ctrl, RadioButton)
-                retVal = m_jhDict(rButton.Text)
+                If rButton.Checked = True Then
+                    If m_jhDict.ContainsKey(rButton.Text) Then
+                        retVal = m_jhDict(rButton.Text)
+                        Return retVal
+                    End If
+                End If
             End If
         Next
         Return retVal
     End Function
 
     Private Sub CheckHCoeffRadioButton(ByVal jh_coeff As String)
+        If String.IsNullOrEmpty(jh_coeff) Then
+            rdoOtherTemp.Checked = True
+            Exit Sub
+        End If
         Dim checkVal As String = Nothing
         For Each ctrl As Control In PnlJhCoeff.Controls
             If ctrl.GetType() Is GetType(RadioButton) Then
@@ -714,7 +749,19 @@ Public Class FrmAddData
                 End If
             End If
         Next
-        ' Check "other" radio button if a match wasn't found
-        rdoOtherTemp.Checked = True
     End Sub
+
+    Private Sub OnJhButtonChange(ByVal sender As System.Object, ByVal e As System.EventArgs)
+        Dim rb = CType(sender, RadioButton)
+        If rb.Checked = True Then
+            TxtName.Text = GetJHCoeff()
+            For Each key As String In m_jhDescrDict.Keys
+                If key = TxtName.Text Then
+                    TxtDescription.Text = m_jhDescrDict(key)
+                    Exit For
+                End If
+            Next
+        End If
+    End Sub
+
 End Class
