@@ -101,6 +101,7 @@ Public Class FrmAddData
         AddHandler Me.rdoJulTMax.CheckedChanged, AddressOf OnJhButtonChange
         AddHandler Me.rdoAugTMin.CheckedChanged, AddressOf OnJhButtonChange
         AddHandler Me.rdoAugTMax.CheckedChanged, AddressOf OnJhButtonChange
+        AddHandler Me.rdoOtherTemp.CheckedChanged, AddressOf OnJhButtonChange
     End Sub
 
     Private Sub BtnCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCancel.Click
@@ -292,6 +293,26 @@ Public Class FrmAddData
                 Exit Sub
             End If
         End If
+
+        'Verify there are no existing layers with the same jh_coeff role
+        For Each key As String In m_layerTable.Keys
+            Dim pSource As DataSource = m_layerTable(key)
+            If pSource.JH_Coeff IsNot Nothing Then
+                Dim newJHCoeff As String = GetJHCoeff()
+                If pSource.JH_Coeff.Equals(newJHCoeff) Then
+                    If Not pSource.Name.Equals(TxtName.Text) Then
+                        Dim sb As StringBuilder = New StringBuilder
+                        sb.Append("There is an existing data source named" & vbCrLf)
+                        sb.Append(pSource.Name & " configured as the JH Coefficient layer for" & vbCrLf)
+                        sb.Append(newJHCoeff & "." & vbCrLf)
+                        sb.Append("Only one layer at a time can be designated as" & vbCrLf)
+                        sb.Append(newJHCoeff & ".")
+                        MessageBox.Show(sb.ToString, "Existing JH Coefficient layer", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        Exit Sub
+                    End If
+                End If
+            End If
+        Next
 
         'Update an existing layer if we have one
         If Not String.IsNullOrEmpty(m_selLayerName) Then
@@ -754,6 +775,12 @@ Public Class FrmAddData
     Private Sub OnJhButtonChange(ByVal sender As System.Object, ByVal e As System.EventArgs)
         Dim rb = CType(sender, RadioButton)
         If rb.Checked = True Then
+            'If other temperature chosen, set name and descr fields to null
+            If rb.Name.Equals("rdoOtherTemp") Then
+                TxtName.Text = ""
+                TxtDescription.Text = ""
+                Exit Sub
+            End If
             TxtName.Text = GetJHCoeff()
             For Each key As String In m_jhDescrDict.Keys
                 If key = TxtName.Text Then
