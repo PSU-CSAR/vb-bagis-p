@@ -36,6 +36,31 @@ Public Class FrmExportParametersEwsf
         CboResampleDem.Items.Add(BA_Resample_Nearest)
         CboResampleDem.Items.Add(BA_Resample_Cubic)
         CboResampleDem.SelectedItem = BA_Resample_Bilinear
+
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        Dim aoi As Aoi = bExt.aoi
+        If aoi IsNot Nothing Then
+            Try
+                m_aoi = aoi
+                TxtAoiPath.Text = m_aoi.FilePath
+                Me.Text = "Export Parameters (AOI: " & m_aoi.Name & m_aoi.ApplicationVersion & " )"
+
+                'Load layer lists
+                'Create a DirectoryInfo of the HRU directory.
+                Dim zonesDirectory As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, Nothing)
+                Dim dirZones As New DirectoryInfo(zonesDirectory)
+                Dim dirZonesArr As DirectoryInfo() = Nothing
+                If dirZones.Exists Then
+                    dirZonesArr = dirZones.GetDirectories
+                    LoadHruLayers(dirZonesArr)
+                End If
+
+                SetDemResolution()
+            Catch ex As Exception
+                MessageBox.Show("Unable to load current aoi. Exception: " & ex.Message)
+            End Try
+        End If
+
     End Sub
 
     Private Sub BtnSelectAoi_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSelectAoi.Click

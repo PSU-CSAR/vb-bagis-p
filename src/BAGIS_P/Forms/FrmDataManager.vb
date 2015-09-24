@@ -48,7 +48,61 @@ Public Class FrmDataManager
             BtnDelete.Location = New System.Drawing.Point(4, 329)
             'Delete button always visible for local data manager
             BtnDelete.Visible = True
-            Me.Text = "Data Manager (AOI: Not selected)"
+
+            Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+            Dim aoi As Aoi = bExt.aoi
+            If aoi Is Nothing Then
+                Me.Text = "Data Manager (AOI: Not selected)"
+            Else
+                Dim pStepProg As IStepProgressor = Nothing
+                ' Create/configure the ProgressDialog. This automatically displays the dialog
+                Dim progressDialog2 As IProgressDialog2 = Nothing
+                pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
+                ' Create/configure the ProgressDialog. This automatically displays the dialog
+                progressDialog2 = BA_GetProgressDialog(pStepProg, "Loading local data sources...", "Data manager loading")
+                pStepProg.Step()
+                Try
+                    m_aoi = aoi
+                    TxtAoiPath.Text = m_aoi.FilePath
+                    Me.Text = "Data Manager (AOI: " & m_aoi.Name & m_aoi.ApplicationVersion & " )"
+
+                    SetDatumInExtension(m_aoi.FilePath)
+                    m_settingsPath = BA_GetLocalSettingsPath(m_aoi.FilePath)
+                    Dim aoiHashtable As Hashtable = BA_LoadSettingsFile(m_settingsPath)
+                    BA_AppendUnitsToDataSources(aoiHashtable, m_aoi.FilePath)
+                    pStepProg.Step()
+                    BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, aoiHashtable, m_slopeUnit, m_elevUnit, _
+                                                 m_depthUnit, m_degreeUnit)
+                    pStepProg.Step()
+                    If m_slopeUnit = SlopeUnit.Missing Or _
+                        m_elevUnit = MeasurementUnit.Missing Or _
+                        m_depthUnit = MeasurementUnit.Missing Then
+                        Dim frmDataUnits As FrmDataUnits = New FrmDataUnits(m_aoi, m_slopeUnit, m_elevUnit, m_depthUnit)
+                        frmDataUnits.ShowDialog()
+                        'Update with changes
+                        BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, aoiHashtable, m_slopeUnit, m_elevUnit, _
+                                                     m_depthUnit, m_degreeUnit)
+                    End If
+                    Dim errorMsg As String = BA_ValidateMeasurementUnitsForAoi(aoiHashtable, m_depthUnit, m_elevUnit, _
+                                                                               m_slopeUnit, m_degreeUnit)
+                    If errorMsg.Length > 0 Then
+                        MessageBox.Show(errorMsg, "Measurement unit error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    End If
+                    m_dataTable = New Dictionary(Of String, DataSource)
+                    For Each key In aoiHashtable.Keys
+                        m_dataTable.Add(key, aoiHashtable(key))
+                    Next
+                    progressDialog2.HideDialog()
+                Catch ex As Exception
+                    ' Clean up step progressor
+                    If progressDialog2 IsNot Nothing Then
+                        progressDialog2.HideDialog()
+                    End If
+                    ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pStepProg)
+                    ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(progressDialog2)
+                    MessageBox.Show("Error loading current aoi. Exception: " & ex.Message)
+                End Try
+            End If
         End If
 
         ReloadGrid()
