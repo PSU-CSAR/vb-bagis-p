@@ -111,6 +111,84 @@ Public Class FrmProfileBuilder
         GrdProfiles.Refresh()
         m_selProfile = Nothing
         GrdMethods.Rows.Clear()
+
+        If m_mode = BA_BAGISP_MODE_LOCAL Then
+            ' Set AOI if already set
+            Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+            Dim aoi As Aoi = bExt.aoi
+            If aoi IsNot Nothing Then
+
+                Dim pStepProg As IStepProgressor = Nothing
+                ' Create/configure the ProgressDialog. This automatically displays the dialog
+                Dim progressDialog2 As IProgressDialog2 = Nothing
+                pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 6)
+                ' Create/configure the ProgressDialog. This automatically displays the dialog
+                progressDialog2 = BA_GetProgressDialog(pStepProg, "Gathering HRU information...", "Profile builder loading")
+                pStepProg.Step()
+
+                m_aoi = aoi
+                TxtAoiPath.Text = m_aoi.FilePath
+                Me.Text = "Profile Builder (AOI: " & aoi.Name & m_aoi.ApplicationVersion & " )"
+
+                BA_SetDefaultProjection(My.ArcMap.Application)
+                SetDatumInExtension()
+
+                Try
+                    ' Get the count of zone directories so we know how many steps to put into the StepProgressor
+                    ' Create a DirectoryInfo of the HRU directory.
+                    Dim zonesDirectory As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, Nothing)
+                    Dim dirZones As New DirectoryInfo(zonesDirectory)
+                    Dim dirZonesArr As DirectoryInfo() = Nothing
+                    If dirZones.Exists Then
+                        dirZonesArr = dirZones.GetDirectories
+                        LoadHruGrid(dirZonesArr)
+                    Else
+                        'Reset HRU layers from a previous AOI
+                        GrdHruLayers.Rows.Clear()
+                    End If
+
+                    'Populate data table
+                    pStepProg.Message = "Loading data sources"
+                    pStepProg.Step()
+                    m_dataTable = BA_LoadSettingsFile(BA_GetLocalSettingsPath(m_aoi.FilePath))
+                    BA_AppendUnitsToDataSources(m_dataTable, m_aoi.FilePath)
+                    pStepProg.Step()
+                    BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
+                         m_depthUnit, m_degreeUnit)
+
+                    If m_slopeUnit = SlopeUnit.Missing Or _
+                        m_elevUnit = MeasurementUnit.Missing Or _
+                        m_depthUnit = MeasurementUnit.Missing Then
+                        Dim frmDataUnits As FrmDataUnits = New FrmDataUnits(m_aoi, m_slopeUnit, m_elevUnit, m_depthUnit)
+                        frmDataUnits.ShowDialog()
+                        'Update with changes
+                        BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
+                                                     m_depthUnit, m_degreeUnit)
+                    End If
+
+                    RefreshProfileData()
+                    pStepProg.Step()
+                    RefreshMethodData()
+                    LoadSubAOIPanel()
+
+                    'Re-Initialize m_methodStatusTable
+                    m_methodStatusTable = New Hashtable
+                    pStepProg.Message = "Refreshing view"
+                    pStepProg.Step()
+                    LoadProfileGrid()
+                    LblStatus.Text = Nothing
+                    progressDialog2.HideDialog()
+                Catch ex As Exception
+                    Debug.Print("FrmProfileBuilder_Load Exception: " & ex.Message)
+                    ' Clean up step progressor
+                    If progressDialog2 IsNot Nothing Then
+                        progressDialog2.HideDialog()
+                    End If
+                    ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pStepProg)
+                    ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(progressDialog2)
+                End Try
+            End If
+        End If
     End Sub
 
     Private Sub BtnSelectAoi_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSelectAoi.Click
