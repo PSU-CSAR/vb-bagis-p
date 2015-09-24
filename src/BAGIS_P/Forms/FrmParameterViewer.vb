@@ -26,6 +26,41 @@ Public Class FrmParameterViewer
     Dim m_resImageArray(6) As Image
     Dim m_displayStyle(6) As String
 
+    Public Sub New()
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        Dim aoi As Aoi = bExt.aoi
+        If aoi IsNot Nothing Then
+            Try
+                m_aoi = aoi
+                TxtAoiPath.Text = m_aoi.FilePath
+                Me.Text = "Parameter Viewer (AOI: " & m_aoi.Name & m_aoi.ApplicationVersion & " )"
+
+                'Load layer lists
+                'Create a DirectoryInfo of the HRU directory.
+                Dim zonesDirectory As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, Nothing)
+                Dim dirZones As New DirectoryInfo(zonesDirectory)
+                Dim dirZonesArr As DirectoryInfo() = Nothing
+                If dirZones.Exists Then
+                    dirZonesArr = dirZones.GetDirectories
+                    LoadHruLayers(dirZonesArr)
+                End If
+
+                'Populate profile Hashtable
+                RefreshProfileData()
+                'Populate Method Hashtable
+                RefreshMethodData()
+            Catch ex As Exception
+                MessageBox.Show("Unable to load current aoi. Exception: " & ex.Message)
+            End Try
+        End If
+
+    End Sub
+
     Private Sub BtnSelectAoi_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSelectAoi.Click
         Dim bObjectSelected As Boolean
         Dim pGxDialog As IGxDialog = New GxDialog
@@ -626,4 +661,5 @@ Public Class FrmParameterViewer
             MessageBox.Show("An error occurred while trying to read the selected log file. It cannot be displayed.", "Unknown error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End If
     End Sub
+
 End Class
