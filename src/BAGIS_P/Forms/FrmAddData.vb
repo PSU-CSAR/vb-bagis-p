@@ -19,6 +19,7 @@ Public Class FrmAddData
     Dim m_aoiPath As String = Nothing
     Dim m_jhDict As IDictionary(Of String, String)
     Dim m_jhDescrDict As IDictionary(Of String, String)
+    Private Const UNDEFINED As String = "Undefined"
 
     Public Sub New(ByVal layerTable As Dictionary(Of String, DataSource), ByVal aoiPath As String)
 
@@ -235,7 +236,8 @@ Public Class FrmAddData
                 sb.Append("and units " & units & ". This is not compatible" & vbCrLf)
                 sb.Append("with your current selection of " & CboUnits.SelectedItem & "." & vbCrLf)
                 sb.Append("All data sources that share a measurement unit type" & vbCrLf)
-                sb.Append("must use the same units.")
+                sb.Append("must use the same units." & vbCrLf)
+                sb.Append("Use the adminstrator interface to update the existing data source.")
                 MessageBox.Show(sb.ToString, "Measurement unit error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Exit Sub
             End If
@@ -294,25 +296,27 @@ Public Class FrmAddData
             End If
         End If
 
+        'Commenting because name is now read-only and we can't have duplicate names; May need to reinstate if users
+        'want to have their own names for jh_coeff layer
         'Verify there are no existing layers with the same jh_coeff role
-        For Each key As String In m_layerTable.Keys
-            Dim pSource As DataSource = m_layerTable(key)
-            If pSource.JH_Coeff IsNot Nothing Then
-                Dim newJHCoeff As String = GetJHCoeff()
-                If pSource.JH_Coeff.Equals(newJHCoeff) Then
-                    If Not pSource.Name.Equals(TxtName.Text) Then
-                        Dim sb As StringBuilder = New StringBuilder
-                        sb.Append("There is an existing data source named" & vbCrLf)
-                        sb.Append(pSource.Name & " configured as the JH Coefficient layer for" & vbCrLf)
-                        sb.Append(newJHCoeff & "." & vbCrLf)
-                        sb.Append("Only one layer at a time can be designated as" & vbCrLf)
-                        sb.Append(newJHCoeff & ".")
-                        MessageBox.Show(sb.ToString, "Existing JH Coefficient layer", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                        Exit Sub
-                    End If
-                End If
-            End If
-        Next
+        'For Each key As String In m_layerTable.Keys
+        '    Dim pSource As DataSource = m_layerTable(key)
+        '    If pSource.JH_Coeff IsNot Nothing Then
+        '        Dim newJHCoeff As String = GetJHCoeff()
+        '        If pSource.JH_Coeff.Equals(newJHCoeff) Then
+        '            If Not pSource.Name.Equals(TxtName.Text) Then
+        '                Dim sb As StringBuilder = New StringBuilder
+        '                sb.Append("There is an existing data source named" & vbCrLf)
+        '                sb.Append(pSource.Name & " configured as the JH Coefficient layer for" & vbCrLf)
+        '                sb.Append(newJHCoeff & "." & vbCrLf)
+        '                sb.Append("Only one layer at a time can be designated as" & vbCrLf)
+        '                sb.Append(newJHCoeff & ".")
+        '                MessageBox.Show(sb.ToString, "Existing JH Coefficient layer", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        '                Exit Sub
+        '            End If
+        '        End If
+        '    End If
+        'Next
 
         'Update an existing layer if we have one
         If Not String.IsNullOrEmpty(m_selLayerName) Then
@@ -502,7 +506,7 @@ Public Class FrmAddData
     Private Sub LoadMeasurementUnitTypes()
         CboDataType.Items.Clear()
         'Add blank to first position
-        CboDataType.Items.Add("")
+        CboDataType.Items.Add(UNDEFINED)
         Dim enumValues As System.Array = System.[Enum].GetValues(GetType(MeasurementUnitType))
         'Start adding at position 1 to exclude "Missing" value
         For i As Integer = 1 To enumValues.Length - 1
@@ -510,7 +514,6 @@ Public Class FrmAddData
         Next
 
         'Set the measurement unit in the UI, if appropriate
-        CboDataType.SelectedIndex = 0
         If m_selDataSource IsNot Nothing AndAlso _
             m_selDataSource.MeasurementUnitType <> MeasurementUnitType.Missing Then
             For Each strItem As String In CboDataType.Items
@@ -518,6 +521,8 @@ Public Class FrmAddData
                     CboDataType.SelectedItem = strItem
                 End If
             Next
+        Else
+            CboDataType.SelectedIndex = 0
         End If
 
     End Sub
@@ -546,11 +551,15 @@ Public Class FrmAddData
     End Sub
 
     Private Sub CboDataType_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CboDataType.SelectedIndexChanged
-        If Not String.IsNullOrEmpty(CboDataType.SelectedItem) Then
+        If Not CboDataType.SelectedItem.Equals(UNDEFINED) Then
             LoadMeasurementUnits()
             CboUnits.Visible = True
             LblUnits.Visible = True
-            If CboDataType.SelectedItem.Equals(BA_EnumDescription(MeasurementUnitType.Temperature)) Then PnlJhCoeff.Visible = True
+            If CboDataType.SelectedItem.Equals(BA_EnumDescription(MeasurementUnitType.Temperature)) Then
+                PnlJhCoeff.Visible = True
+            Else
+                DisableJhCoeffButtons()
+            End If
 
             If m_selDataSource IsNot Nothing Then
                 For Each strItem As String In CboUnits.Items
@@ -561,11 +570,12 @@ Public Class FrmAddData
                         CboUnits.SelectedItem = strItem
                     End If
                 Next
-                If CboDataType.SelectedItem.Equals(BA_EnumDescription(MeasurementUnitType.Temperature)) Then CheckHCoeffRadioButton(m_selDataSource.JH_Coeff)
+                If CboDataType.SelectedItem.Equals(BA_EnumDescription(MeasurementUnitType.Temperature)) Then CheckHCoeffRadioButton()
             End If
         Else
             CboUnits.Visible = False
             LblUnits.Visible = False
+            DisableJhCoeffButtons()
         End If
     End Sub
 
@@ -752,8 +762,8 @@ Public Class FrmAddData
         Return retVal
     End Function
 
-    Private Sub CheckHCoeffRadioButton(ByVal jh_coeff As String)
-        If String.IsNullOrEmpty(jh_coeff) Then
+    Private Sub CheckHCoeffRadioButton()
+        If String.IsNullOrEmpty(m_selDataSource.JH_Coeff) Then
             rdoOtherTemp.Checked = True
             Exit Sub
         End If
@@ -763,8 +773,10 @@ Public Class FrmAddData
                 Dim rButton As RadioButton = CType(ctrl, RadioButton)
                 If m_jhDict.ContainsKey(rButton.Text) Then
                     checkVal = m_jhDict(rButton.Text)
-                    If checkVal.Equals(jh_coeff) Then
+                    If checkVal.Equals(m_selDataSource.JH_Coeff) Then
                         rButton.Checked = True
+                        TxtName.ReadOnly = True
+                        TxtDescription.ReadOnly = True
                         Exit Sub
                     End If
                 End If
@@ -778,17 +790,33 @@ Public Class FrmAddData
             'If other temperature chosen, set name and descr fields to null
             If rb.Name.Equals("rdoOtherTemp") Then
                 TxtName.Text = ""
+                TxtName.ReadOnly = False
                 TxtDescription.Text = ""
+                TxtDescription.ReadOnly = False
                 Exit Sub
             End If
             TxtName.Text = GetJHCoeff()
+            TxtName.ReadOnly = True
             For Each key As String In m_jhDescrDict.Keys
                 If key = TxtName.Text Then
                     TxtDescription.Text = m_jhDescrDict(key)
+                    TxtDescription.ReadOnly = True
                     Exit For
                 End If
             Next
         End If
+    End Sub
+
+    Private Sub DisableJhCoeffButtons()
+        'Uncheck all temperature options and hide panel if temperature is not selected
+        For Each ctrl As Control In PnlJhCoeff.Controls
+            If ctrl.GetType() Is GetType(RadioButton) Then
+                Dim rButton As RadioButton = CType(ctrl, RadioButton)
+                rButton.Checked = False
+            End If
+        Next
+        If m_selDataSource IsNot Nothing Then m_selDataSource.JH_Coeff = Nothing
+        PnlJhCoeff.Visible = False
     End Sub
 
 End Class
