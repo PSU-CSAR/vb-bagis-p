@@ -425,9 +425,33 @@ Public Class FrmExportParametersEwsf
             ReadBagisParameterNames()
         End If
 
+        'Calculating JH_Coeff for AOI
+        ' 1. Open public settings file to get file name for each jh layer
+        ' 2. Check to see if the layer exists in aoi param.gdb
+        Dim jhLayerPaths As IDictionary(Of String, String) = BA_GetJHLayerPaths(m_aoi.FilePath)
+        Dim warning As String = ""
+        If jhLayerPaths.Count > 4 Then
+            warning += "One or more layers required to calculate the JH_Coeff are "
+            warning += "undefined or missing from the current AOI. The jh_coeff column in the "
+            warning += "nmonths table should be edited manually."
+        End If
+        ' 3. Check to see if model exists in local methods folder
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        Dim settingsPath As String = bExt.SettingsPath
+        Dim toolBoxPrefix As String = BA_GetPublicMethodsPath(settingsPath)
+        Dim success As BA_ReturnCode = BA_VerifyJHModel(m_aoi.FilePath, hruPath, TryCast(LstProfiles.SelectedItem, String), _
+                                                        toolBoxPrefix, jhLayerPaths)
+        ' 4. Populate model parameters and run model
+        ' 5. Read jh_coeff value from output table
+        ' 6. Delete output table
+        ' 7. find jh_coeff column in nmonths table and overwrite with this value
+        If Not String.IsNullOrEmpty(warning) Then
+            MessageBox.Show(warning, "Invalid jh_coeff calculation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End If
+
         Dim hruParamPath As String = hruPath & BA_EnumDescription(PublicPath.BagisParamGdb)
         Dim tableName As String = CStr(LstProfiles.SelectedItem) & BA_PARAM_TABLE_SUFFIX
-        Dim success As Boolean = VerifyParameterValuesInTable(hruParamPath, tableName, True)
+        success = VerifyParameterValuesInTable(hruParamPath, tableName, True)
         Dim retVal As BA_ReturnCode = BA_ReturnCode.Success
 
         If success = True Then

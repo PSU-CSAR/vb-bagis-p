@@ -1,6 +1,8 @@
 ﻿Imports BAGIS_ClassLibrary
 Imports System.IO
 Imports System.Text
+Imports ESRI.ArcGIS.Geoprocessing
+Imports ESRI.ArcGIS.esriSystem
 
 Module MethodModule
 
@@ -549,6 +551,60 @@ Module MethodModule
             Next
         End If
         Return strValue
+    End Function
+
+    Public Function BA_GetJHLayerPaths(ByVal aoiPath As String) As IDictionary(Of String, String)
+        Dim returnDictionary As IDictionary(Of String, String) = New Dictionary(Of String, String)
+        Dim settingsPath As String = BA_GetBagisPSettingsPath()
+        Dim dataTable As Dictionary(Of String, DataSource) = BA_LoadAllSettingsFile(settingsPath)
+        For Each dName As String In dataTable.Keys
+            Dim dSource As DataSource = dataTable(dName)
+            If Not String.IsNullOrEmpty(dSource.JH_Coeff) Then
+                Dim jhRole As String = dSource.JH_Coeff
+                Dim fileName As String = BA_GetBareName(dSource.Source)
+                Dim lclPath As String = aoiPath & BA_EnumDescription(PublicPath.BagisParamFolder) & BA_EnumDescription(PublicPath.BagisDataBinGdb) & "\" & fileName
+                If BA_File_Exists(lclPath, WorkspaceType.Geodatabase, ESRI.ArcGIS.Geodatabase.esriDatasetType.esriDTRasterDataset) Then
+                    returnDictionary.Add(jhRole, lclPath)
+                End If
+            End If
+        Next
+        Return returnDictionary
+    End Function
+
+    Public Function BA_VerifyJHModel(ByVal aoiPath As String, ByVal hruPath As String, ByVal selProfile As String, _
+                                     ByVal toolBoxPrefix As String, ByVal layerPaths As IDictionary(Of String, String)) As BA_ReturnCode
+        Dim pModel As IGPTool
+        Dim pParamArray As IVariantArray = New VarArray
+        Try
+            pModel = BA_OpenModel(toolBoxPrefix, "bagis_method_building_blocks.tbx", "JHCoefAOI")
+            Dim params As List(Of ModelParameter) = BA_GetModelParameters(pModel)
+            For Each mParam As ModelParameter In params
+                '@ToDo: How best to supply a temperature data source and the units to populate the parameter 
+                Dim pValue As String = BA_CalculateSystemParameter(mParam.Name, hruPath, selProfile, DataTable)
+
+                If mParam.Name = "db_jul_tmin_grid" Then
+                    mParam.Value = layerPaths(BA_JH_Coef_Jul_Tmin)
+                ElseIf mParam.Name = "db_jul_tmax_grid" Then
+                    mParam.Value = layerPaths(BA_JH_Coef_Jul_Tmax)
+                ElseIf mParam.Name = "db_aug_tmax_grid" Then
+                    mParam.Value = layerPaths(BA_JH_Coef_Aug_Tmax)
+                ElseIf mParam.Name = "db_aug_tmin_grid" Then
+                    mParam.Value = layerPaths(BA_JH_Coef_Aug_Tmin)
+                End If
+            Next
+            Dim errorMessage As String = Nothing
+            Dim scratchDir As String = aoiPath & BA_EnumDescription(PublicPath.BagisPDefaultWorkspace)
+            For Each pParam As ModelParameter In params
+                pParamArray.Add(pParam.Value)
+            Next
+            Return BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage)
+        Catch ex As Exception
+            Debug.Print("BA_VerifyJHModel Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+            pModel = Nothing
+            pParamArray = Nothing
+        End Try
     End Function
 
 End Module
