@@ -442,7 +442,7 @@ Public Class FrmExportParametersEwsf
             Dim bExt As BagisPExtension = BagisPExtension.GetExtension
             Dim settingsPath As String = bExt.SettingsPath
             Dim toolBoxPrefix As String = BA_GetPublicMethodsPath(settingsPath)
-            Dim jh_table As String = BA_GetBareName(BA_EnumDescription(PublicPath.JhCoeffAoiTable))
+            Dim jh_table As String = BA_GetBareName(BA_EnumDescription(PublicPath.JhCoefAoiTable))
             Dim jh_success As BA_ReturnCode = BA_ExecuteJHModel(m_aoi.FilePath, hruPath, TryCast(LstProfiles.SelectedItem, String), _
                                                             toolBoxPrefix, jhLayerPaths, unitsDataSource, jh_table)
             If jh_success <> BA_ReturnCode.Success Then

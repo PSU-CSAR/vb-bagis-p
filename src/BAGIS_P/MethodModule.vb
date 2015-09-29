@@ -146,6 +146,8 @@ Module MethodModule
                     Next
                 End If
                 Return ControlChars.Quote & BA_EnumDescription(pUnit) & ControlChars.Quote
+            Case SystemModelParameterName.sys_jh_coef_table
+                Return BA_GetBareName(BA_EnumDescription(PublicPath.JhCoefAoiTable))
             Case Else
                 Return Nothing
         End Select
