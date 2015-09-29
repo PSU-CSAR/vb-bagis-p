@@ -60,4 +60,8 @@ Public Enum PublicPath
     <Description("\ExportProfile.xml")> ExportProfileXml
     <Description("\export_report.html")> ExportReportHtml
     <Description("\BAGIS_Parameters.csv")> DefaultParameterTemplate
+    'Table name that contains result of jh_coeff aoi calculation
+    'Name is hard-coded into bagis_method_building_blocks.tbx\JH_Coef_AOI model
+    'in "Zonal Statistics as Table: Get median elev for the AOI" task
+    <Description("\jh_coeff_aoi")> JhCoeffAoiTable
 End Enum
