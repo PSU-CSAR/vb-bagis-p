@@ -409,6 +409,7 @@ Public Class FrmExportParametersEwsf
         'Read log to extract missing data value
         Dim selItem As LayerListItem = CType(LstHruLayers.SelectedItem, LayerListItem)
         Dim hruPath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name)
+        Dim hruParamPath As String = hruPath & BA_EnumDescription(PublicPath.BagisParamGdb)
         Dim missingData As String = Nothing
         Dim logProfile As LogProfile = BA_LoadLogProfileFromXml(hruPath & "\" & TryCast(LstProfiles.SelectedItem, String) & "_params_log.xml")
         If logProfile IsNot Nothing Then
@@ -428,30 +429,48 @@ Public Class FrmExportParametersEwsf
         'Calculating JH_Coeff for AOI
         ' 1. Open public settings file to get file name for each jh layer
         ' 2. Check to see if the layer exists in aoi param.gdb
-        Dim jhLayerPaths As IDictionary(Of String, String) = BA_GetJHLayerPaths(m_aoi.FilePath)
+        Dim unitsDataSource As DataSource = Nothing 'A data source populated during next function call to be queried when determining units
+        Dim jhLayerPaths As IDictionary(Of String, String) = BA_GetJHLayerPaths(m_aoi.FilePath, unitsDataSource)
         Dim warning As String = ""
-        If jhLayerPaths.Count > 4 Then
+        If jhLayerPaths.Count < 4 Then
             warning += "One or more layers required to calculate the JH_Coeff are "
             warning += "undefined or missing from the current AOI. The jh_coeff column in the "
-            warning += "nmonths table should be edited manually."
+            warning += "nmonths table should be edited manually." & vbCrLf & vbCrLf
+        Else
+            ' 3. Check to see if model exists in local methods folder
+            ' 4. Populate model parameters and run model
+            Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+            Dim settingsPath As String = bExt.SettingsPath
+            Dim toolBoxPrefix As String = BA_GetPublicMethodsPath(settingsPath)
+            Dim jh_table As String = BA_GetBareName(BA_EnumDescription(PublicPath.JhCoeffAoiTable))
+            Dim jh_success As BA_ReturnCode = BA_ExecuteJHModel(m_aoi.FilePath, hruPath, TryCast(LstProfiles.SelectedItem, String), _
+                                                            toolBoxPrefix, jhLayerPaths, unitsDataSource, jh_table)
+            If jh_success <> BA_ReturnCode.Success Then
+                warning += "An error occurred while calculating the JH_Coeff. The jh_coeff "
+                warning += " column in the nmonths table should be edited manually." & vbCrLf & vbCrLf
+            Else
+                ' 5. Read jh_coeff value from output table
+                Dim jh_coeff As Double = BA_ReadJHCoeffResults(hruParamPath, jh_table, jh_table)
+                ' 6. Delete output table
+                If jh_coeff <> BA_9999 Then
+                    jh_success = BA_Remove_TableFromGDB(hruParamPath, jh_table)
+                    If jh_success <> BA_ReturnCode.Success Then
+                        warning += "The table created for the AOI JH_Coeff calculation could "
+                        warning += "not be deleted. You should manually delete this table "
+                        warning += "the path is: " & vbCrLf & vbCrLf
+                        warning += hruParamPath & "\" & jh_table
+                    End If
+                End If
+                ' 7. find jh_coeff column in nmonths table and overwrite with this value
+            End If
         End If
-        ' 3. Check to see if model exists in local methods folder
-        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
-        Dim settingsPath As String = bExt.SettingsPath
-        Dim toolBoxPrefix As String = BA_GetPublicMethodsPath(settingsPath)
-        Dim success As BA_ReturnCode = BA_VerifyJHModel(m_aoi.FilePath, hruPath, TryCast(LstProfiles.SelectedItem, String), _
-                                                        toolBoxPrefix, jhLayerPaths)
-        ' 4. Populate model parameters and run model
-        ' 5. Read jh_coeff value from output table
-        ' 6. Delete output table
-        ' 7. find jh_coeff column in nmonths table and overwrite with this value
+
         If Not String.IsNullOrEmpty(warning) Then
             MessageBox.Show(warning, "Invalid jh_coeff calculation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End If
 
-        Dim hruParamPath As String = hruPath & BA_EnumDescription(PublicPath.BagisParamGdb)
         Dim tableName As String = CStr(LstProfiles.SelectedItem) & BA_PARAM_TABLE_SUFFIX
-        success = VerifyParameterValuesInTable(hruParamPath, tableName, True)
+        Dim success As BA_ReturnCode = VerifyParameterValuesInTable(hruParamPath, tableName, True)
         Dim retVal As BA_ReturnCode = BA_ReturnCode.Success
 
         If success = True Then

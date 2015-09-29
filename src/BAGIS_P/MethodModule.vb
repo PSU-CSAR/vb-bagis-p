@@ -1,6 +1,7 @@
 ﻿Imports BAGIS_ClassLibrary
 Imports System.IO
 Imports System.Text
+Imports ESRI.ArcGIS.Geodatabase
 Imports ESRI.ArcGIS.Geoprocessing
 Imports ESRI.ArcGIS.esriSystem
 
@@ -317,7 +318,7 @@ Module MethodModule
                     Else
                         'Otherwise it's a local data source
                         inputFolder = BA_GetDataBinPath(aoiPath)
-                        inputFile = pDataSource.Source
+                        inputFile = BA_GetBareName(pDataSource.Source)
                     End If
                     Dim tagsList As IList(Of String) = BA_ReadMetaData(inputFolder, inputFile, _
                                                                        pDataSource.LayerType, _
@@ -553,7 +554,7 @@ Module MethodModule
         Return strValue
     End Function
 
-    Public Function BA_GetJHLayerPaths(ByVal aoiPath As String) As IDictionary(Of String, String)
+    Public Function BA_GetJHLayerPaths(ByVal aoiPath As String, ByRef unitsDataSource As DataSource) As IDictionary(Of String, String)
         Dim returnDictionary As IDictionary(Of String, String) = New Dictionary(Of String, String)
         Dim settingsPath As String = BA_GetBagisPSettingsPath()
         Dim dataTable As Dictionary(Of String, DataSource) = BA_LoadAllSettingsFile(settingsPath)
@@ -562,49 +563,94 @@ Module MethodModule
             If Not String.IsNullOrEmpty(dSource.JH_Coeff) Then
                 Dim jhRole As String = dSource.JH_Coeff
                 Dim fileName As String = BA_GetBareName(dSource.Source)
-                Dim lclPath As String = aoiPath & BA_EnumDescription(PublicPath.BagisParamFolder) & BA_EnumDescription(PublicPath.BagisDataBinGdb) & "\" & fileName
+                Dim lclPath As String = BA_GetDataBinPath(aoiPath) & "\" & fileName
                 If BA_File_Exists(lclPath, WorkspaceType.Geodatabase, ESRI.ArcGIS.Geodatabase.esriDatasetType.esriDTRasterDataset) Then
                     returnDictionary.Add(jhRole, lclPath)
+                    If unitsDataSource Is Nothing Then
+                        unitsDataSource = dSource
+                    End If
                 End If
             End If
         Next
         Return returnDictionary
     End Function
 
-    Public Function BA_VerifyJHModel(ByVal aoiPath As String, ByVal hruPath As String, ByVal selProfile As String, _
-                                     ByVal toolBoxPrefix As String, ByVal layerPaths As IDictionary(Of String, String)) As BA_ReturnCode
+    Public Function BA_ExecuteJHModel(ByVal aoiPath As String, ByVal hruPath As String, ByVal selProfile As String, _
+                                     ByVal toolBoxPrefix As String, ByVal layerPaths As IDictionary(Of String, String), _
+                                     ByVal unitsDataSource As DataSource, ByVal outputFieldName As String) As BA_ReturnCode
         Dim pModel As IGPTool
         Dim pParamArray As IVariantArray = New VarArray
         Try
             pModel = BA_OpenModel(toolBoxPrefix, "bagis_method_building_blocks.tbx", "JHCoefAOI")
             Dim params As List(Of ModelParameter) = BA_GetModelParameters(pModel)
+            'Getting the units from 1 data source only for better performance
+            Dim dataTable As Hashtable = New Hashtable
+            dataTable.Add(unitsDataSource.Name, unitsDataSource)
+            BA_AppendUnitsToDataSources(dataTable, aoiPath)
             For Each mParam As ModelParameter In params
-                '@ToDo: How best to supply a temperature data source and the units to populate the parameter 
-                Dim pValue As String = BA_CalculateSystemParameter(mParam.Name, hruPath, selProfile, DataTable)
-
-                If mParam.Name = "db_jul_tmin_grid" Then
-                    mParam.Value = layerPaths(BA_JH_Coef_Jul_Tmin)
-                ElseIf mParam.Name = "db_jul_tmax_grid" Then
-                    mParam.Value = layerPaths(BA_JH_Coef_Jul_Tmax)
-                ElseIf mParam.Name = "db_aug_tmax_grid" Then
-                    mParam.Value = layerPaths(BA_JH_Coef_Aug_Tmax)
-                ElseIf mParam.Name = "db_aug_tmin_grid" Then
-                    mParam.Value = layerPaths(BA_JH_Coef_Aug_Tmin)
+                Dim pValue As String = BA_CalculateSystemParameter(mParam.Name, hruPath, selProfile, dataTable)
+                If pValue Is Nothing Then
+                    'The parameter was not a system parameter
+                    If mParam.Name = "db_jul_tmin_grid" Then
+                        mParam.Value = layerPaths(BA_JH_Coef_Jul_Tmin)
+                    ElseIf mParam.Name = "db_jul_tmax_grid" Then
+                        mParam.Value = layerPaths(BA_JH_Coef_Jul_Tmax)
+                    ElseIf mParam.Name = "db_aug_tmax_grid" Then
+                        mParam.Value = layerPaths(BA_JH_Coef_Aug_Tmax)
+                    ElseIf mParam.Name = "db_aug_tmin_grid" Then
+                        mParam.Value = layerPaths(BA_JH_Coef_Aug_Tmin)
+                    ElseIf mParam.Name.Substring(0, BA_FIELD_PREFIX.Length).ToLower = BA_FIELD_PREFIX Then
+                        mParam.Value = outputFieldName
+                    End If
+                Else
+                    mParam.Value = pValue
                 End If
+                pParamArray.Add(mParam.Value)
+                Debug.Print(mParam.Name & ": " & mParam.Value)
             Next
+
             Dim errorMessage As String = Nothing
             Dim scratchDir As String = aoiPath & BA_EnumDescription(PublicPath.BagisPDefaultWorkspace)
-            For Each pParam As ModelParameter In params
-                pParamArray.Add(pParam.Value)
-            Next
             Return BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage)
         Catch ex As Exception
-            Debug.Print("BA_VerifyJHModel Exception: " & ex.Message)
+            Debug.Print("BA_ExecuteJHModel Exception: " & ex.Message)
             Return BA_ReturnCode.UnknownError
         Finally
             pModel = Nothing
             pParamArray = Nothing
         End Try
+    End Function
+
+    Public Function BA_ReadJHCoeffResults(ByVal gdbPath As String, ByVal fileName As String, _
+                                          ByVal fieldName As String) As Double
+        Dim result As Double = BA_9999
+        Dim rTable As ITable = Nothing
+        Dim pCursor As ICursor = Nothing
+        Dim pRow As IRow = Nothing
+        Dim pFields As IFields = Nothing
+        Try
+            rTable = BA_OpenTableFromGDB(gdbPath, fileName)
+            If rTable IsNot Nothing Then
+                If rTable IsNot Nothing Then
+                    pFields = rTable.Fields
+                    Dim idxJh As Integer = rTable.FindField(fieldName)
+                    If idxJh > -1 Then
+                        pCursor = rTable.Search(Nothing, False)
+                        'There is only one row in this table
+                        pRow = pCursor.NextRow
+                        If pRow IsNot Nothing Then result = CDbl(pRow.Value(idxJh))
+                    End If
+                End If
+            End If
+        Catch ex As Exception
+            Debug.Print("BA_ReadJHCoeffResults Exception: " & ex.Message)
+        Finally
+            rTable = Nothing
+            pCursor = Nothing
+            pRow = Nothing
+            pFields = Nothing
+        End Try
+        Return result
     End Function
 
 End Module
