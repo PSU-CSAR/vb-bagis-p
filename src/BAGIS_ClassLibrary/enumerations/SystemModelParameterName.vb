@@ -13,4 +13,5 @@ Public Enum SystemModelParameterName
     sys_units_depth
     sys_units_temperature
     sys_slope_path
+    sys_jh_coef_table
 End Enum
