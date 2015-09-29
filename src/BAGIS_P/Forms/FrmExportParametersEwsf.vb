@@ -435,7 +435,7 @@ Public Class FrmExportParametersEwsf
         If jhLayerPaths.Count < 4 Then
             warning += "One or more layers required to calculate the JH_Coeff are "
             warning += "undefined or missing from the current AOI. The jh_coeff column in the "
-            warning += "nmonths table should be edited manually." & vbCrLf & vbCrLf
+            warning += NMONTHS & " table should be edited manually." & vbCrLf & vbCrLf
         Else
             ' 3. Check to see if model exists in local methods folder
             ' 4. Populate model parameters and run model
@@ -447,7 +447,7 @@ Public Class FrmExportParametersEwsf
                                                             toolBoxPrefix, jhLayerPaths, unitsDataSource, jh_table)
             If jh_success <> BA_ReturnCode.Success Then
                 warning += "An error occurred while calculating the JH_Coeff. The jh_coeff "
-                warning += " column in the nmonths table should be edited manually." & vbCrLf & vbCrLf
+                warning += " column in the " & NMONTHS & " table should be edited manually." & vbCrLf & vbCrLf
             Else
                 ' 5. Read jh_coeff value from output table
                 Dim jh_coeff As Double = BA_ReadJHCoeffResults(hruParamPath, jh_table, jh_table)
@@ -461,7 +461,12 @@ Public Class FrmExportParametersEwsf
                         warning += hruParamPath & "\" & jh_table
                     End If
                 End If
-                ' 7. find jh_coeff column in nmonths table and overwrite with this value
+                ' 7. find jh_coeff column in nmonths table and overwrite with calculated jh_coeff value
+                Dim nmonthsTable As ParameterTable = m_tablesTable(NMONTHS)
+                If nmonthsTable IsNot Nothing Then
+                    BA_UpdateJHCoefInTable(nmonthsTable, jh_coeff)
+                    m_tablesTable(NMONTHS) = nmonthsTable
+                End If
             End If
         End If
 

@@ -655,4 +655,18 @@ Module MethodModule
         Return result
     End Function
 
+    Public Sub BA_UpdateJHCoefInTable(ByRef nmonthsTable As ParameterTable, ByVal jh_coeff As Double)
+        Dim idxCol As Short = -1
+        For i As Short = 0 To nmonthsTable.Headers.GetUpperBound(0)
+            If nmonthsTable.Headers(i).Equals(JH_COEF_HEADER) Then
+                idxCol = i
+            End If
+        Next
+        If idxCol > -1 Then
+            For j As Integer = 0 To nmonthsTable.Values.GetUpperBound(0)
+                nmonthsTable.Values(j, idxCol) = jh_coeff
+            Next
+        End If
+    End Sub
+
 End Module

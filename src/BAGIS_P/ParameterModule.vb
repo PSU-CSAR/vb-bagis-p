@@ -29,10 +29,12 @@ Module ParameterModule
     Public CREATED_AT As String = "CreatedAt"
     Public NHRU As String = "nhru"
     Public NRADPL As String = "nradpl"
+    Public NMONTHS As String = "nmonths"
     Public BASIN_AREA As String = "basin_area"
     Public BASIN_LAT As String = "basin_lat"
     Public HEADER_KEY As String = "header_key"
     Public MISSING_VALUE As String = "missing_value"
+    Public JH_COEF_HEADER As String = "jh_coef"
 
     'Retrieves the single dimension parameters from the parameter file and populates selected parameters from
     'the hru dataset
