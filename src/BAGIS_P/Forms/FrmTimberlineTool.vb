@@ -33,6 +33,40 @@ Public Class FrmTimberlineTool
         ' Add any initialization after the InitializeComponent() call.
         Me.Hook = hook
 
+        ' Add any initialization after the InitializeComponent() call.
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        Dim aoi As Aoi = bExt.aoi
+        If aoi IsNot Nothing Then
+            Dim progressDialog2 As IProgressDialog2 = Nothing
+            Try
+                Dim pStepProg As IStepProgressor = Nothing
+                ' Create/configure the ProgressDialog. This automatically displays the dialog
+                pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
+                ' Create/configure the ProgressDialog. This automatically displays the dialog
+                progressDialog2 = BA_GetProgressDialog(pStepProg, "Loading timberline tool...", "Timberline tool initializing")
+                pStepProg.Step()
+                BA_SetDefaultProjection(My.ArcMap.Application)
+                TxtAoiPath.Text = aoi.FilePath
+                RdoMeters.Enabled = True
+                RdoFeet.Enabled = True
+                pStepProg.Step()
+                LoadHruLayers()
+                LoadElevationUnits()
+                pStepProg.Step()
+                LoadTimberlineData()
+                RdoMouseClick.Enabled = False
+                RdoMouseClick.Checked = True
+                ClearGrid()
+                progressDialog2.HideDialog()
+            Catch ex As Exception
+                ' Clean up step progressor
+                If progressDialog2 IsNot Nothing Then
+                    progressDialog2.HideDialog()
+                End If
+                MessageBox.Show("Unable to load current aoi. Exception: " & ex.Message)
+            End Try
+        End If
+
     End Sub
 
 

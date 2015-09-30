@@ -13,14 +13,30 @@ Imports System.Text
 Public Class FrmSubAoiId
 
 
-
     Public Sub New()
 
         ' This call is required by the designer.
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        Dim aoi As Aoi = bExt.aoi
+        If aoi IsNot Nothing Then
+            Try
+                TxtAoiPath.Text = aoi.FilePath
+                BA_SetDefaultProjection(My.ArcMap.Application)
+                Me.Text = "Manage SubAOI Id Layers (AOI: " & aoi.Name & aoi.ApplicationVersion & " )"
 
+                RefreshSubAoiGrid()
+                RefreshGrdId()
+                'Bring the window to the front
+                Me.WindowState = FormWindowState.Normal
+                Me.BringToFront()
+
+            Catch ex As Exception
+                MessageBox.Show("Unable to load current aoi. Exception: " & ex.Message)
+            End Try
+        End If
     End Sub
 
     Private Sub RefreshSubAoiGrid()
