@@ -384,6 +384,7 @@ Public Class FrmExportParametersEwsf
             Exit Sub
         End If
         EnableButtons(False)
+        LblStatus.Text = "Reading parameters from template"
         'If we did not edit the paramsTable, it will be nothing and we need to initialize it from the template
         If m_paramsTable Is Nothing Then
             m_paramsTable = BA_GetParameterMap(TxtParameterTemplate.Text, ",", CInt(TxtNHru.Text), TxtAoiPath.Text)
@@ -426,6 +427,7 @@ Public Class FrmExportParametersEwsf
             ReadBagisParameterNames()
         End If
 
+        LblStatus.Text = "Calculating JH Coefficient for AOI"
         'Calculating JH_Coeff for AOI
         ' 1. Open public settings file to get file name for each jh layer
         ' 2. Check to see if the layer exists in aoi param.gdb
@@ -474,6 +476,7 @@ Public Class FrmExportParametersEwsf
             MessageBox.Show(warning, "Invalid jh_coeff calculation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End If
 
+        LblStatus.Text = "Reading spatial parameters calculated by BAGIS-P"
         Dim tableName As String = CStr(LstProfiles.SelectedItem) & BA_PARAM_TABLE_SUFFIX
         Dim success As BA_ReturnCode = VerifyParameterValuesInTable(hruParamPath, tableName, True)
         Dim retVal As BA_ReturnCode = BA_ReturnCode.Success
@@ -484,6 +487,7 @@ Public Class FrmExportParametersEwsf
                 m_spatialParamsTable = BA_ReadNhruParams(TxtParameterTemplate.Text, ",", TxtNHru.Text, m_reqSpatialParameters, _
                                                          m_missingSpatialParameters, missingData)
             End If
+            LblStatus.Text = "Generating parameter export file"
             BA_ExportParameterFile(TxtOutputFolder.Text, TxtDescription.Text, TxtVersion.Text, m_paramsTable, m_tablesTable, hruParamPath, _
                                    tableName, CInt(TxtNHru.Text), m_spatialParamsTable, missingData, m_radplSpatialParameters)
             Dim zipFolder As String = Nothing
@@ -509,11 +513,13 @@ Public Class FrmExportParametersEwsf
                 retVal = BA_ConvertGDBToShapefile(hruGdbName, vName, zipFolder, targetFile)
                 'Copy the parameter file into the tempBagisFolder
                 File.Copy(TxtOutputFolder.Text, zipFolder & "\" & BA_GetBareName(TxtOutputFolder.Text), True)
+                LblStatus.Text = "Converting HRU zones to ASCII"
                 Dim hruClipPath As String = AddZonesToZipFolder(zipFolder, hruGdbName, targetFile)
                 If String.IsNullOrEmpty(hruClipPath) Then
                     MessageBox.Show("An error occurred while packaging the HRU zones and DEM for eWsf. They are not included in the zip file.", "HRU zones error", MessageBoxButtons.OK)
                 Else
                     'Need to use the hru raster instead of vector to get exactly the right number of columns and rows
+                    LblStatus.Text = "Converting DEM layer to ASCII"
                     retVal = AddDemToZipFolder(zipFolder, hruClipPath, targetFile)
                     If retVal <> BA_ReturnCode.Success Then
                         MessageBox.Show("An error occurred while packaging the DEM for eWsf. It is not included in the zip file.", "DEM error", MessageBoxButtons.OK)
@@ -524,12 +530,14 @@ Public Class FrmExportParametersEwsf
                     End If
                 End If
                 'Zip up the folder
+                LblStatus.Text = "Generating zip file"
                 Dim zipFileName As String = BA_StandardizeShapefileName(targetFile, False) & ".zip"
                 retVal = BA_ZipFolder(zipFolder, zipFileName)
             End If
 
             If success = True And retVal = BA_ReturnCode.Success Then
                 BA_Remove_Folder(zipFolder)
+                LblStatus.Text = ""
                 MessageBox.Show("Parameter file export complete !", _
                                 "File export", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If

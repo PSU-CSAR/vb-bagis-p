@@ -70,6 +70,7 @@ Partial Class FrmExportParametersEwsf
         Me.TextBox11 = New System.Windows.Forms.TextBox()
         Me.TextBox5 = New System.Windows.Forms.TextBox()
         Me.CkParametersOnly = New System.Windows.Forms.CheckBox()
+        Me.LblStatus = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'TxtAoiPath
@@ -558,11 +559,23 @@ Partial Class FrmExportParametersEwsf
         Me.CkParametersOnly.Text = "Output parameter file only"
         Me.CkParametersOnly.UseVisualStyleBackColor = True
         '
+        'LblStatus
+        '
+        Me.LblStatus.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.LblStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblStatus.ForeColor = System.Drawing.Color.Red
+        Me.LblStatus.Location = New System.Drawing.Point(237, 331)
+        Me.LblStatus.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblStatus.Name = "LblStatus"
+        Me.LblStatus.Size = New System.Drawing.Size(438, 22)
+        Me.LblStatus.TabIndex = 134
+        '
         'FrmExportParametersEwsf
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(880, 403)
+        Me.Controls.Add(Me.LblStatus)
         Me.Controls.Add(Me.CkParametersOnly)
         Me.Controls.Add(Me.TextBox5)
         Me.Controls.Add(Me.CboResampleDem)
@@ -664,4 +677,5 @@ Partial Class FrmExportParametersEwsf
     Friend WithEvents TextBox11 As System.Windows.Forms.TextBox
     Friend WithEvents TextBox5 As System.Windows.Forms.TextBox
     Friend WithEvents CkParametersOnly As System.Windows.Forms.CheckBox
+    Friend WithEvents LblStatus As System.Windows.Forms.Label
 End Class
