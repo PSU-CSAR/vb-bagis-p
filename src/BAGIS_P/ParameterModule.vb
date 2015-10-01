@@ -22,7 +22,7 @@ Module ParameterModule
     Private BOUND As String = "bound"
     Private DIMENSION As String = "dimension"
     Private ROLE As String = "role"
-    Private SIZE As String = "size"
+    Public LEN_KEY As String = "len"
     Public DESCR As String = "Descr"
     Public MODIFIED_AT As String = "modifed_at"
     Public VERSION As String = "Version"
@@ -35,6 +35,7 @@ Module ParameterModule
     Public HEADER_KEY As String = "header_key"
     Public MISSING_VALUE As String = "missing_value"
     Public JH_COEF_HEADER As String = "jh_coef"
+
 
     'Retrieves the single dimension parameters from the parameter file and populates selected parameters from
     'the hru dataset
@@ -187,7 +188,7 @@ Module ParameterModule
                         dimension2 = Trim(d(1))
                         'Get the next row which may have the number of fields(X) and columns(Y)
                         Dim nextRow As String() = parser.ReadFields
-                        If Trim(nextRow(0)).ToLower = SIZE Then
+                        If Trim(nextRow(0)).ToLower = LEN_KEY Then
                             'Split the line on the comma
                             Dim arrSize As String() = Trim(nextRow(1)).Split(",")
                             'Assign X and Y values
@@ -229,7 +230,12 @@ Module ParameterModule
                         'How many column headers (parameters) do we have?
                         'Assume a parameter is only listed once in a file
                         Dim firstCell As String = Trim(headerFields(0))
-                        'We may have to skip the description to get to the header
+                        'We may have to skip the description to get to the len/header
+                        Do While firstCell <> LEN_KEY
+                            headerFields = parser.ReadFields
+                            firstCell = Trim(headerFields(0))
+                        Loop
+                        Dim numRows As Integer = CInt(Trim(headerFields(1)))
                         Do While firstCell <> HEADER_FLAG
                             headerFields = parser.ReadFields
                             firstCell = Trim(headerFields(0))
@@ -249,11 +255,9 @@ Module ParameterModule
                         For i As Integer = 0 To count - 1
                             headers(i) = Trim(headerFields(i + 1))
                         Next
-                        'Get value for Y bound
-                        Dim dimValue As String = BA_GetValueForDimension(paramTable, dimension1)
                         'Redim Y, X
-                        ReDim values(CInt(dimValue) - 1, headers.Length - 1)
-                        For i As Integer = 0 To CInt(dimValue) - 1
+                        ReDim values(numRows - 1, headers.Length - 1)
+                        For i As Integer = 0 To numRows - 1
                             Dim nextRow As String() = parser.ReadFields
                             For j As Integer = 0 To headers.Length - 1
                                 values(i, j) = nextRow(j + 1)
@@ -449,6 +453,11 @@ Module ParameterModule
                         'sb.Append(",")
                         sw.WriteLine(sb.ToString)
                         sb.Remove(0, sb.Length)
+                        sb.Append(LEN_KEY)
+                        sb.Append(",")
+                        sb.Append(paramTable.Values.GetUpperBound(0) + 1)
+                        sw.WriteLine(sb.ToString)
+                        sb.Remove(0, sb.Length)
                     Else
                         '2D table
                         sb.Append(BOUND)
@@ -457,7 +466,7 @@ Module ParameterModule
                         sb.Append(paramTable.Dimension2 & """")
                         sw.WriteLine(sb.ToString)
                         sb.Remove(0, sb.Length)
-                        sb.Append(SIZE)
+                        sb.Append(LEN_KEY)
                         sb.Append(",")
                         sb.Append("""" & paramTable.Values.GetUpperBound(0) + 1 & "," & paramTable.Values.GetUpperBound(1) + 1 & """")
                         'sb.Append(",")
