@@ -604,84 +604,87 @@ Module ParameterModule
                     End If
 
                     '**** Write NRADPL table ****
-                    'Write @T line
-                    sb.Append(TABLE_FLAG)
-                    sb.Append(",")
-                    sb.Append(NRADPL)
-                    sb.Append(",")
-                    sw.WriteLine(sb.ToString)
-                    sb.Remove(0, sb.Length)
-                    'description,Parameter bound by nradpl,
-                    sb.Append("description")
-                    sb.Append(",")
-                    sb.Append("Parameter bound by " & NRADPL)
-                    sb.Append(",")
-                    sw.WriteLine(sb.ToString)
-                    sb.Remove(0, sb.Length)
-                    'missing value metadata
-                    If Not String.IsNullOrEmpty(missingValue) Then
-                        sb.Append(MISSING_VALUE)
+                    ' This list is populated from the bagis_parameters.txt file to indicate if NRADPL table should be created
+                    If radplSpatialParameters.Count > 0 Then
+                        'Write @T line
+                        sb.Append(TABLE_FLAG)
                         sb.Append(",")
-                        sb.Append(missingValue)
+                        sb.Append(NRADPL)
+                        sb.Append(",")
                         sw.WriteLine(sb.ToString)
                         sb.Remove(0, sb.Length)
-                    End If
-                    'write table headers @H
-                    pFields = pTable.Fields
-                    sb.Append(HEADER_FLAG)
-                    sb.Append(",")
-                    For i As Integer = 0 To pFields.FieldCount - 1
-                        Dim pField As Field = pFields.Field(i)
-                        If radplSpatialParameters.Contains(pField.Name) Then
-                            sb.Append(pField.Name)
-                            sb.Append(",")
-                        End If
-                    Next
-                    'Append user-specified radpl param column headers
-                    spatialColumns = New String(spatialTable.Keys.Count - 1) {}
-                    Dim radplIdx As Integer = 0
-                    For Each key As String In spatialTable.Keys
-                        If radplSpatialParameters.Contains(key) Then
-                            sb.Append(key)
-                            sb.Append(",")
-                            'Also store key value in a reference array because order in Hashtable is not guaranteed
-                            spatialColumns(radplIdx) = key
-                            radplIdx += 1
-                        End If
-                    Next
-                    'Trim trailing comma
-                    sb.Remove(sb.Length - 1, 1)
-                    sw.WriteLine(sb.ToString)
-                    sb.Remove(0, sb.Length)
-                    radplCursor = pTableSort.Rows
-                    pRow = radplCursor.NextRow
-                    Dim radPlRow As Integer = 0
-                    While pRow IsNot Nothing
-                        'Empty cell so the table lines up
+                        'description,Parameter bound by nradpl,
+                        sb.Append("description")
                         sb.Append(",")
-                        For j As Integer = 0 To pFields.FieldCount - 1
-                            Dim nextField As IField = pRow.Fields.Field(j)
-                            If radplSpatialParameters.Contains(nextField.Name) Then
-                                sb.Append(pRow.Value(j))
+                        sb.Append("Parameter bound by " & NRADPL)
+                        sb.Append(",")
+                        sw.WriteLine(sb.ToString)
+                        sb.Remove(0, sb.Length)
+                        'missing value metadata
+                        If Not String.IsNullOrEmpty(missingValue) Then
+                            sb.Append(MISSING_VALUE)
+                            sb.Append(",")
+                            sb.Append(missingValue)
+                            sw.WriteLine(sb.ToString)
+                            sb.Remove(0, sb.Length)
+                        End If
+                        'write table headers @H
+                        pFields = pTable.Fields
+                        sb.Append(HEADER_FLAG)
+                        sb.Append(",")
+                        For i As Integer = 0 To pFields.FieldCount - 1
+                            Dim pField As Field = pFields.Field(i)
+                            If radplSpatialParameters.Contains(pField.Name) Then
+                                sb.Append(pField.Name)
                                 sb.Append(",")
                             End If
                         Next
-                        'Append user-specified spatial param column values
-                        radplIdx = 0 'Re-initalize counter
-                        For Each spHeader As String In spatialColumns
-                            If radplSpatialParameters.Contains(spHeader) Then
-                                Dim spColumn As IList(Of String) = spatialTable(spHeader)
-                                sb.Append(spColumn.Item(radPlRow))
+                        'Append user-specified radpl param column headers
+                        spatialColumns = New String(spatialTable.Keys.Count - 1) {}
+                        Dim radplIdx As Integer = 0
+                        For Each key As String In spatialTable.Keys
+                            If radplSpatialParameters.Contains(key) Then
+                                sb.Append(key)
                                 sb.Append(",")
+                                'Also store key value in a reference array because order in Hashtable is not guaranteed
+                                spatialColumns(radplIdx) = key
+                                radplIdx += 1
                             End If
                         Next
                         'Trim trailing comma
                         sb.Remove(sb.Length - 1, 1)
                         sw.WriteLine(sb.ToString)
                         sb.Remove(0, sb.Length)
+                        radplCursor = pTableSort.Rows
                         pRow = radplCursor.NextRow
-                        radPlRow += 1
-                    End While
+                        Dim radPlRow As Integer = 0
+                        While pRow IsNot Nothing
+                            'Empty cell so the table lines up
+                            sb.Append(",")
+                            For j As Integer = 0 To pFields.FieldCount - 1
+                                Dim nextField As IField = pRow.Fields.Field(j)
+                                If radplSpatialParameters.Contains(nextField.Name) Then
+                                    sb.Append(pRow.Value(j))
+                                    sb.Append(",")
+                                End If
+                            Next
+                            'Append user-specified spatial param column values
+                            radplIdx = 0 'Re-initalize counter
+                            For Each spHeader As String In spatialColumns
+                                If radplSpatialParameters.Contains(spHeader) Then
+                                    Dim spColumn As IList(Of String) = spatialTable(spHeader)
+                                    sb.Append(spColumn.Item(radPlRow))
+                                    sb.Append(",")
+                                End If
+                            Next
+                            'Trim trailing comma
+                            sb.Remove(sb.Length - 1, 1)
+                            sw.WriteLine(sb.ToString)
+                            sb.Remove(0, sb.Length)
+                            pRow = radplCursor.NextRow
+                            radPlRow += 1
+                        End While
+                    End If
                 End If
             End If
         Catch ex As Exception
