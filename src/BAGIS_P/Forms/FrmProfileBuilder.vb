@@ -83,6 +83,7 @@ Public Class FrmProfileBuilder
             GrdHruLayers.Visible = False
             GrdCompleteProfiles.Visible = False
             BtnCalculate.Visible = False
+            BtnToggleUse.Visible = False
             'Hide subAoi panel
             PnlSubAoi.Visible = False
             'Resize form
@@ -317,8 +318,8 @@ Public Class FrmProfileBuilder
                     Dim hruPath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, dri.Name)
                     Dim hruParamPath As String = hruPath & BA_EnumDescription(PublicPath.BagisParamGdb) & BA_EnumDescription(PublicPath.HruProfileStatus)
                     pRow.Cells(1).Value = BA_GetCompletedProfileCountForHru(hruParamPath)
-                '---add the row---
-                GrdHruLayers.Rows.Add(pRow)
+                    '---add the row---
+                    GrdHruLayers.Rows.Add(pRow)
                 End If
             Next dri
             Dim sortCol As DataGridViewColumn = GrdHruLayers.Columns(0)
@@ -912,10 +913,12 @@ Public Class FrmProfileBuilder
             colIncludeMethod.ReadOnly = False
             colIncludeMethod.FlatStyle = FlatStyle.Standard
             colIncludeMethod.DefaultCellStyle.ForeColor = GrdMethods.Columns("Methods").DefaultCellStyle.ForeColor
+            BtnToggleUse.Enabled = True
         Else
             colIncludeMethod.ReadOnly = True
             colIncludeMethod.FlatStyle = FlatStyle.Flat
             colIncludeMethod.DefaultCellStyle.ForeColor = Color.Silver
+            BtnToggleUse.Enabled = False
         End If
     End Sub
 
@@ -931,6 +934,7 @@ Public Class FrmProfileBuilder
     Private Sub BtnCalculate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCalculate.Click
         BtnCalculate.Enabled = False
         BtnVerify.Enabled = False
+        BtnToggleUse.Enabled = False
         Try
             If GrdHruLayers.SelectedRows.Count > 0 And m_selProfile IsNot Nothing Then
                 If m_selProfile.MethodNames IsNot Nothing And m_selProfile.MethodNames.Count > 0 Then
@@ -1013,6 +1017,7 @@ Public Class FrmProfileBuilder
                     success = BA_SaveProfileLog(hruPath, m_selProfile, TxtNoData.Text, m_methodTable, saveTable)
                     ManageVerifyButton()
                     ManageRecalculateButton()
+                    BtnToggleUse.Enabled = True
                     LblStatus.Text = "Parameter calculations complete"
                 End If
             End If
@@ -1272,6 +1277,7 @@ Public Class FrmProfileBuilder
         Try
             If m_selProfile IsNot Nothing Then
                 BtnVerify.Enabled = False
+                BtnToggleUse.Enabled = False
                 'pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, m_selProfile.MethodNames.Count + 4)
                 'progressDialog2 = BA_GetProgressDialog(pStepProg, "Checking target geodatabase...", "Verifying profile " & m_selProfile.Name)
                 'pStepProg.Show()
@@ -1540,6 +1546,7 @@ Public Class FrmProfileBuilder
                     End If
                     ManageVerifyButton()
                     ManageRecalculateButton()
+                    BtnToggleUse.Enabled = True
                     LblStatus.Text = "Verification complete"
                     Dim errorMsg As String = CheckForDuplicateFieldNames(validMethodsTable)
                     'We have duplicate field names; Pop a warning message
@@ -1737,7 +1744,7 @@ Public Class FrmProfileBuilder
         End If
     End Sub
 
-    Private Sub CboSubAoiId_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles CboSubAoiId.SelectedIndexChanged
+    Private Sub CboSubAoiId_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CboSubAoiId.SelectedIndexChanged
         If CboSubAoiId.SelectedIndex > -1 Then
             Dim subAoiGdbPath As String = TxtAoiPath.Text & BA_EnumDescription(PublicPath.BagisSubAoiGdb)
             Dim valuesEnum As IEnumerator = BA_QueryUniqueValuesFromRasterGDB(subAoiGdbPath, CStr(CboSubAoiId.SelectedItem), BA_FIELD_VALUE)
@@ -1798,7 +1805,7 @@ Public Class FrmProfileBuilder
         Return errMsg
     End Function
 
-    Private Sub BtnCopyProfile_Click(sender As System.Object, e As System.EventArgs) Handles BtnExportProfile.Click
+    Private Sub BtnCopyProfile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnExportProfile.Click
         Dim frmCopyProfile As New FrmExportProfile(m_aoi, m_selProfile)
         frmCopyProfile.ShowDialog()
     End Sub
@@ -1811,7 +1818,7 @@ Public Class FrmProfileBuilder
         End If
     End Sub
 
-    Private Sub BtnViewLog_Click(sender As System.Object, e As System.EventArgs) Handles BtnViewLog.Click
+    Private Sub BtnViewLog_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnViewLog.Click
         Try
             Dim pExt As BagisPExtension = BagisPExtension.GetExtension
             Dim selProfile As String = Nothing
@@ -1899,4 +1906,12 @@ Public Class FrmProfileBuilder
         End Try
         Return True
     End Function
+
+    Private Sub BtnToggleUse_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnToggleUse.Click
+        Dim idxUse As Short = GrdMethods.Columns("IncludeMethod").Index
+        For Each aRow As DataGridViewRow In GrdMethods.Rows
+            Dim oldVal As Boolean = Convert.ToBoolean(aRow.Cells(idxUse).Value)
+            aRow.Cells(idxUse).Value = Not oldVal
+        Next
+    End Sub
 End Class
