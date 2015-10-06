@@ -22,6 +22,7 @@ Partial Class FrmExportParametersEwsf
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.TxtAoiPath = New System.Windows.Forms.TextBox()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.BtnSelectAoi = New System.Windows.Forms.Button()
@@ -71,6 +72,8 @@ Partial Class FrmExportParametersEwsf
         Me.TextBox5 = New System.Windows.Forms.TextBox()
         Me.CkParametersOnly = New System.Windows.Forms.CheckBox()
         Me.LblStatus = New System.Windows.Forms.Label()
+        Me.TimerStatus = New System.Windows.Forms.Timer(Me.components)
+        Me.BtnViewBagisParams = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'TxtAoiPath
@@ -165,7 +168,7 @@ Partial Class FrmExportParametersEwsf
         'BtnClose
         '
         Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnClose.Location = New System.Drawing.Point(805, 372)
+        Me.BtnClose.Location = New System.Drawing.Point(810, 372)
         Me.BtnClose.Name = "BtnClose"
         Me.BtnClose.Size = New System.Drawing.Size(65, 25)
         Me.BtnClose.TabIndex = 81
@@ -190,15 +193,15 @@ Partial Class FrmExportParametersEwsf
         Me.TxtParameterTemplate.Location = New System.Drawing.Point(323, 44)
         Me.TxtParameterTemplate.Name = "TxtParameterTemplate"
         Me.TxtParameterTemplate.ReadOnly = True
-        Me.TxtParameterTemplate.Size = New System.Drawing.Size(394, 22)
+        Me.TxtParameterTemplate.Size = New System.Drawing.Size(325, 22)
         Me.TxtParameterTemplate.TabIndex = 83
         '
         'BtnSetTemplate
         '
         Me.BtnSetTemplate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnSetTemplate.Location = New System.Drawing.Point(723, 8)
+        Me.BtnSetTemplate.Location = New System.Drawing.Point(654, 44)
         Me.BtnSetTemplate.Name = "BtnSetTemplate"
-        Me.BtnSetTemplate.Size = New System.Drawing.Size(147, 25)
+        Me.BtnSetTemplate.Size = New System.Drawing.Size(100, 25)
         Me.BtnSetTemplate.TabIndex = 84
         Me.BtnSetTemplate.Text = "Set Template"
         Me.BtnSetTemplate.UseVisualStyleBackColor = True
@@ -214,7 +217,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.BtnEditParameters.Enabled = False
         Me.BtnEditParameters.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnEditParameters.Location = New System.Drawing.Point(723, 107)
+        Me.BtnEditParameters.Location = New System.Drawing.Point(728, 107)
         Me.BtnEditParameters.Name = "BtnEditParameters"
         Me.BtnEditParameters.Size = New System.Drawing.Size(147, 25)
         Me.BtnEditParameters.TabIndex = 85
@@ -253,7 +256,7 @@ Partial Class FrmExportParametersEwsf
         'BtnSetOutput
         '
         Me.BtnSetOutput.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnSetOutput.Location = New System.Drawing.Point(724, 184)
+        Me.BtnSetOutput.Location = New System.Drawing.Point(729, 184)
         Me.BtnSetOutput.Name = "BtnSetOutput"
         Me.BtnSetOutput.Size = New System.Drawing.Size(147, 25)
         Me.BtnSetOutput.TabIndex = 90
@@ -264,7 +267,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.BtnExport.Enabled = False
         Me.BtnExport.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnExport.Location = New System.Drawing.Point(734, 372)
+        Me.BtnExport.Location = New System.Drawing.Point(739, 372)
         Me.BtnExport.Name = "BtnExport"
         Me.BtnExport.Size = New System.Drawing.Size(65, 25)
         Me.BtnExport.TabIndex = 91
@@ -368,7 +371,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.BtnEditHruParameters.Enabled = False
         Me.BtnEditHruParameters.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnEditHruParameters.Location = New System.Drawing.Point(723, 139)
+        Me.BtnEditHruParameters.Location = New System.Drawing.Point(728, 139)
         Me.BtnEditHruParameters.Name = "BtnEditHruParameters"
         Me.BtnEditHruParameters.Size = New System.Drawing.Size(147, 25)
         Me.BtnEditHruParameters.TabIndex = 101
@@ -402,9 +405,9 @@ Partial Class FrmExportParametersEwsf
         'BtnDefaultTemplate
         '
         Me.BtnDefaultTemplate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnDefaultTemplate.Location = New System.Drawing.Point(723, 43)
+        Me.BtnDefaultTemplate.Location = New System.Drawing.Point(756, 44)
         Me.BtnDefaultTemplate.Name = "BtnDefaultTemplate"
-        Me.BtnDefaultTemplate.Size = New System.Drawing.Size(147, 25)
+        Me.BtnDefaultTemplate.Size = New System.Drawing.Size(120, 25)
         Me.BtnDefaultTemplate.TabIndex = 106
         Me.BtnDefaultTemplate.Text = "Default Template"
         Me.BtnDefaultTemplate.UseVisualStyleBackColor = True
@@ -552,7 +555,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.CkParametersOnly.AutoSize = True
         Me.CkParametersOnly.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CkParametersOnly.Location = New System.Drawing.Point(693, 346)
+        Me.CkParametersOnly.Location = New System.Drawing.Point(698, 346)
         Me.CkParametersOnly.Name = "CkParametersOnly"
         Me.CkParametersOnly.Size = New System.Drawing.Size(178, 20)
         Me.CkParametersOnly.TabIndex = 133
@@ -561,7 +564,6 @@ Partial Class FrmExportParametersEwsf
         '
         'LblStatus
         '
-        Me.LblStatus.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.LblStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblStatus.ForeColor = System.Drawing.Color.Red
         Me.LblStatus.Location = New System.Drawing.Point(237, 331)
@@ -570,11 +572,25 @@ Partial Class FrmExportParametersEwsf
         Me.LblStatus.Size = New System.Drawing.Size(438, 22)
         Me.LblStatus.TabIndex = 134
         '
+        'TimerStatus
+        '
+        '
+        'BtnViewBagisParams
+        '
+        Me.BtnViewBagisParams.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnViewBagisParams.Location = New System.Drawing.Point(3, 354)
+        Me.BtnViewBagisParams.Name = "BtnViewBagisParams"
+        Me.BtnViewBagisParams.Size = New System.Drawing.Size(135, 25)
+        Me.BtnViewBagisParams.TabIndex = 135
+        Me.BtnViewBagisParams.Text = "View parameter list"
+        Me.BtnViewBagisParams.UseVisualStyleBackColor = True
+        '
         'FrmExportParametersEwsf
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(880, 403)
+        Me.Controls.Add(Me.BtnViewBagisParams)
         Me.Controls.Add(Me.LblStatus)
         Me.Controls.Add(Me.CkParametersOnly)
         Me.Controls.Add(Me.TextBox5)
@@ -678,4 +694,6 @@ Partial Class FrmExportParametersEwsf
     Friend WithEvents TextBox5 As System.Windows.Forms.TextBox
     Friend WithEvents CkParametersOnly As System.Windows.Forms.CheckBox
     Friend WithEvents LblStatus As System.Windows.Forms.Label
+    Friend WithEvents TimerStatus As System.Windows.Forms.Timer
+    Friend WithEvents BtnViewBagisParams As System.Windows.Forms.Button
 End Class
