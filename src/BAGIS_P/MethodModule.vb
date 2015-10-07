@@ -356,7 +356,7 @@ Module MethodModule
     End Function
 
     'Wrapper function to allow Dictionary as input to BA_AppendUnitsToDataSources
-    Public Function BA_AppendUnitsToDataSources(ByRef pDataTable As Dictionary(Of String, DataSource), ByVal aoiPath As String) As BA_ReturnCode
+    Public Function BA_AppendUnitsToDataSources(ByRef pDataTable As IDictionary(Of String, DataSource), ByVal aoiPath As String) As BA_ReturnCode
         Dim addTable As Hashtable = New Hashtable
         For Each kvp As KeyValuePair(Of String, DataSource) In pDataTable
             addTable.Add(kvp.Key, kvp.Value)

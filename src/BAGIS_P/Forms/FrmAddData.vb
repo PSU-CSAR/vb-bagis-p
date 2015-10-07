@@ -149,6 +149,8 @@ Public Class FrmAddData
             '24-APR-2012 As of this date we aren't saving the data field
             'PopulateCboDataField(pGxDataset.Dataset, pGxDataset.Type, Nothing)
             SetLayerType(pGxDataset.Type)
+            'Appends the units (if applicable) and sets the UI
+            AppendUnitsToDataSource()
         Catch ex As Exception
             Debug.Print("BtnSelectSource_Click Exception: " & ex.Message)
         Finally
@@ -815,8 +817,31 @@ Public Class FrmAddData
                 rButton.Checked = False
             End If
         Next
-        If m_selDataSource IsNot Nothing Then m_selDataSource.JH_Coeff = Nothing
+        'If m_selDataSource IsNot Nothing Then m_selDataSource.JH_Coeff = Nothing
         PnlJhCoeff.Visible = False
+    End Sub
+
+    Private Sub AppendUnitsToDataSource()
+        If m_selDataSource IsNot Nothing Then
+            m_selDataSource.Source = TxtSource.Text
+            m_selDataSource.IsValid = True      'Required by BA_AppendUnitsToDataSources
+            Dim dataDict As IDictionary(Of String, DataSource) = New Dictionary(Of String, DataSource)
+            dataDict.Add(m_selDataSource.Name, m_selDataSource)
+            Dim success As BA_ReturnCode = BA_AppendUnitsToDataSources(dataDict, Nothing)
+            If success = BA_ReturnCode.Success Then
+                m_selDataSource = dataDict(m_selDataSource.Name)
+                'Set the measurement unit in the UI, if appropriate
+                If m_selDataSource.MeasurementUnitType <> MeasurementUnitType.Missing Then
+                    For Each strItem As String In CboDataType.Items
+                        If strItem = m_selDataSource.MeasurementUnitType.ToString Then
+                            CboDataType.SelectedItem = strItem
+                        End If
+                    Next
+                Else
+                    CboDataType.SelectedIndex = 0
+                End If
+            End If
+        End If
     End Sub
 
 End Class
