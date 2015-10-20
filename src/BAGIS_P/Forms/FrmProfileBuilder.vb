@@ -151,7 +151,7 @@ Public Class FrmProfileBuilder
                     'Populate data table
                     pStepProg.Message = "Loading data sources"
                     pStepProg.Step()
-                    m_dataTable = BA_LoadSettingsFile(BA_GetLocalSettingsPath(m_aoi.FilePath))
+                    m_dataTable = BA_LoadDataSources(BA_GetLocalSettingsPath(m_aoi.FilePath))
                     BA_AppendUnitsToDataSources(m_dataTable, m_aoi.FilePath)
                     pStepProg.Step()
                     BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
@@ -247,7 +247,7 @@ Public Class FrmProfileBuilder
 
                 'Populate data table
                 LblStatus.Text = "Loading data sources"
-                m_dataTable = BA_LoadSettingsFile(BA_GetLocalSettingsPath(m_aoi.FilePath))
+                m_dataTable = BA_LoadDataSources(BA_GetLocalSettingsPath(m_aoi.FilePath))
                 BA_AppendUnitsToDataSources(m_dataTable, m_aoi.FilePath)
                 BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
                      m_depthUnit, m_degreeUnit)
@@ -1581,7 +1581,7 @@ Public Class FrmProfileBuilder
                 Dim mList As List(Of String) = m_selProfile.MethodNames
                 If mList IsNot Nothing AndAlso mList.Count > 0 Then
                     'Populate data table
-                    m_dataTable = BA_LoadSettingsFile(BA_GetBagisPSettingsPath())
+                    m_dataTable = BA_LoadDataSources(BA_GetBagisPSettingsPath())
 
                     'Get the status method from the Hashtable
                     Dim verifyMethodTable As Hashtable = m_methodStatusTable(m_selProfile.Name)

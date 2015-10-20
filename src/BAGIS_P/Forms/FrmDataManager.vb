@@ -33,7 +33,7 @@ Public Class FrmDataManager
             Dim pnt1 As System.Drawing.Point = New System.Drawing.Point(2, 2)
             PnlMain.Location = pnt1
             m_settingsPath = BA_GetBagisPSettingsPath()
-            m_dataTable = BA_LoadAllSettingsFile(m_settingsPath)
+            m_dataTable = BA_LoadAllDataSources(m_settingsPath)
             BA_AppendUnitsToDataSources(m_dataTable, Nothing)
             BtnAdd.Enabled = True
             Me.Text = "Data Manager (Public)"
@@ -68,7 +68,7 @@ Public Class FrmDataManager
 
                     SetDatumInExtension(m_aoi.FilePath)
                     m_settingsPath = BA_GetLocalSettingsPath(m_aoi.FilePath)
-                    Dim aoiHashtable As Hashtable = BA_LoadSettingsFile(m_settingsPath)
+                    Dim aoiHashtable As Hashtable = BA_LoadDataSources(m_settingsPath)
                     BA_AppendUnitsToDataSources(aoiHashtable, m_aoi.FilePath)
                     pStepProg.Step()
                     BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, aoiHashtable, m_slopeUnit, m_elevUnit, _
@@ -120,7 +120,7 @@ Public Class FrmDataManager
         Dim frmAddDataLayer As FrmAddData = New FrmAddData(m_dataTable, aoiPath)
         frmAddDataLayer.ShowDialog()
         If frmAddDataLayer.DirtyFlag = True Then
-            m_dataTable = BA_LoadAllSettingsFile(m_settingsPath)
+            m_dataTable = BA_LoadAllDataSources(m_settingsPath)
             BA_AppendUnitsToDataSources(m_dataTable, Nothing)
             ReloadGrid()
         End If
@@ -270,7 +270,7 @@ Public Class FrmDataManager
         Dim frmAddDataLayer As FrmAddData = New FrmAddData(m_dataTable, pName, aoiPath)
         frmAddDataLayer.ShowDialog()
         If frmAddDataLayer.DirtyFlag = True Then
-            m_dataTable = BA_LoadAllSettingsFile(m_settingsPath)
+            m_dataTable = BA_LoadAllDataSources(m_settingsPath)
             BA_AppendUnitsToDataSources(m_dataTable, Nothing)
             ReloadGrid()
         End If
@@ -366,7 +366,7 @@ Public Class FrmDataManager
                 bagisPExt.aoi = m_aoi
                 SetDatumInExtension(m_aoi.FilePath)
                 m_settingsPath = BA_GetLocalSettingsPath(m_aoi.FilePath)
-                Dim aoiHashtable As Hashtable = BA_LoadSettingsFile(m_settingsPath)
+                Dim aoiHashtable As Hashtable = BA_LoadDataSources(m_settingsPath)
                 BA_AppendUnitsToDataSources(aoiHashtable, m_aoi.FilePath)
                 BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, aoiHashtable, m_slopeUnit, m_elevUnit, _
                                              m_depthUnit, m_degreeUnit)

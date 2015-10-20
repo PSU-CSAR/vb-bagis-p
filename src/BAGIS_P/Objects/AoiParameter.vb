@@ -1,0 +1,24 @@
+﻿Imports BAGIS_ClassLibrary
+Imports System.Xml.Serialization
+
+Public Class AoiParameter
+    Inherits SerializableData
+
+    Public Name As String
+    'Value is a string so we can hold anything; Cast to different data type when using, if needed
+    Public Value As String
+    Public DateUpdated As DateTime
+
+    ' Required for de-serialization. Do not use.
+    Sub New()
+        MyBase.new()
+    End Sub
+
+    ' Use this when instantiating a new object
+    Public Sub New(ByVal name As String, ByVal value As String)
+        Me.Name = name
+        Me.Value = value
+        Me.DateUpdated = DateTime.Now
+    End Sub
+
+End Class

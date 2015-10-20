@@ -56,10 +56,14 @@ Module ProfileModule
 
     Public Function BA_SaveDataLayers(ByVal layerList As List(Of DataSource), ByVal settingsPath As String) As BA_ReturnCode
         Try
-            Dim settings As New Settings
-            settings.DataSources = layerList
-            settings.Save(settingsPath)
-            Return BA_ReturnCode.Success
+            Dim settings As Settings = BA_CreateOrLoadSettingsFile(settingsPath)
+            If settings IsNot Nothing Then
+                settings.DataSources = layerList
+                settings.Save(settingsPath)
+                Return BA_ReturnCode.Success
+            Else
+                Return BA_ReturnCode.ReadError
+            End If
         Catch ex As Exception
             Debug.Print("BA_SaveDataLayers exception: " & ex.Message)
             Return BA_ReturnCode.UnknownError
@@ -68,7 +72,7 @@ Module ProfileModule
 
     Public Function BA_SaveNewDataSource(ByVal dataSource As DataSource, ByVal settingsPath As String) As BA_ReturnCode
         Try
-            Dim srcTable As Hashtable = BA_LoadSettingsFile(settingsPath)
+            Dim srcTable As Hashtable = BA_LoadDataSources(settingsPath)
             Dim srcList As List(Of DataSource) = New List(Of DataSource)
             If srcTable IsNot Nothing Then
                 For Each key As String In srcTable.Keys
@@ -82,10 +86,14 @@ Module ProfileModule
                 Next
             End If
             srcList.Add(dataSource)
-            Dim settings As New Settings
-            settings.DataSources = srcList
-            settings.Save(settingsPath)
-            Return BA_ReturnCode.Success
+            Dim settings As Settings = BA_CreateOrLoadSettingsFile(settingsPath)
+            If settings IsNot Nothing Then
+                settings.DataSources = srcList
+                settings.Save(settingsPath)
+                Return BA_ReturnCode.Success
+            Else
+                Return BA_ReturnCode.ReadError
+            End If
         Catch ex As Exception
             Debug.Print("BA_SaveNewDataSource: " & ex.Message)
             Return BA_ReturnCode.UnknownError
@@ -212,7 +220,7 @@ Module ProfileModule
 
     'Get the next available data source id from a settings file
     Public Function BA_GetNextDataSourceId(ByVal settingsPath As String) As Integer
-        Dim sourceTable As Hashtable = BA_LoadSettingsFile(settingsPath)
+        Dim sourceTable As Hashtable = BA_LoadDataSources(settingsPath)
         Dim id As Integer
         For Each pKey As String In sourceTable.Keys
             Dim existingSrc As DataSource = sourceTable(pKey)

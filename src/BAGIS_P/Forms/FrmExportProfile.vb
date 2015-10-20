@@ -150,7 +150,7 @@ Public Class FrmExportProfile
                     'If the settings path exists, we know we have aoipath\param folder
                     Dim settingsPath As String = BA_GetLocalSettingsPath(aoiPath)
                     'Load the data sources once we have the settings path; Will use this in validation
-                    m_dataTable = BA_LoadSettingsFile(settingsPath)
+                    m_dataTable = BA_LoadDataSources(settingsPath)
                     BA_AppendUnitsToDataSources(m_dataTable, aoiPath)
                     Dim targetMethodsPath As String = BA_GetLocalMethodsDir(aoiPath)
                     Dim targetMethodsList As List(Of Method) = BA_LoadMethodsFromXml(targetMethodsPath)

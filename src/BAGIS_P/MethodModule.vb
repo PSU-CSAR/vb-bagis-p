@@ -180,8 +180,8 @@ Module MethodModule
         Return Nothing
     End Function
 
-    Public Function BA_LoadSettingsFile(ByVal settingsPath As String) As Hashtable
-        Dim pSettings As Settings = CreateOrLoadSettingsFile(settingsPath)
+    Public Function BA_LoadDataSources(ByVal settingsPath As String) As Hashtable
+        Dim pSettings As Settings = BA_CreateOrLoadSettingsFile(settingsPath)
         Dim layerTable As Hashtable = New Hashtable
         If pSettings.DataSources IsNot Nothing AndAlso pSettings.DataSources.Count > 0 Then
             Dim paramIdx = settingsPath.IndexOf(BA_EnumDescription(PublicPath.BagisParamFolder))
@@ -220,8 +220,8 @@ Module MethodModule
         Return layerTable
     End Function
 
-    Public Function BA_LoadAllSettingsFile(ByVal settingsPath As String) As Dictionary(Of String, DataSource)
-        Dim pSettings As Settings = CreateOrLoadSettingsFile(settingsPath)
+    Public Function BA_LoadAllDataSources(ByVal settingsPath As String) As Dictionary(Of String, DataSource)
+        Dim pSettings As Settings = BA_CreateOrLoadSettingsFile(settingsPath)
         Dim layerTable As Dictionary(Of String, DataSource) = New Dictionary(Of String, DataSource)
         If pSettings.DataSources IsNot Nothing AndAlso pSettings.DataSources.Count > 0 Then
             Dim paramIdx = settingsPath.IndexOf(BA_EnumDescription(PublicPath.BagisParamFolder))
@@ -249,7 +249,7 @@ Module MethodModule
         Return layerTable
     End Function
 
-    Private Function CreateOrLoadSettingsFile(ByVal settingsPath As String) As Settings
+    Public Function BA_CreateOrLoadSettingsFile(ByVal settingsPath As String) As Settings
         Dim pSettings As Settings = Nothing
         'First try to load an existing settings file
         If BA_File_ExistsWindowsIO(settingsPath) Then
@@ -559,7 +559,7 @@ Module MethodModule
     Public Function BA_GetJHLayerPaths(ByVal aoiPath As String, ByRef unitsDataSource As DataSource) As IDictionary(Of String, String)
         Dim returnDictionary As IDictionary(Of String, String) = New Dictionary(Of String, String)
         Dim settingsPath As String = BA_GetBagisPSettingsPath()
-        Dim dataTable As Dictionary(Of String, DataSource) = BA_LoadAllSettingsFile(settingsPath)
+        Dim dataTable As Dictionary(Of String, DataSource) = BA_LoadAllDataSources(settingsPath)
         For Each dName As String In dataTable.Keys
             Dim dSource As DataSource = dataTable(dName)
             If Not String.IsNullOrEmpty(dSource.JH_Coeff) Then
@@ -668,5 +668,33 @@ Module MethodModule
             Next
         End If
     End Sub
+
+    Public Function BA_LoadAoiParameters(ByVal settingsPath As String) As IDictionary(Of String, AoiParameter)
+        Dim pSettings As Settings = BA_CreateOrLoadSettingsFile(settingsPath)
+        Dim paramTable As IDictionary(Of String, AoiParameter) = New Dictionary(Of String, AoiParameter)
+        If pSettings.AoiParameters IsNot Nothing AndAlso pSettings.AoiParameters.Count > 0 Then
+            For Each param As AoiParameter In pSettings.AoiParameters
+                paramTable.Add(param.Name, param)
+            Next
+        End If
+        Return paramTable
+    End Function
+
+    Public Function BA_SaveAOIParameters(ByVal aoiParameters As IList(Of AoiParameter), _
+                                         ByVal settingsPath As String) As BA_ReturnCode
+        Try
+            Dim settings As Settings = BA_CreateOrLoadSettingsFile(settingsPath)
+            If settings IsNot Nothing Then
+                settings.AoiParameters = aoiParameters
+                settings.Save(settingsPath)
+                Return BA_ReturnCode.Success
+            Else
+                Return BA_ReturnCode.ReadError
+            End If
+        Catch ex As Exception
+            Debug.Print("BA_SaveAOIParameters exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        End Try
+    End Function
 
 End Module

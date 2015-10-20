@@ -299,7 +299,7 @@ Module ToolboxModule
                             pParam.Name.ToLower = SystemModelParameterName.sys_units_slope.ToString.ToLower Or
                             pParam.Name.ToLower = SystemModelParameterName.sys_units_depth.ToString.ToLower Or
                             pParam.Name.ToLower = SystemModelParameterName.sys_units_temperature.ToString.ToLower Then
-                            pDataTable = BA_LoadSettingsFile(BA_GetLocalSettingsPath(aoiPath))
+                            pDataTable = BA_LoadDataSources(BA_GetLocalSettingsPath(aoiPath))
                             BA_AppendUnitsToDataSources(pDataTable, aoiPath)
                             Exit For
                         End If

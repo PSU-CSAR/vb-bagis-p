@@ -188,6 +188,9 @@
     Public Const BA_JH_Coef_Aug_Tmin As String = "JH_Coef_Aug_Tmin"
     Public Const BA_JH_Coef_Jul_Tmax As String = "JH_Coef_Jul_Tmax"
     Public Const BA_JH_Coef_Jul_Tmin As String = "JH_Coef_Jul_Tmin"
+
+    'Constant parameter names for parameters calculated at the AOI-level
+    Public Const BA_Aoi_Parameter_JH_Coef As String = "Aoi_Parameter_JH_Coef"
 End Module
 
 

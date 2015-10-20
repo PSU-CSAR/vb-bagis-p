@@ -446,7 +446,7 @@ Public Class FrmEditMethod
         If Not String.IsNullOrEmpty(m_aoiPath) Then
             settingsPath = BA_GetLocalSettingsPath(m_aoiPath)
         End If
-        Dim layerTable As Hashtable = BA_LoadSettingsFile(settingsPath)
+        Dim layerTable As Hashtable = BA_LoadDataSources(settingsPath)
         Dim sortedKeys(layerTable.Count - 1) As String
         layerTable.Keys.CopyTo(sortedKeys, 0)
         Array.Sort(sortedKeys)

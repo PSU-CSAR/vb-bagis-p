@@ -251,7 +251,7 @@ Public Class FrmSelectProfile
             'a previous parameter
             If m_publicDataTable Is Nothing Then
                 Dim settingsPath As String = BA_GetBagisPSettingsPath()
-                m_publicDataTable = BA_LoadSettingsFile(settingsPath)
+                m_publicDataTable = BA_LoadDataSources(settingsPath)
                 If m_publicDataTable IsNot Nothing Then
                     Dim pubDataSource As DataSource = m_publicDataTable(paramValue)
                     If pubDataSource IsNot Nothing Then

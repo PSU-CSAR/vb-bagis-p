@@ -332,6 +332,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Objects\AoiParameter.vb" />
     <Compile Include="Objects\ExportProfile.vb" />
     <Compile Include="Objects\HruProfileStatus.vb" />
     <Compile Include="Objects\Parameter.vb" />

@@ -182,7 +182,7 @@ Public Class FrmClipDataSource
                             If pDS IsNot Nothing Then
                                 'Check to make sure we don't have a units conflict
                                 If pDS.MeasurementUnitType <> MeasurementUnitType.Missing Then
-                                    Dim aoiDataTbl As Hashtable = BA_LoadSettingsFile(BA_GetLocalSettingsPath(aoiPath))
+                                    Dim aoiDataTbl As Hashtable = BA_LoadDataSources(BA_GetLocalSettingsPath(aoiPath))
                                     BA_AppendUnitsToDataSources(aoiDataTbl, aoiPath)
                                     Dim measureDS As DataSource = BA_ValidateMeasurementUnits(aoiDataTbl, pDS.MeasurementUnitType, _
                                                                                               pDS.MeasurementUnit, pDS.SlopeUnit)
