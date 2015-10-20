@@ -397,9 +397,9 @@ Public Class FrmExportParametersEwsf
             jhcoeffValue = CDbl(jhcoeffParam.Value)
             Dim sb As StringBuilder = New StringBuilder
             sb.Append("The mean Jenson-Haise PET coefficient was last calculated for this AOI on ")
-            sb.Append(jhcoeffParam.DateUpdated.ToString("MM/dd/yy"))
+            sb.Append(jhcoeffParam.DateUpdated.ToString("MM/dd/yy") & vbCrLf)
             sb.Append(". The value on that date was ")
-            sb.Append(jhcoeffValue.ToString("F5"))
+            sb.Append(jhcoeffValue.ToString("F5") & vbCrLf)
             sb.Append(". Click 'Yes' to use this value or 'No' to recalculate. " & vbCrLf)
             sb.Append("Note that recalculating the value may take several minutes.")
             Dim res As DialogResult = MessageBox.Show(sb.ToString, "Jenson-Haise PET coefficient", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
