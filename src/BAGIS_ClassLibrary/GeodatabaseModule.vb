@@ -1707,7 +1707,43 @@ Public Module GeodatabaseModule
         Finally
 
         End Try
+    End Function
 
+    Public Function BA_CountRowsInRaster(ByVal pathToRaster As String) As Integer
+        Dim pGeodataset As IGeoDataset = Nothing
+        Dim pRasterBandCollection As IRasterBandCollection = Nothing
+        Dim pRasterBand As IRasterBand = Nothing
+        Dim pTable As ITable = Nothing
+        Try
+            Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(pathToRaster)
+            Dim folderName As String = "PleaseReturn"
+            Dim fileName As String = BA_GetBareName(pathToRaster, folderName)
+            If wType = WorkspaceType.Geodatabase Then
+                pGeodataset = BA_OpenRasterFromGDB(folderName, fileName)
+            Else
+                pGeodataset = BA_OpenRasterFromFile(folderName, fileName)
+            End If
+
+            If pGeodataset IsNot Nothing Then
+                pRasterBandCollection = CType(pGeodataset, IRasterBandCollection)
+                pRasterBand = pRasterBandCollection.Item(0)
+                pTable = pRasterBand.AttributeTable
+                If pTable IsNot Nothing Then
+                    Return pTable.RowCount(Nothing)
+                End If
+            End If
+            Return -1
+        Catch ex As Exception
+            Debug.Print("BA_CountRowsInRaster Exception: " & ex.Message)
+            Return -1
+        Finally
+            pGeodataset = Nothing
+            pRasterBandCollection = Nothing
+            pRasterBand = Nothing
+            pTable = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
     End Function
 
 End Module

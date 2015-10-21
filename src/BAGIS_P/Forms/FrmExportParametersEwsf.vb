@@ -397,10 +397,10 @@ Public Class FrmExportParametersEwsf
             jhcoeffValue = CDbl(jhcoeffParam.Value)
             Dim sb As StringBuilder = New StringBuilder
             sb.Append("The mean Jenson-Haise PET coefficient was last calculated for this AOI on ")
-            sb.Append(jhcoeffParam.DateUpdated.ToString("MM/dd/yy") & vbCrLf)
-            sb.Append(". The value on that date was ")
-            sb.Append(jhcoeffValue.ToString("F5") & vbCrLf)
-            sb.Append(". Click 'Yes' to use this value or 'No' to recalculate. " & vbCrLf)
+            sb.Append(jhcoeffParam.DateUpdated.ToString("MM/dd/yy"))
+            sb.Append("." & vbCrLf & "The value on that date was ")
+            sb.Append(jhcoeffValue.ToString("F5") & "." & vbCrLf)
+            sb.Append("Click 'Yes' to use this value or 'No' to recalculate. " & vbCrLf)
             sb.Append("Note that recalculating the value may take several minutes.")
             Dim res As DialogResult = MessageBox.Show(sb.ToString, "Jenson-Haise PET coefficient", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
             If res <> DialogResult.Yes Then
@@ -557,26 +557,35 @@ Public Class FrmExportParametersEwsf
                     m_exportMessage = "Converting HRU zones to ASCII .........."
                     LblStatus.Text = m_exportMessage
                     Dim hruClipPath As String = AddZonesToZipFolder(zipFolder, hruGdbName, targetFile)
-                    If String.IsNullOrEmpty(hruClipPath) Then
-                        MessageBox.Show("An error occurred while packaging the HRU zones and DEM for eWsf. They are not included in the zip file.", "HRU zones error", MessageBoxButtons.OK)
-                    Else
-                        'Need to use the hru raster instead of vector to get exactly the right number of columns and rows
-                        m_exportMessage = "Converting DEM layer to ASCII .........."
-                        LblStatus.Text = m_exportMessage
-                        retVal = AddDemToZipFolder(zipFolder, hruClipPath, targetFile)
-                        If retVal <> BA_ReturnCode.Success Then
-                            MessageBox.Show("An error occurred while packaging the DEM for eWsf. It is not included in the zip file.", "DEM error", MessageBoxButtons.OK)
-                        End If
-                        Dim hruClipName As String = BA_GetBareName(hruClipPath)
-                        If Not hruClipName.Equals(GRID) Then
-                            BA_RemoveRasterFromGDB(hruGdbName, hruClipPath)
-                        End If
+                If String.IsNullOrEmpty(hruClipPath) Then
+                    MessageBox.Show("An error occurred while packaging the HRU zones and DEM for eWsf. They are not included in the zip file.", "HRU zones error", MessageBoxButtons.OK)
+                Else
+                    'Check to be sure the # of zones matches nhru
+                    Dim hruRows As Integer = BA_CountRowsInRaster(hruClipPath)
+                    If hruRows <> CInt(TxtNHru.Text) Then
+                        BA_Remove_Folder(targetFolder & tempBagisFolder)
+                        MessageBox.Show("The number of HRU's in the resampled HRU layer (" & hruRows & ") is different from nhru. The export process has been aborted.", _
+                                        "Invalid number of HRU zones", MessageBoxButtons.OK)
+                        Exit Sub
                     End If
-                    'Zip up the folder
-                    m_exportMessage = "Generating zip file  .........."
+
+                    'Need to use the hru raster instead of vector to get exactly the right number of columns and rows
+                    m_exportMessage = "Converting DEM layer to ASCII .........."
                     LblStatus.Text = m_exportMessage
-                    Dim zipFileName As String = BA_StandardizeShapefileName(targetFile, False) & ".zip"
-                    retVal = BA_ZipFolder(zipFolder, zipFileName)
+                    retVal = AddDemToZipFolder(zipFolder, hruClipPath, targetFile)
+                    If retVal <> BA_ReturnCode.Success Then
+                        MessageBox.Show("An error occurred while packaging the DEM for eWsf. It is not included in the zip file.", "DEM error", MessageBoxButtons.OK)
+                    End If
+                    Dim hruClipName As String = BA_GetBareName(hruClipPath)
+                    If Not hruClipName.Equals(GRID) Then
+                        BA_RemoveRasterFromGDB(hruGdbName, hruClipPath)
+                    End If
+                End If
+                'Zip up the folder
+                m_exportMessage = "Generating zip file  .........."
+                LblStatus.Text = m_exportMessage
+                Dim zipFileName As String = BA_StandardizeShapefileName(targetFile, False) & ".zip"
+                retVal = BA_ZipFolder(zipFolder, zipFileName)
                 End If
 
                 If success = True And retVal = BA_ReturnCode.Success Then
