@@ -696,4 +696,67 @@ Public Module AddAcreageModule
             ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pTable)
         End Try
     End Function
+
+    Public Function BA_GetAreaStatistics(ByVal folderPath As String, ByVal filePath As String, ByVal fieldName As String, _
+                                         ByVal areaUnits As MeasurementUnit) As BA_DataStatistics
+        Dim pFeatureClass As IFeatureClass = Nothing
+        Dim geoDataSet As IGeoDataset = Nothing
+        Dim pSpRef As ISpatialReference = Nothing
+        Dim projCoordSys As IProjectedCoordinateSystem = Nothing
+        Dim pLinearUnit As ILinearUnit = Nothing
+        Dim pData As IDataStatistics = New DataStatistics()
+        Dim pResults As ESRI.ArcGIS.esriSystem.IStatisticsResults
+        Dim inputWorkspaceType As WorkspaceType = BA_GetWorkspaceTypeFromPath(folderPath)
+        Dim areaResults As BA_DataStatistics
+        Try
+            If inputWorkspaceType = WorkspaceType.Geodatabase Then
+                pFeatureClass = BA_OpenFeatureClassFromGDB(folderPath, filePath)
+            Else
+                pFeatureClass = BA_OpenFeatureClassFromFile(folderPath, filePath)
+            End If
+            If pFeatureClass IsNot Nothing Then
+                Dim idxField As Long = pFeatureClass.FindField(fieldName)
+                If idxField > -1 Then
+                    'First get the unit from the projected coordinate system
+                    geoDataSet = CType(pFeatureClass, IGeoDataset)
+                    pSpRef = geoDataSet.SpatialReference
+                    projCoordSys = CType(pSpRef, IProjectedCoordinateSystem)
+                    pLinearUnit = projCoordSys.CoordinateUnit
+                    Dim metersPerUnit As Double = pLinearUnit.MetersPerUnit
+
+                    pData.Field = fieldName
+                    pData.Cursor = pFeatureClass.Search(Nothing, False)
+                    pResults = pData.Statistics
+                    areaResults.Count = pResults.Count
+                    areaResults.StandardDeviation = pResults.StandardDeviation
+                    If areaUnits = MeasurementUnit.Acres Then
+                        areaResults.Maximum = pResults.Maximum * (metersPerUnit ^ 2) / BA_SQ_METERS_PER_ACRE
+                        areaResults.Mean = pResults.Mean * (metersPerUnit ^ 2) / BA_SQ_METERS_PER_ACRE
+                        areaResults.Minimum = pResults.Minimum * (metersPerUnit ^ 2) / BA_SQ_METERS_PER_ACRE
+                        areaResults.Sum = pResults.Sum * (metersPerUnit ^ 2) / BA_SQ_METERS_PER_ACRE
+                    ElseIf areaUnits = MeasurementUnit.SquareKilometers Then
+                        areaResults.Maximum = pResults.Maximum * (metersPerUnit ^ 2) / (1000 ^ 2)  'Convert SqMeters to Sq.Km.
+                        areaResults.Mean = pResults.Mean * (metersPerUnit ^ 2) / (1000 ^ 2)
+                        areaResults.Minimum = pResults.Minimum * (metersPerUnit ^ 2) / (1000 ^ 2)
+                        areaResults.Sum = pResults.Sum * (metersPerUnit ^ 2) / (1000 ^ 2)
+                    End If
+                    Return areaResults
+                End If
+            End If
+            Return areaResults
+        Catch ex As Exception
+            Debug.Print("BA_GetAreaStatistics Exception: " & ex.Message)
+            Return Nothing
+        Finally
+            pFeatureClass = Nothing
+            geoDataSet = Nothing
+            pSpRef = Nothing
+            projCoordSys = Nothing
+            pLinearUnit = Nothing
+            pData = Nothing
+            pResults = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
+    End Function
 End Module

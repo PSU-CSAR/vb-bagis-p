@@ -2019,4 +2019,20 @@ Public Module AOIModule
 
     End Function
 
+    ' Populates an Aoi object, including any child HRU's, from an XML file
+    Public Function BA_LoadHRUFromXml(ByVal hruPath As String) As Aoi
+        Dim xmlInputPath As String = hruPath & BA_EnumDescription(PublicPath.HruXml)
+        If BA_File_ExistsWindowsIO(xmlInputPath) Then
+            Dim obj As Object = SerializableData.Load(xmlInputPath, GetType(Aoi))
+            If obj IsNot Nothing Then
+                Dim pAoi As Aoi = CType(obj, Aoi)
+                Return pAoi
+            Else
+                Return Nothing
+            End If
+        Else
+            Return Nothing
+        End If
+    End Function
+
 End Module

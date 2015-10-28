@@ -20,6 +20,10 @@ Public Class FrmExportParametersEwsf
     Dim m_radplSpatialParameters As IList(Of String)
     Dim m_bagisParameterFilePath As String
     Dim m_exportMessage As String
+    Dim m_linearUnit As String
+    Dim m_hru As Hru
+    Private Const METER As String = "Meter"
+    Private Const FOOT As String = "Foot"
 
     Public Sub New()
 
@@ -167,7 +171,15 @@ Public Class FrmExportParametersEwsf
             Else
                 TxtNHru.Text = "0"
             End If
+            'Load selected hru from xml
+            Dim hruInputPath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name)
+            Dim aoi As Aoi = BA_LoadHRUFromXml(hruInputPath)
+            For Each anHru In aoi.HruList
+                ' We found the hru the user selected
+                m_hru = anHru
+            Next
             LoadProfileList(selItem.Name)
+            SetMinPolySize(hruGdbName)
             SetHruResolution()
         End If
     End Sub
@@ -758,10 +770,10 @@ Public Class FrmExportParametersEwsf
             Dim cellSize As Double = BA_CellSize(hruGdbPath, GRID)
             Dim linearUnit As ESRI.ArcGIS.Geometry.ILinearUnit = BA_GetLinearUnitOfProjectedRaster(hruGdbPath, GRID)
             Dim unitLabel As String = "Unknown"
-            If linearUnit.Name = "Meter" Then
-                unitLabel = "Meters"
-            ElseIf linearUnit.Name = "Foot" Then
-                unitLabel = "Feet"
+            If linearUnit.Name = METER Then
+                unitLabel = BA_EnumDescription(MeasurementUnit.Meters)
+            ElseIf linearUnit.Name = FOOT Then
+                unitLabel = BA_EnumDescription(MeasurementUnit.Feet)
             End If
             If linearUnit IsNot Nothing Then
                 TxtHruResolution.Text = Math.Round(cellSize, 2) & " " & unitLabel
@@ -777,13 +789,14 @@ Public Class FrmExportParametersEwsf
         Dim cellSize As Double = BA_CellSize(surfacesFolder, BA_EnumDescription(MapsFileName.filled_dem_gdb))
         Dim linearUnit As ESRI.ArcGIS.Geometry.ILinearUnit = BA_GetLinearUnitOfProjectedRaster(surfacesFolder, BA_EnumDescription(MapsFileName.filled_dem_gdb))
         Dim unitLabel As String = "Unknown"
-        If linearUnit.Name = "Meter" Then
-            unitLabel = "Meters"
-        ElseIf linearUnit.Name = "Foot" Then
-            unitLabel = "Feet"
+        If linearUnit.Name = METER Then
+            unitLabel = BA_EnumDescription(MeasurementUnit.Meters)
+        ElseIf linearUnit.Name = FOOT Then
+            unitLabel = BA_EnumDescription(MeasurementUnit.Feet)
         End If
         If linearUnit IsNot Nothing Then
             TxtDemResolution.Text = Math.Round(cellSize, 2) & " " & unitLabel
+            m_linearUnit = linearUnit.Name
         Else
             TxtDemResolution.Text = Math.Round(cellSize, 2)
         End If
@@ -939,4 +952,39 @@ Public Class FrmExportParametersEwsf
         Next
         Return BA_SaveAOIParameters(srcList, settingsPath)
     End Function
+
+    Private Sub SetMinPolySize(ByVal hruGdbName As String)
+        Dim statResults As BA_DataStatistics        'internal unit is sq km
+        Dim minPolyArea As Double
+        Dim queryField As String = BA_FIELD_AREA_SQKM
+        Dim measureUnit As MeasurementUnit
+        If m_hru IsNot Nothing Then
+            If m_linearUnit Is Nothing Then
+                MessageBox.Show("Could not determine units from DEM. Minimum polygon size will be displayed in square kilometers.")
+                measureUnit = MeasurementUnit.SquareKilometers
+            ElseIf m_linearUnit.Equals(METER) Then
+                measureUnit = MeasurementUnit.SquareKilometers
+            ElseIf m_linearUnit.Equals(FOOT) Then
+                queryField = BA_FIELD_AREA_ACRE
+                measureUnit = MeasurementUnit.Acres
+            End If
+            If m_hru.AllowNonContiguousHru Then
+                statResults = BA_GetAreaStatistics(hruGdbName, BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.HruPolyVector), False), _
+                                                   BA_FIELD_SHAPE_AREA, measureUnit)
+                If statResults.Maximum > 0 Then
+                    minPolyArea = statResults.Minimum
+                Else
+                    MessageBox.Show("Can't get min polygon size")
+                End If
+            Else
+                If BA_GetDataStatistics(hruGdbName & BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.HruVector), False, True), _
+                                        queryField, statResults) <> 0 Then
+                    MessageBox.Show("Can't get min polygon size")
+                Else
+                    minPolyArea = statResults.Minimum
+                End If
+            End If
+        End If
+        TxtMinPolySize.Text = Format(minPolyArea, "###,###,##0.00000") & " " & BA_EnumDescription(measureUnit)
+    End Sub
 End Class

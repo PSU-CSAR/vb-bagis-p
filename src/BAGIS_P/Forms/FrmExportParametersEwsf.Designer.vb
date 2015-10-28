@@ -74,6 +74,8 @@ Partial Class FrmExportParametersEwsf
         Me.LblStatus = New System.Windows.Forms.Label()
         Me.TimerStatus = New System.Windows.Forms.Timer(Me.components)
         Me.BtnViewBagisParams = New System.Windows.Forms.Button()
+        Me.TextBox4 = New System.Windows.Forms.TextBox()
+        Me.TxtMinPolySize = New System.Windows.Forms.TextBox()
         Me.SuspendLayout()
         '
         'TxtAoiPath
@@ -150,7 +152,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(1, 334)
+        Me.Label2.Location = New System.Drawing.Point(1, 352)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(162, 16)
         Me.Label2.TabIndex = 67
@@ -159,7 +161,7 @@ Partial Class FrmExportParametersEwsf
         'TxtNumParameters
         '
         Me.TxtNumParameters.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtNumParameters.Location = New System.Drawing.Point(163, 331)
+        Me.TxtNumParameters.Location = New System.Drawing.Point(163, 349)
         Me.TxtNumParameters.Name = "TxtNumParameters"
         Me.TxtNumParameters.ReadOnly = True
         Me.TxtNumParameters.Size = New System.Drawing.Size(60, 22)
@@ -416,7 +418,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.CboResampleHru.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CboResampleHru.FormattingEnabled = True
-        Me.CboResampleHru.Location = New System.Drawing.Point(695, 245)
+        Me.CboResampleHru.Location = New System.Drawing.Point(694, 258)
         Me.CboResampleHru.Name = "CboResampleHru"
         Me.CboResampleHru.Size = New System.Drawing.Size(100, 24)
         Me.CboResampleHru.TabIndex = 123
@@ -425,17 +427,18 @@ Partial Class FrmExportParametersEwsf
         '
         Me.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox2.Location = New System.Drawing.Point(534, 247)
+        Me.TextBox2.Location = New System.Drawing.Point(533, 260)
+        Me.TextBox2.Multiline = True
         Me.TextBox2.Name = "TextBox2"
         Me.TextBox2.ReadOnly = True
-        Me.TextBox2.Size = New System.Drawing.Size(166, 15)
+        Me.TextBox2.Size = New System.Drawing.Size(166, 20)
         Me.TextBox2.TabIndex = 122
         Me.TextBox2.Text = "Resampling technique"
         '
         'TxtHruResample
         '
         Me.TxtHruResample.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtHruResample.Location = New System.Drawing.Point(455, 245)
+        Me.TxtHruResample.Location = New System.Drawing.Point(454, 258)
         Me.TxtHruResample.Name = "TxtHruResample"
         Me.TxtHruResample.Size = New System.Drawing.Size(67, 22)
         Me.TxtHruResample.TabIndex = 121
@@ -444,7 +447,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.TextBox8.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox8.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox8.Location = New System.Drawing.Point(362, 247)
+        Me.TextBox8.Location = New System.Drawing.Point(361, 260)
         Me.TextBox8.Name = "TextBox8"
         Me.TextBox8.ReadOnly = True
         Me.TextBox8.Size = New System.Drawing.Size(90, 15)
@@ -455,7 +458,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.TextBox7.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox7.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox7.Location = New System.Drawing.Point(169, 247)
+        Me.TextBox7.Location = New System.Drawing.Point(168, 260)
         Me.TextBox7.Name = "TextBox7"
         Me.TextBox7.ReadOnly = True
         Me.TextBox7.Size = New System.Drawing.Size(121, 15)
@@ -468,7 +471,7 @@ Partial Class FrmExportParametersEwsf
         Me.TxtHruResolution.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TxtHruResolution.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtHruResolution.ForeColor = System.Drawing.Color.Black
-        Me.TxtHruResolution.Location = New System.Drawing.Point(279, 247)
+        Me.TxtHruResolution.Location = New System.Drawing.Point(278, 260)
         Me.TxtHruResolution.Name = "TxtHruResolution"
         Me.TxtHruResolution.ReadOnly = True
         Me.TxtHruResolution.Size = New System.Drawing.Size(75, 15)
@@ -478,7 +481,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.CboResampleDem.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CboResampleDem.FormattingEnabled = True
-        Me.CboResampleDem.Location = New System.Drawing.Point(695, 274)
+        Me.CboResampleDem.Location = New System.Drawing.Point(694, 285)
         Me.CboResampleDem.Name = "CboResampleDem"
         Me.CboResampleDem.Size = New System.Drawing.Size(100, 24)
         Me.CboResampleDem.TabIndex = 130
@@ -487,17 +490,18 @@ Partial Class FrmExportParametersEwsf
         '
         Me.TextBox3.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox3.Location = New System.Drawing.Point(534, 276)
+        Me.TextBox3.Location = New System.Drawing.Point(533, 288)
+        Me.TextBox3.Multiline = True
         Me.TextBox3.Name = "TextBox3"
         Me.TextBox3.ReadOnly = True
-        Me.TextBox3.Size = New System.Drawing.Size(166, 15)
+        Me.TextBox3.Size = New System.Drawing.Size(166, 20)
         Me.TextBox3.TabIndex = 129
         Me.TextBox3.Text = "Resampling technique"
         '
         'TxtDemResample
         '
         Me.TxtDemResample.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtDemResample.Location = New System.Drawing.Point(455, 273)
+        Me.TxtDemResample.Location = New System.Drawing.Point(454, 284)
         Me.TxtDemResample.Name = "TxtDemResample"
         Me.TxtDemResample.Size = New System.Drawing.Size(67, 22)
         Me.TxtDemResample.TabIndex = 128
@@ -506,7 +510,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.TextBox9.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox9.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox9.Location = New System.Drawing.Point(362, 277)
+        Me.TextBox9.Location = New System.Drawing.Point(361, 288)
         Me.TextBox9.Name = "TextBox9"
         Me.TextBox9.ReadOnly = True
         Me.TextBox9.Size = New System.Drawing.Size(90, 15)
@@ -519,7 +523,7 @@ Partial Class FrmExportParametersEwsf
         Me.TxtDemResolution.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TxtDemResolution.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtDemResolution.ForeColor = System.Drawing.Color.Black
-        Me.TxtDemResolution.Location = New System.Drawing.Point(279, 277)
+        Me.TxtDemResolution.Location = New System.Drawing.Point(278, 288)
         Me.TxtDemResolution.Name = "TxtDemResolution"
         Me.TxtDemResolution.ReadOnly = True
         Me.TxtDemResolution.Size = New System.Drawing.Size(75, 15)
@@ -529,7 +533,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.TextBox11.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox11.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TextBox11.Location = New System.Drawing.Point(170, 277)
+        Me.TextBox11.Location = New System.Drawing.Point(168, 287)
         Me.TextBox11.Name = "TextBox11"
         Me.TextBox11.ReadOnly = True
         Me.TextBox11.Size = New System.Drawing.Size(121, 15)
@@ -542,7 +546,7 @@ Partial Class FrmExportParametersEwsf
         Me.TextBox5.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TextBox5.ForeColor = System.Drawing.Color.Black
-        Me.TextBox5.Location = New System.Drawing.Point(170, 299)
+        Me.TextBox5.Location = New System.Drawing.Point(169, 309)
         Me.TextBox5.Multiline = True
         Me.TextBox5.Name = "TextBox5"
         Me.TextBox5.ReadOnly = True
@@ -566,7 +570,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.LblStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblStatus.ForeColor = System.Drawing.Color.Red
-        Me.LblStatus.Location = New System.Drawing.Point(237, 331)
+        Me.LblStatus.Location = New System.Drawing.Point(237, 349)
         Me.LblStatus.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.LblStatus.Name = "LblStatus"
         Me.LblStatus.Size = New System.Drawing.Size(438, 22)
@@ -578,18 +582,44 @@ Partial Class FrmExportParametersEwsf
         'BtnViewBagisParams
         '
         Me.BtnViewBagisParams.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnViewBagisParams.Location = New System.Drawing.Point(3, 354)
+        Me.BtnViewBagisParams.Location = New System.Drawing.Point(3, 372)
         Me.BtnViewBagisParams.Name = "BtnViewBagisParams"
         Me.BtnViewBagisParams.Size = New System.Drawing.Size(135, 25)
         Me.BtnViewBagisParams.TabIndex = 135
         Me.BtnViewBagisParams.Text = "View parameter list"
         Me.BtnViewBagisParams.UseVisualStyleBackColor = True
         '
+        'TextBox4
+        '
+        Me.TextBox4.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TextBox4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TextBox4.Location = New System.Drawing.Point(169, 238)
+        Me.TextBox4.Multiline = True
+        Me.TextBox4.Name = "TextBox4"
+        Me.TextBox4.ReadOnly = True
+        Me.TextBox4.Size = New System.Drawing.Size(121, 20)
+        Me.TextBox4.TabIndex = 136
+        Me.TextBox4.Text = "Min polygon size"
+        '
+        'TxtMinPolySize
+        '
+        Me.TxtMinPolySize.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.TxtMinPolySize.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.TxtMinPolySize.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtMinPolySize.ForeColor = System.Drawing.Color.Black
+        Me.TxtMinPolySize.Location = New System.Drawing.Point(292, 239)
+        Me.TxtMinPolySize.Name = "TxtMinPolySize"
+        Me.TxtMinPolySize.ReadOnly = True
+        Me.TxtMinPolySize.Size = New System.Drawing.Size(159, 15)
+        Me.TxtMinPolySize.TabIndex = 137
+        '
         'FrmExportParametersEwsf
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(880, 403)
+        Me.Controls.Add(Me.TxtMinPolySize)
+        Me.Controls.Add(Me.TextBox4)
         Me.Controls.Add(Me.BtnViewBagisParams)
         Me.Controls.Add(Me.LblStatus)
         Me.Controls.Add(Me.CkParametersOnly)
@@ -696,4 +726,6 @@ Partial Class FrmExportParametersEwsf
     Friend WithEvents LblStatus As System.Windows.Forms.Label
     Friend WithEvents TimerStatus As System.Windows.Forms.Timer
     Friend WithEvents BtnViewBagisParams As System.Windows.Forms.Button
+    Friend WithEvents TextBox4 As System.Windows.Forms.TextBox
+    Friend WithEvents TxtMinPolySize As System.Windows.Forms.TextBox
 End Class

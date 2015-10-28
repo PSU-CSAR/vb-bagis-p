@@ -1,7 +1,7 @@
 ﻿Public Module ConstantsModule
 
     'Class library version; Update with each change to class library
-    Public Const BA_CLASS_LIBRARY_VERSION As String = "L036"
+    Public Const BA_CLASS_LIBRARY_VERSION As String = "L034"
 
     ' Used with BA_QueryAttributeTable to customize query
     Public Const BA_STRING_ATTRIBUTE As String = "string_attribute"
@@ -81,6 +81,7 @@
     Public Const BA_FIELD_AWDB_ID As String = "awdb_id"
     Public Const BA_FIELD_TIMBER_ELEV As String = "TIMBER_ELEV"
     Public Const BA_FIELD_AREA As String = "AREA"
+    Public Const BA_FIELD_SHAPE_AREA As String = "Shape_Area"
 
     'mapframe
     Public Const BA_MAPS_DEFAULT_MAP_NAME As String = "Basin Analysis"
