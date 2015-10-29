@@ -160,6 +160,7 @@
     <Compile Include="Buttons\BtnDataManager.vb" />
     <Compile Include="Buttons\BtnLocalDataManager.vb" />
     <Compile Include="Buttons\BtnParameterViewer.vb" />
+    <Compile Include="Buttons\BtnPEandSRObs.vb" />
     <Compile Include="Buttons\BtnPublicMethodEditor.vb" />
     <Compile Include="Buttons\BtnPublicProfileBuilder.vb" />
     <Compile Include="Buttons\BtnModel.vb" />
@@ -235,6 +236,12 @@
       <DependentUpon>FrmParameterViewer.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\FrmParameterViewer.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmPEandSRObs.Designer.vb">
+      <DependentUpon>FrmPEandSRObs.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FrmPEandSRObs.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FrmProfilePassword.Designer.vb">
@@ -378,6 +385,9 @@
     <EmbeddedResource Include="Forms\FrmParameterViewer.resx">
       <DependentUpon>FrmParameterViewer.vb</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FrmPEandSRObs.resx">
+      <DependentUpon>FrmPEandSRObs.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmProfilePassword.resx">
       <DependentUpon>FrmProfilePassword.vb</DependentUpon>
@@ -560,6 +570,7 @@
       <SubType>Designer</SubType>
     </Content>
     <AddInContent Include="Images\BtnParameterDescription.png" />
+    <AddInContent Include="Images\BtnPEandSRObs.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BAGIS_ClassLibrary\BAGIS_ClassLibrary.vbproj">
