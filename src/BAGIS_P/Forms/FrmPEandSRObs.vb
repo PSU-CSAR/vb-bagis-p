@@ -3,6 +3,7 @@ Imports System.Windows.Forms
 Imports ESRI.ArcGIS.CatalogUI
 Imports ESRI.ArcGIS.Catalog
 Imports ESRI.ArcGIS.Geodatabase
+Imports ESRI.ArcGIS.Geometry
 
 Public Class FrmPEandSRObs
 
@@ -122,5 +123,76 @@ Public Class FrmPEandSRObs
         Dim pDatasetName As IDatasetName = pGxDataset.DatasetName
         Dim Data_Path As String = pDatasetName.WorkspaceName.PathName
         TxtPEPath.Text = Data_Path & "\" & pDatasetName.Name
+    End Sub
+
+    Private Sub ManageCalculateButton()
+        If Not String.IsNullOrEmpty(TxtAoiPath.Text) AndAlso _
+            Not String.IsNullOrEmpty(TxtSrPath.Text) AndAlso _
+            Not String.IsNullOrEmpty(TxtPEPath.Text) Then
+            BtnCalculate.Enabled = True
+        Else
+            BtnCalculate.Enabled = False
+        End If
+    End Sub
+
+    Private Sub TxtAoiPath_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtAoiPath.TextChanged
+        ManageCalculateButton()
+    End Sub
+
+    Private Sub TxtSrPath_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtSrPath.TextChanged
+        ManageCalculateButton()
+    End Sub
+
+    Private Sub TxtPEPath_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtPEPath.TextChanged
+        ManageCalculateButton()
+    End Sub
+
+    Private Function CalculateSRObs() As BA_ReturnCode
+        Dim aoiFeatures As IFeatureClass = Nothing
+        Dim srGDS As IGeoDataset = Nothing
+        Dim fCursor As IFeatureCursor = Nothing
+        Dim pFeature As IFeature = Nothing
+        Dim pArea As IArea = Nothing
+        Dim pCentroid As IPoint = Nothing
+        Try
+            Dim aoiGDB As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi)
+            Dim aoiFile As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
+            aoiFeatures = BA_OpenFeatureClassFromGDB(aoiGDB, aoiFile)
+            If aoiFeatures IsNot Nothing Then
+                fCursor = aoiFeatures.Search(Nothing, False)
+                If fCursor IsNot Nothing Then
+                    ' There is only one feature in AOI vector, always take the first one
+                    pFeature = fCursor.NextFeature
+                    If pFeature IsNot Nothing Then
+                        pArea = pFeature.Shape
+                        pCentroid = pArea.Centroid
+                    End If
+                    Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(TxtSrPath.Text)
+                    Dim folder As String = "PleaseReturn"
+                    Dim fileName As String = BA_GetBareName(TxtSrPath.Text, folder)
+                    If wType = WorkspaceType.Geodatabase Then
+
+                    Else
+
+                    End If
+                End If
+ 
+            End If
+
+        Catch ex As Exception
+            Debug.Print("CalculateSRObs Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+            aoiFeatures = Nothing
+            srGDS = Nothing
+            fCursor = Nothing
+            pFeature = Nothing
+            pArea = Nothing
+            pCentroid = Nothing
+        End Try
+    End Function
+
+    Private Sub BtnCalculate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCalculate.Click
+        CalculateSRObs()
     End Sub
 End Class
