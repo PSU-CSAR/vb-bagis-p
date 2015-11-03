@@ -4,6 +4,7 @@ Imports System.Text
 Imports ESRI.ArcGIS.Geodatabase
 Imports ESRI.ArcGIS.Geoprocessing
 Imports ESRI.ArcGIS.esriSystem
+Imports System.Windows.Forms
 
 Module MethodModule
 
@@ -612,8 +613,17 @@ Module MethodModule
             Next
 
             Dim errorMessage As String = Nothing
+            Dim warningMessage As String = Nothing
             Dim scratchDir As String = aoiPath & BA_EnumDescription(PublicPath.BagisPDefaultWorkspace)
-            Return BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage)
+            Dim success As BA_ReturnCode = BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage, warningMessage)
+            If Not String.IsNullOrEmpty(errorMessage) Then
+                MessageBox.Show("An error occurred while executing the model. " & errorMessage & vbCrLf, "Error message", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Return BA_ReturnCode.UnknownError
+            End If
+            If Not String.IsNullOrEmpty(warningMessage) Then
+                MessageBox.Show(warningMessage & vbCrLf, "Warning message", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            End If
+            Return success
         Catch ex As Exception
             Debug.Print("BA_ExecuteJHModel Exception: " & ex.Message)
             Return BA_ReturnCode.UnknownError

@@ -18,6 +18,7 @@ Public Class Method
     Dim m_useMethod As Boolean = True
     Dim m_validationMessages As List(Of String)
     Dim m_validated As String
+    Dim m_warningMessage As String
 
     ' Required for de-serialization. Do not use.
     Sub New()
@@ -142,6 +143,15 @@ Public Class Method
         End Get
         Set(ByVal value As String)
             m_errorMessage = value
+        End Set
+    End Property
+
+    Public Property WarningMessage As String
+        Get
+            Return m_warningMessage
+        End Get
+        Set(ByVal value As String)
+            m_warningMessage = value
         End Set
     End Property
 

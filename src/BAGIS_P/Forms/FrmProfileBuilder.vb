@@ -971,8 +971,13 @@ Public Class FrmProfileBuilder
                             If pMethod IsNot Nothing AndAlso hruMethod.Status = MethodStatus.Verified AndAlso hruMethod.UseMethod = True Then
                                 LblStatus.Text = "Calculating " & mName
                                 Dim errorMessage As String = Nothing
+                                Dim warningMessage As String = Nothing
                                 Dim scratchDir As String = m_aoi.FilePath & BA_EnumDescription(PublicPath.BagisPDefaultWorkspace)
-                                success = BA_RunModelFromMethodFilledParameters(pMethod, scratchDir, errorMessage)
+                                success = BA_RunModelFromMethodFilledParameters(pMethod, scratchDir, errorMessage, warningMessage)
+                                'Display any warning messages to the user in a MessageBox
+                                If Not String.IsNullOrEmpty(warningMessage) Then
+                                    MessageBox.Show(warningMessage & vbCrLf, "Warning message", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                End If
                                 'Create and populate a new method for this profile/hru combination
                                 With hruMethod
                                     .Name = pMethod.Name
@@ -984,6 +989,7 @@ Public Class FrmProfileBuilder
                                     hruMethod.Status = MethodStatus.Failed
                                 End If
                                 hruMethod.ErrorMessage = errorMessage
+                                hruMethod.WarningMessage = warningMessage
                                 UpdateMethodStatusOnGrid(hruMethod)
                                 If hruMethodTable Is Nothing Then
                                     hruMethodTable = New Hashtable

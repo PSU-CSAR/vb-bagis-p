@@ -146,10 +146,11 @@ Module ToolboxModule
 
     Public Function BA_ExecuteModel(ByVal toolboxPath As String, ByVal modelName As String, _
                                     ByVal pParamArray As IVariantArray, ByVal scratchDir As String, _
-                                    ByRef errorMessage As String) As BA_ReturnCode
+                                    ByRef errorMessage As String, ByRef warningMessage As String) As BA_ReturnCode
         Dim GP As GeoProcessor = New GeoProcessor
         Dim pResult As IGeoProcessorResult = Nothing
         Dim enumList As IGpEnumList = Nothing
+        Dim gpMessages As IGPMessages = Nothing
         Try
             GP.OverwriteOutput = True
             GP.AddOutputsToMap = False
@@ -167,10 +168,20 @@ Module ToolboxModule
             Next
 
             pResult = GP.Execute(modelName, pParamArray, Nothing)
-            Dim idxLastMsg = pResult.MessageCount - 1
+            gpMessages = pResult.GetResultMessages
+            'Dim idxLastMsg = pResult.MessageCount - 1
+            Dim idxLastMsg As UInt16 = gpMessages.Count - 1
             For Counter As Integer = 0 To idxLastMsg
-                Dim nextMsg As String = pResult.GetMessage(Counter)
-                Debug.Print("GP: " & nextMsg)
+                'Dim nextMsg As String = pResult.GetMessage(Counter)
+                Dim nextMsg As IGPMessage = gpMessages.GetMessage(Counter)
+                'Developer messages passed from the gp will have the following message type
+                'bagis_p_soil_methods.tbx\Soil_Moist_Recharge_Parameters
+                If nextMsg.Type = esriGPMessageType.esriGPMessageTypeWarning Then
+                    warningMessage = nextMsg.Description
+                Else
+                    'Uncomment below to print all message types
+                    'Debug.Print("GP: " & nextMsg.Description)
+                End If
             Next
             Return BA_ReturnCode.Success
         Catch ex As Exception
@@ -274,7 +285,7 @@ Module ToolboxModule
 
     Public Function BA_RunModelFromMethod(ByVal inMethod As Method, ByVal hruPath As String, _
                                           ByVal profileName As String, ByVal scratchDir As String, _
-                                          ByRef errorMessage As String) As BA_ReturnCode
+                                          ByRef errorMessage As String, ByRef warningMessage As String) As BA_ReturnCode
         Dim pModel As IGPTool = Nothing
         Dim params As List(Of ModelParameter) = Nothing
         Dim pParamArray As IVariantArray = New VarArray
@@ -318,7 +329,7 @@ Module ToolboxModule
                         pParamArray.Add(pValue)
                     Next
                 End If
-                Return BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage)
+                Return BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage, warningMessage)
             End If
         Catch ex As Exception
             Debug.Print("BA_RunModelFromMethod Exception: " & ex.Message)
@@ -331,7 +342,7 @@ Module ToolboxModule
     End Function
 
     Public Function BA_RunModelFromMethodFilledParameters(ByVal inMethod As Method, ByVal scratchDir As String, _
-                                                          ByRef errorMessage As String) As BA_ReturnCode
+                                                          ByRef errorMessage As String, ByRef warningMessage As String) As BA_ReturnCode
         Dim pModel As IGPTool = Nothing
         Dim params As List(Of ModelParameter) = Nothing
         Dim pParamArray As IVariantArray = New VarArray
@@ -343,7 +354,7 @@ Module ToolboxModule
                     pParamArray.Add(pParam.Value)
                 Next
             End If
-            Return BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage)
+            Return BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage, warningMessage)
         Catch ex As Exception
             Debug.Print("BA_RunModelFromMethod Exception: " & ex.Message)
             Return BA_ReturnCode.UnknownError

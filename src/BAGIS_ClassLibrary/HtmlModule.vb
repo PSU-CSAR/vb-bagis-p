@@ -940,6 +940,13 @@ Public Module HtmlModule
                 hwriter.RenderEndTag()
             End If
             hwriter.WriteBreak()
+            'If Not String.IsNullOrEmpty(hruMethod.WarningMessage) Then
+            '    'hwriter.AddStyleAttribute(HtmlTextWriterStyle.Color, "red")
+            '    hwriter.RenderBeginTag(HtmlTextWriterTag.Span)
+            '    hwriter.Write("Warning message: " & hruMethod.WarningMessage)
+            '    hwriter.RenderEndTag()
+            '    hwriter.WriteBreak()
+            'End If
             If Not String.IsNullOrEmpty(hruMethod.ErrorMessage) Then
                 hwriter.AddStyleAttribute(HtmlTextWriterStyle.Color, "red")
                 hwriter.RenderBeginTag(HtmlTextWriterTag.Span)
