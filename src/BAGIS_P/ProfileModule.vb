@@ -352,18 +352,18 @@ Module ProfileModule
             Dim bExt As BagisPExtension = BagisPExtension.GetExtension
             Dim logProfile As LogProfile = New LogProfile(myProfile.Id, myProfile.Name, myProfile.Description, bExt.version, hruPath, _
                                                           DateTime.Now, noDataValue)
-            Dim methodArr(myProfile.MethodNames.Count - 1) As Method
-            Dim hruMethodArr(myProfile.MethodNames.Count - 1) As Method
-            Dim i As Integer = 0
+            Dim methodList As List(Of Method) = New List(Of Method)
+            Dim hruList As List(Of Method) = New List(Of Method)
             For Each mName As String In myProfile.MethodNames
                 Dim nextMethod As Method = methodTable(mName)
-                methodArr(i) = nextMethod
-                Dim hruMethod As Method = hruMethodTable(mName)
-                hruMethodArr(i) = hruMethod
-                i += 1
+                If nextMethod IsNot Nothing Then
+                    methodList.Add(nextMethod)
+                    Dim hruMethod As Method = hruMethodTable(mName)
+                    hruList.Add(hruMethod)
+                End If
             Next
-            logProfile.Methods = methodArr
-            logProfile.HruMethods = hruMethodArr
+            logProfile.Methods = methodList.ToArray
+            logProfile.HruMethods = hruList.ToArray
             Dim logPath As String = hruPath & "\" & logProfile.Name & "_params_log.xml"
             logProfile.Save(logPath)
             Return BA_ReturnCode.Success
