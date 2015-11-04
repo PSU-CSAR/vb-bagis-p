@@ -192,6 +192,9 @@
 
     'Constant parameter names for parameters calculated at the AOI-level
     Public Const BA_Aoi_Parameter_JH_Coef As String = "Aoi_Parameter_JH_Coef"
+
+    'Constant prefix for BAGIS warning messages from GP
+    Public Const BA_Warning_Message_Prefix As String = "BAGIS Message:"
 End Module
 
 

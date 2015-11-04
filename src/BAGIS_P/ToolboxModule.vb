@@ -176,11 +176,12 @@ Module ToolboxModule
                 Dim nextMsg As IGPMessage = gpMessages.GetMessage(Counter)
                 'Developer messages passed from the gp will have the following message type
                 'bagis_p_soil_methods.tbx\Soil_Moist_Recharge_Parameters
-                If nextMsg.Type = esriGPMessageType.esriGPMessageTypeWarning Then
+                If nextMsg.Type = esriGPMessageType.esriGPMessageTypeWarning _
+                    AndAlso nextMsg.Description.IndexOf(BA_Warning_Message_Prefix, StringComparison.OrdinalIgnoreCase) = 0 Then
                     warningMessage = nextMsg.Description
                 Else
                     'Uncomment below to print all message types
-                    'Debug.Print("GP: " & nextMsg.Description)
+                    Debug.Print("GP message: " & nextMsg.Description)
                 End If
             Next
             Return BA_ReturnCode.Success
@@ -356,7 +357,7 @@ Module ToolboxModule
             End If
             Return BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage, warningMessage)
         Catch ex As Exception
-            Debug.Print("BA_RunModelFromMethod Exception: " & ex.Message)
+            Debug.Print("BA_RunModelFromMethodFilledParameters Exception: " & ex.Message)
             Return BA_ReturnCode.UnknownError
         Finally
             pModel = Nothing
