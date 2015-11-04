@@ -181,7 +181,7 @@ Module ToolboxModule
                     warningMessage = nextMsg.Description
                 Else
                     'Uncomment below to print all message types
-                    Debug.Print("GP message: " & nextMsg.Description)
+                    'Debug.Print("GP message: " & nextMsg.Description)
                 End If
             Next
             Return BA_ReturnCode.Success
