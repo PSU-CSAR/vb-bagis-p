@@ -469,35 +469,49 @@ Public Class FrmTimberlineTool
 
     Private Sub BtnSatellite_Click(sender As System.Object, e As System.EventArgs) Handles BtnSatellite.Click
         BtnSatellite.Enabled = False
-        'When ArcGIS 10 adds the satellite layer, this is the layer name
-        Dim layerName As String = "Basemap"
         Dim pMap As IMap = My.Document.FocusMap
-        If BtnIdentify.Enabled = True And CboParentHru.SelectedIndex > -1 Then
-            Dim idxSatellite As Integer = BA_GetLayerIndexByName(My.Document, layerName)
-            If idxSatellite > -1 Then
-                Dim layer As ILayer = pMap.Layer(idxSatellite)
-                pMap.DeleteLayer(layer)
-            Else
-                'Display satellite view if desired
-                Dim layerFile As ILayerFile = New LayerFile
-                'How to access maps from ArcGIS.com
-                'http://blogs.esri.com/esri/arcgis/2010/11/30/programmatically-working-with-packages-and-web-maps-new-at-10-sp1/
-                'Bing maps road
-                'layerFile.Open("http://www.arcgis.com/sharing/content/items/b6969de2b84d441692f5bb8792e65d1f/item.pkinfo")
-                'Bing maps hybrid
-                'layerFile.Open("http://www.arcgis.com/sharing/content/items/71d6d656cb2a4ded8fce35982ebdff25/item.pkinfo")
-                'Bing maps aerial
-                layerFile.Open("http://www.arcgis.com/sharing/content/items/25c3f49d4ce3451e8a7f5b5aebccab48/item.pkinfo")
-                Dim layer As ILayer = layerFile.Layer
-                pMap.AddLayer(layer)
-                'Make sure the satellite layer is under the hru layer
-                Dim hruName As String = CStr(CboParentHru.SelectedItem)
-                Dim idxHru As Integer = BA_GetLayerIndexByName(My.Document, hruName)
-                pMap.MoveLayer(layer, idxHru)
+        Try
+            'When ArcGIS 10 adds the satellite layer, this is the layer name
+            Dim layerName As String = "Basemap"
+            If BtnIdentify.Enabled = True And CboParentHru.SelectedIndex > -1 Then
+                Dim idxSatellite As Integer = BA_GetLayerIndexByName(My.Document, layerName)
+                If idxSatellite > -1 Then
+                    Dim layer As ILayer = pMap.Layer(idxSatellite)
+                    pMap.DeleteLayer(layer)
+                Else
+                    'Display satellite view if desired
+                    Dim layerFile As ILayerFile = New LayerFile
+                    'How to access maps from ArcGIS.com
+                    'http://blogs.esri.com/esri/arcgis/2010/11/30/programmatically-working-with-packages-and-web-maps-new-at-10-sp1/
+                    'Bing maps road
+                    'layerFile.Open("http://www.arcgis.com/sharing/content/items/b6969de2b84d441692f5bb8792e65d1f/item.pkinfo")
+                    'Bing maps hybrid
+                    'layerFile.Open("http://www.arcgis.com/sharing/content/items/71d6d656cb2a4ded8fce35982ebdff25/item.pkinfo")
+                    'Bing maps aerial
+                    'layerFile.Open("http://www.arcgis.com/sharing/content/items/25c3f49d4ce3451e8a7f5b5aebccab48/item.pkinfo")
+                    'ESRI imagery basemap
+                    layerFile.Open("http://www.arcgis.com/sharing/content/items/483b230c56a44c33beb13f9b9ab9f88d/item.pkinfo")
+                    If layerFile IsNot Nothing Then
+                        Dim layer As ILayer = layerFile.Layer
+                        pMap.AddLayer(layer)
+                        'Make sure the satellite layer is under the hru layer
+                        Dim hruName As String = CStr(CboParentHru.SelectedItem)
+                        Dim idxHru As Integer = BA_GetLayerIndexByName(My.Document, hruName)
+                        pMap.MoveLayer(layer, idxHru)
+                    Else
+                        MessageBox.Show("An error occurred while trying to load the satellite landcover layer")
+                    End If
+                End If
+                'refresh the active view
+                My.Document.ActiveView.Refresh()
             End If
-            'refresh the active view
-            My.Document.ActiveView.Refresh()
-        End If
+        Catch ex As Exception
+            Debug.Print("BtnSatellite_Click Exception: " & ex.Message)
+            MessageBox.Show("An error occurred while trying to load the satellite landcover layer")
+        Finally
+            pMap = Nothing
+        End Try
+
         BtnSatellite.Enabled = True
     End Sub
 
