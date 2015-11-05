@@ -121,7 +121,8 @@ Public Class FrmEditHruParameters
             If m_missingSpatialParameters.Contains(key) Then
                 newColumn.HeaderCell.Style.ForeColor = Drawing.Color.Red
             End If
-            newColumn.SortMode = DataGridViewColumnSortMode.Programmatic
+            'Custom comparator defined in GrdParam_SortCompare
+            newColumn.SortMode = DataGridViewColumnSortMode.Automatic
             GrdParam.Columns.Add(newColumn)
         Next
     End Sub
@@ -147,5 +148,15 @@ Public Class FrmEditHruParameters
             Debug.Print("BtnApply_Click: " & ex.Message)
             MessageBox.Show("An error occurred while trying to save updated parameters", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End Try
+    End Sub
+
+    Private Sub GrdParam_SortCompare(ByVal sender As Object, ByVal e As DataGridViewSortCompareEventArgs) _
+        Handles GrdParam.SortCompare
+
+        Dim a As Double = Double.Parse(e.CellValue1.ToString)
+        Dim b As Double = Double.Parse(e.CellValue2.ToString)
+
+        e.SortResult = a.CompareTo(b)
+        e.Handled = True
     End Sub
 End Class
