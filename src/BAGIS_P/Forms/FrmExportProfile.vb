@@ -321,7 +321,8 @@ Public Class FrmExportProfile
         Dim elevUnit As MeasurementUnit
         Dim depthUnit As MeasurementUnit
         Dim degreeUnit As MeasurementUnit
-        BA_SetMeasurementUnitsForAoi(aoiPath, m_dataTable, slopeUnit, elevUnit, depthUnit, degreeUnit)
+        Dim prismLayersExist As Boolean = False
+        BA_SetMeasurementUnitsForAoi(aoiPath, m_dataTable, slopeUnit, elevUnit, depthUnit, degreeUnit, prismLayersExist)
         If mNames IsNot Nothing Then
             For Each mName As String In mNames
                 Dim pMethod As Method = BA_LoadMethodFromXml(targetMethodsPath, mName)

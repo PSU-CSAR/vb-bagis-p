@@ -154,17 +154,18 @@ Public Class FrmProfileBuilder
                     m_dataTable = BA_LoadDataSources(BA_GetLocalSettingsPath(m_aoi.FilePath))
                     BA_AppendUnitsToDataSources(m_dataTable, m_aoi.FilePath)
                     pStepProg.Step()
+                    Dim prismLayersExist As Boolean = False
                     BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
-                         m_depthUnit, m_degreeUnit)
+                         m_depthUnit, m_degreeUnit, prismLayersExist)
 
                     If m_slopeUnit = SlopeUnit.Missing Or _
                         m_elevUnit = MeasurementUnit.Missing Or _
-                        m_depthUnit = MeasurementUnit.Missing Then
-                        Dim frmDataUnits As FrmDataUnits = New FrmDataUnits(m_aoi, m_slopeUnit, m_elevUnit, m_depthUnit)
+                        (m_depthUnit = MeasurementUnit.Missing And prismLayersExist) Then
+                        Dim frmDataUnits As FrmDataUnits = New FrmDataUnits(m_aoi, m_slopeUnit, m_elevUnit, m_depthUnit, prismLayersExist)
                         frmDataUnits.ShowDialog()
                         'Update with changes
                         BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
-                                                     m_depthUnit, m_degreeUnit)
+                                                     m_depthUnit, m_degreeUnit, prismLayersExist)
                     End If
 
                     RefreshProfileData()
@@ -249,17 +250,18 @@ Public Class FrmProfileBuilder
                 LblStatus.Text = "Loading data sources"
                 m_dataTable = BA_LoadDataSources(BA_GetLocalSettingsPath(m_aoi.FilePath))
                 BA_AppendUnitsToDataSources(m_dataTable, m_aoi.FilePath)
+                Dim prismLayersExist As Boolean = False
                 BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
-                     m_depthUnit, m_degreeUnit)
+                     m_depthUnit, m_degreeUnit, prismLayersExist)
 
                 If m_slopeUnit = SlopeUnit.Missing Or _
                     m_elevUnit = MeasurementUnit.Missing Or _
-                    m_depthUnit = MeasurementUnit.Missing Then
-                    Dim frmDataUnits As FrmDataUnits = New FrmDataUnits(m_aoi, m_slopeUnit, m_elevUnit, m_depthUnit)
+                    (m_depthUnit = MeasurementUnit.Missing And prismLayersExist) Then
+                    Dim frmDataUnits As FrmDataUnits = New FrmDataUnits(m_aoi, m_slopeUnit, m_elevUnit, m_depthUnit, prismLayersExist)
                     frmDataUnits.ShowDialog()
                     'Update with changes
                     BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
-                                                 m_depthUnit, m_degreeUnit)
+                                                 m_depthUnit, m_degreeUnit, prismLayersExist)
                 End If
 
                 RefreshProfileData()

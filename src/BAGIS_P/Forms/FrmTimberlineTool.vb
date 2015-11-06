@@ -584,18 +584,19 @@ Public Class FrmTimberlineTool
 
     Private Sub LoadElevationUnits()
         'We only care about elevation units so pass in Nothing for the others
+        Dim prismLayersExist As Boolean = False
         BA_SetMeasurementUnitsForAoi(TxtAoiPath.Text, Nothing, Nothing, m_elevUnit, _
-                                     Nothing, Nothing)
+                                     Nothing, Nothing, prismLayersExist)
         If m_elevUnit = MeasurementUnit.Missing Then
             'Here we have to pass in something so the irrelevant units don't show up on the form
             Dim aoiName As String = BA_GetBareName(TxtAoiPath.Text)
             Dim bagisPExt As BagisPExtension = BagisPExtension.GetExtension
             Dim pAoi As Aoi = New Aoi(aoiName, TxtAoiPath.Text, Nothing, bagisPExt.version)
-            Dim frmDataUnits As FrmDataUnits = New FrmDataUnits(pAoi, SlopeUnit.Degree, m_elevUnit, MeasurementUnit.Inches)
+            Dim frmDataUnits As FrmDataUnits = New FrmDataUnits(pAoi, SlopeUnit.Degree, m_elevUnit, MeasurementUnit.Inches, prismLayersExist)
             frmDataUnits.ShowDialog()
             'Update with changes
             BA_SetMeasurementUnitsForAoi(TxtAoiPath.Text, Nothing, Nothing, m_elevUnit, _
-                                         Nothing, Nothing)
+                                         Nothing, Nothing, prismLayersExist)
         End If
         m_selElevUnit = m_elevUnit
         If m_elevUnit = MeasurementUnit.Meters Then

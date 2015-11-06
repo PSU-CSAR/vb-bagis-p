@@ -8,7 +8,7 @@ Public Class FrmDataUnits
     Private m_aoi As Aoi
 
     Public Sub New(ByVal pAoi As Aoi, ByVal slopeUnits As SlopeUnit, ByVal elevUnits As MeasurementUnit, _
-                   ByVal depthUnits As MeasurementUnit)
+                   ByVal depthUnits As MeasurementUnit, ByVal prismLayersExist As Boolean)
 
         ' This call is required by the designer.
         InitializeComponent()
@@ -36,7 +36,7 @@ Public Class FrmDataUnits
             CboSlopeUnits.Visible = True
             cboPoint.Y += 30
         End If
-        If depthUnits = MeasurementUnit.Missing Then
+        If prismLayersExist AndAlso depthUnits = MeasurementUnit.Missing Then
             LoadPrismUnits()
             LblDepthUnits.Location = labelPoint
             LblDepthUnits.Visible = True
