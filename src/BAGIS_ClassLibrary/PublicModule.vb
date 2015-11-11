@@ -2232,4 +2232,62 @@ Optional ByVal hasPaddingBackSlach As Boolean = False) As String
         End Try
     End Function
 
+    ' Verify that the vector dataset uses the same datum as the datum stored in the hruExtension
+    Public Function BA_VectorProjectionMatch(ByVal inputPath1 As String, ByVal inputPath2 As String) As Boolean
+        Dim pGeoDataset As IGeoDataset = Nothing
+        Dim pGeoDataset2 As IGeoDataset = Nothing
+        Dim spRef1 As ISpatialReference = Nothing
+        Dim spRef2 As ISpatialReference = Nothing
+        Try
+            Dim parentPath As String = "PleaseReturn"
+            Dim fileName As String = BA_GetBareName(inputPath1, parentPath)
+            Dim workspaceType As WorkspaceType = BA_GetWorkspaceTypeFromPath(inputPath1)
+            'Open the dataset to extract the spatial reference
+            If workspaceType = workspaceType.Raster Then
+                pGeoDataset = BA_OpenFeatureClassFromFile(parentPath, fileName)
+            ElseIf workspaceType = workspaceType.Geodatabase Then
+                pGeoDataset = BA_OpenFeatureClassFromGDB(parentPath, fileName)
+            End If
+            'Spatial reference for the dataset in question
+            spRef1 = pGeoDataset.SpatialReference
+
+            fileName = BA_GetBareName(inputPath2, parentPath)
+            workspaceType = BA_GetWorkspaceTypeFromPath(inputPath2)
+            'Open the dataset to extract the spatial reference
+            If workspaceType = workspaceType.Raster Then
+                pGeoDataset2 = BA_OpenFeatureClassFromFile(parentPath, fileName)
+            ElseIf workspaceType = workspaceType.Geodatabase Then
+                pGeoDataset2 = BA_OpenFeatureClassFromGDB(parentPath, fileName)
+            End If
+            If pGeoDataset2 IsNot Nothing Then
+                spRef2 = pGeoDataset2.SpatialReference
+                'Spatial reference for the dataset in question
+                If TypeOf spRef1 Is IProjectedCoordinateSystem Then
+                    Dim proj1 As IProjectedCoordinateSystem = CType(spRef1, IProjectedCoordinateSystem)
+                    Dim proj2 As IProjectedCoordinateSystem = TryCast(spRef2, IProjectedCoordinateSystem)
+                    If proj2 IsNot Nothing Then
+                        Return proj1.FactoryCode.Equals(proj2.FactoryCode)
+                    End If
+                ElseIf TypeOf spRef1 Is IGeographicCoordinateSystem Then
+                    Dim proj1 As IGeographicCoordinateSystem = CType(spRef1, IGeographicCoordinateSystem)
+                    Dim proj2 As IProjectedCoordinateSystem = TryCast(spRef2, IGeographicCoordinateSystem)
+                    If proj2 IsNot Nothing Then
+                        Return proj1.FactoryCode.Equals(proj2.FactoryCode)
+                    End If
+                End If
+            End If
+            Return False
+        Catch ex As Exception
+            Debug.Print("BA_VectorProjectionMatch Exception: " & ex.Message)
+            Return False
+        Finally
+            pGeoDataset = Nothing
+            pGeoDataset2 = Nothing
+            spRef1 = Nothing
+            spRef2 = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
+    End Function
+
 End Module

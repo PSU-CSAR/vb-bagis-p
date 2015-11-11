@@ -1603,4 +1603,50 @@ Module ParameterModule
         Return keysA
     End Function
 
+    Public Function BA_FindClosestFeatureOID(ByVal searchGeo As IGeometry, ByVal targetFeatureClassPath As String) As Integer
+        Dim targetFolder As String = "PleaseReturn"
+        Dim targetFile As String = BA_GetBareName(targetFeatureClassPath, targetFolder)
+        Dim featureClass As IFeatureClass = Nothing
+        Dim fCursor As IFeatureCursor = Nothing
+        Dim queryFeature As IFeature = Nothing
+        Dim queryGeometry As IGeometry = Nothing
+        Dim proxOperator As IProximityOperator = Nothing
+        Dim closestOID As Integer = -1
+        Dim closestDistance As Double = -1
+        Try
+            Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(targetFeatureClassPath)
+            If wType = WorkspaceType.Geodatabase Then
+                featureClass = BA_OpenFeatureClassFromGDB(targetFolder, targetFile)
+            Else
+                featureClass = BA_OpenFeatureClassFromFile(targetFolder, targetFile)
+            End If
+            If featureClass IsNot Nothing Then
+                fCursor = featureClass.Search(Nothing, False)
+                If fCursor IsNot Nothing Then
+                    queryFeature = fCursor.NextFeature
+                    Do While queryFeature IsNot Nothing
+                        queryGeometry = queryFeature.Shape
+                        proxOperator = CType(queryGeometry, IProximityOperator)
+                        Dim distance As Double = proxOperator.ReturnDistance(searchGeo)
+                        If closestDistance < 0 Then
+                            closestDistance = distance
+                            closestOID = queryFeature.OID
+                        ElseIf distance < closestDistance Then
+                            closestDistance = distance
+                            closestOID = queryFeature.OID
+                        End If
+                        queryFeature = fCursor.NextFeature
+                    Loop
+                    Return closestOID
+                End If
+            End If
+            Return closestOID
+        Catch ex As Exception
+            Debug.Print("BA_FindClosestFeatureOID: " & ex.Message)
+            Return -1
+        Finally
+            '@ToDo: Release object references
+        End Try
+    End Function
+
 End Module

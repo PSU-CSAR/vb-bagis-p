@@ -132,7 +132,7 @@ Public Class FrmProfileBuilder
                 Me.Text = "Profile Builder (AOI: " & aoi.Name & m_aoi.ApplicationVersion & " )"
 
                 BA_SetDefaultProjection(My.ArcMap.Application)
-                SetDatumInExtension()
+                BA_SetDatumInExtension(m_aoi.FilePath)
 
                 Try
                     ' Get the count of zone directories so we know how many steps to put into the StepProgressor
@@ -231,7 +231,7 @@ Public Class FrmProfileBuilder
                 'ResetForm()
                 Me.Text = "Profile Builder (AOI: " & aoiName & m_aoi.ApplicationVersion & " )"
                 bagisPExt.aoi = m_aoi
-                SetDatumInExtension()
+                BA_SetDatumInExtension(m_aoi.FilePath)
 
                 ' Get the count of zone directories so we know how many steps to put into the StepProgressor
                 ' Create a DirectoryInfo of the HRU directory.
@@ -278,25 +278,6 @@ Public Class FrmProfileBuilder
             LblStatus.Text = "Unable to load AOI"
             Debug.Print("BtnSelectAoi_Click Exception: " & ex.Message)
         End Try
-    End Sub
-
-    ' Sets the datum string from the source DEM in the hru extension
-    Private Sub SetDatumInExtension()
-        Dim bagisPExt As BagisPExtension = BagisPExtension.GetExtension
-        Dim parentPath As String = m_aoi.FilePath & "\" & BA_EnumDescription(GeodatabaseNames.Surfaces)
-        Dim pGeoDataSet As IGeoDataset = BA_OpenRasterFromGDB(parentPath, BA_EnumDescription(MapsFileName.filled_dem_gdb))
-        If pGeoDataSet IsNot Nothing Then
-            'Spatial reference for the dataset in question
-            Dim pSpRef As ESRI.ArcGIS.Geometry.ISpatialReference = pGeoDataSet.SpatialReference
-            If pSpRef IsNot Nothing Then
-                bagisPExt.Datum = BA_DatumString(pSpRef)
-                bagisPExt.SpatialReference = pSpRef.Name
-            End If
-            pSpRef = Nothing
-        End If
-        pGeoDataSet = Nothing
-        GC.WaitForPendingFinalizers()
-        GC.Collect()
     End Sub
 
     Private Sub LoadHruGrid(ByVal dirZonesArr As DirectoryInfo())

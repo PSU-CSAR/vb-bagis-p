@@ -19,6 +19,7 @@ Public Class FrmPEandSRObs
             Try
                 TxtAoiPath.Text = aoi.FilePath
                 BA_SetDefaultProjection(My.ArcMap.Application)
+                BA_SetDatumInExtension(TxtAoiPath.Text)
                 Me.Text = "Calculate PE and SR Obs parameters (AOI: " & aoi.Name & aoi.ApplicationVersion & " )"
 
             Catch ex As Exception
@@ -61,6 +62,7 @@ Public Class FrmPEandSRObs
                 Dim aoiName As String = BA_GetBareName(DataPath)
                 Dim pAoi As Aoi = New Aoi(aoiName, DataPath, Nothing, bagisPExt.version)
                 TxtAoiPath.Text = pAoi.FilePath
+                BA_SetDatumInExtension(TxtAoiPath.Text)
                 'ResetForm()
                 Me.Text = "Calculate PE and SR Obs parameters (AOI: " & aoiName & pAoi.ApplicationVersion & " )"
                 bagisPExt.aoi = pAoi
@@ -96,7 +98,20 @@ Public Class FrmPEandSRObs
         Dim pGxDataset As IGxDataset
         pGxDataset = pGxObject.Next
         Dim pDatasetName As IDatasetName = pGxDataset.DatasetName
-        TxtSrPath.Text = pDatasetName.WorkspaceName.PathName & "\" & pDatasetName.Name
+        Dim fullPath As String = pDatasetName.WorkspaceName.PathName & "\" & pDatasetName.Name
+
+        'Ensure selected layer uses the correct projection
+        Dim aoiGdb As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi, True)
+        Dim aoi_v As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
+        Dim validSpatialReference As Boolean = BA_VectorProjectionMatch(fullPath, aoiGdb & aoi_v)
+
+        If validSpatialReference Then
+            TxtSrPath.Text = fullPath
+        Else
+            Dim bagisPExt As BagisPExtension = BagisPExtension.GetExtension
+            MessageBox.Show("The selected layer '" & pDatasetName.Name & "' cannot be used because the projection does not match the AOI projection. Please reproject or select another data layer and try again.", "Invalid projection", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End If
 
     End Sub
 
@@ -135,8 +150,19 @@ Public Class FrmPEandSRObs
         End If
     End Sub
 
+    Private Sub ManageFileButtons()
+        If String.IsNullOrEmpty(TxtAoiPath.Text) Then
+            BtnSetSR.Enabled = False
+            BtnSetPE.Enabled = False
+        Else
+            BtnSetSR.Enabled = True
+            BtnSetPE.Enabled = True
+        End If
+    End Sub
+
     Private Sub TxtAoiPath_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtAoiPath.TextChanged
         ManageCalculateButton()
+        ManageFileButtons()
     End Sub
 
     Private Sub TxtSrPath_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtSrPath.TextChanged
@@ -167,14 +193,8 @@ Public Class FrmPEandSRObs
                         pArea = pFeature.Shape
                         pCentroid = pArea.Centroid
                     End If
-                    Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(TxtSrPath.Text)
-                    Dim folder As String = "PleaseReturn"
-                    Dim fileName As String = BA_GetBareName(TxtSrPath.Text, folder)
-                    If wType = WorkspaceType.Geodatabase Then
-
-                    Else
-
-                    End If
+                    Dim oid As Integer = BA_FindClosestFeatureOID(pCentroid, TxtSrPath.Text)
+                    MessageBox.Show(oid)
                 End If
  
             End If

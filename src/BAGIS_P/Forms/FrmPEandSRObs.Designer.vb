@@ -111,6 +111,7 @@ Partial Class FrmPEandSRObs
         '
         'BtnSetSR
         '
+        Me.BtnSetSR.Enabled = False
         Me.BtnSetSR.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnSetSR.Location = New System.Drawing.Point(626, 37)
         Me.BtnSetSR.Name = "BtnSetSR"
@@ -137,6 +138,7 @@ Partial Class FrmPEandSRObs
         '
         'BtnSetPE
         '
+        Me.BtnSetPE.Enabled = False
         Me.BtnSetPE.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnSetPE.Location = New System.Drawing.Point(626, 67)
         Me.BtnSetPE.Name = "BtnSetPE"

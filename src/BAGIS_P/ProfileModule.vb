@@ -417,4 +417,23 @@ Module ProfileModule
         Return BA_ReturnCode.Success
     End Function
 
+    ' Sets the datum string from the source DEM in the BAGIS-P extension
+    Public Sub BA_SetDatumInExtension(ByVal aoiFilePath As String)
+        Dim bagisPExt As BagisPExtension = BagisPExtension.GetExtension
+        Dim parentPath As String = aoiFilePath & "\" & BA_EnumDescription(GeodatabaseNames.Surfaces)
+        Dim pGeoDataSet As IGeoDataset = BA_OpenRasterFromGDB(parentPath, BA_EnumDescription(MapsFileName.filled_dem_gdb))
+        If pGeoDataSet IsNot Nothing Then
+            'Spatial reference for the dataset in question
+            Dim pSpRef As ESRI.ArcGIS.Geometry.ISpatialReference = pGeoDataSet.SpatialReference
+            If pSpRef IsNot Nothing Then
+                bagisPExt.Datum = BA_DatumString(pSpRef)
+                bagisPExt.SpatialReference = pSpRef.Name
+            End If
+            pSpRef = Nothing
+        End If
+        pGeoDataSet = Nothing
+        GC.WaitForPendingFinalizers()
+        GC.Collect()
+    End Sub
+
 End Module
