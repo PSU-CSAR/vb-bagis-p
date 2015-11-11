@@ -34,6 +34,14 @@ Partial Class FrmPEandSRObs
         Me.BtnSetPE = New System.Windows.Forms.Button()
         Me.TxtPEPath = New System.Windows.Forms.TextBox()
         Me.Label2 = New System.Windows.Forms.Label()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.TxtSrDate = New System.Windows.Forms.TextBox()
+        Me.TxtSrValue = New System.Windows.Forms.TextBox()
+        Me.txtPeValue = New System.Windows.Forms.TextBox()
+        Me.txtPEDate = New System.Windows.Forms.TextBox()
+        Me.Label6 = New System.Windows.Forms.Label()
+        Me.Label7 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'TxtAoiPath
@@ -126,7 +134,7 @@ Partial Class FrmPEandSRObs
         Me.TextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TextBox1.ForeColor = System.Drawing.Color.Black
-        Me.TextBox1.Location = New System.Drawing.Point(7, 94)
+        Me.TextBox1.Location = New System.Drawing.Point(4, 162)
         Me.TextBox1.Multiline = True
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.ReadOnly = True
@@ -140,7 +148,7 @@ Partial Class FrmPEandSRObs
         '
         Me.BtnSetPE.Enabled = False
         Me.BtnSetPE.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnSetPE.Location = New System.Drawing.Point(626, 67)
+        Me.BtnSetPE.Location = New System.Drawing.Point(626, 89)
         Me.BtnSetPE.Name = "BtnSetPE"
         Me.BtnSetPE.Size = New System.Drawing.Size(60, 25)
         Me.BtnSetPE.TabIndex = 98
@@ -152,7 +160,7 @@ Partial Class FrmPEandSRObs
         Me.TxtPEPath.BackColor = System.Drawing.SystemColors.ButtonFace
         Me.TxtPEPath.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtPEPath.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.TxtPEPath.Location = New System.Drawing.Point(131, 67)
+        Me.TxtPEPath.Location = New System.Drawing.Point(131, 89)
         Me.TxtPEPath.Name = "TxtPEPath"
         Me.TxtPEPath.ReadOnly = True
         Me.TxtPEPath.Size = New System.Drawing.Size(489, 22)
@@ -162,17 +170,109 @@ Partial Class FrmPEandSRObs
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(4, 70)
+        Me.Label2.Location = New System.Drawing.Point(4, 92)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(130, 16)
         Me.Label2.TabIndex = 96
         Me.Label2.Text = "Potential evap. data:"
+        '
+        'Label3
+        '
+        Me.Label3.AutoSize = True
+        Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label3.Location = New System.Drawing.Point(4, 66)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(129, 16)
+        Me.Label3.TabIndex = 99
+        Me.Label3.Text = "Date last calculated:"
+        '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label4.Location = New System.Drawing.Point(234, 66)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(95, 16)
+        Me.Label4.TabIndex = 100
+        Me.Label4.Text = "January value:"
+        '
+        'TxtSrDate
+        '
+        Me.TxtSrDate.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.TxtSrDate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtSrDate.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.TxtSrDate.Location = New System.Drawing.Point(131, 64)
+        Me.TxtSrDate.Name = "TxtSrDate"
+        Me.TxtSrDate.ReadOnly = True
+        Me.TxtSrDate.Size = New System.Drawing.Size(94, 22)
+        Me.TxtSrDate.TabIndex = 101
+        '
+        'TxtSrValue
+        '
+        Me.TxtSrValue.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.TxtSrValue.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtSrValue.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.TxtSrValue.Location = New System.Drawing.Point(328, 64)
+        Me.TxtSrValue.Name = "TxtSrValue"
+        Me.TxtSrValue.ReadOnly = True
+        Me.TxtSrValue.Size = New System.Drawing.Size(94, 22)
+        Me.TxtSrValue.TabIndex = 102
+        '
+        'txtPeValue
+        '
+        Me.txtPeValue.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.txtPeValue.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtPeValue.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.txtPeValue.Location = New System.Drawing.Point(328, 112)
+        Me.txtPeValue.Name = "txtPeValue"
+        Me.txtPeValue.ReadOnly = True
+        Me.txtPeValue.Size = New System.Drawing.Size(94, 22)
+        Me.txtPeValue.TabIndex = 106
+        '
+        'txtPEDate
+        '
+        Me.txtPEDate.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.txtPEDate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtPEDate.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.txtPEDate.Location = New System.Drawing.Point(131, 112)
+        Me.txtPEDate.Name = "txtPEDate"
+        Me.txtPEDate.ReadOnly = True
+        Me.txtPEDate.Size = New System.Drawing.Size(94, 22)
+        Me.txtPEDate.TabIndex = 105
+        '
+        'Label6
+        '
+        Me.Label6.AutoSize = True
+        Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label6.Location = New System.Drawing.Point(234, 114)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(95, 16)
+        Me.Label6.TabIndex = 104
+        Me.Label6.Text = "January value:"
+        '
+        'Label7
+        '
+        Me.Label7.AutoSize = True
+        Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label7.Location = New System.Drawing.Point(4, 114)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(129, 16)
+        Me.Label7.TabIndex = 103
+        Me.Label7.Text = "Date last calculated:"
         '
         'FrmPEandSRObs
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(696, 262)
+        Me.Controls.Add(Me.txtPeValue)
+        Me.Controls.Add(Me.txtPEDate)
+        Me.Controls.Add(Me.Label6)
+        Me.Controls.Add(Me.Label7)
+        Me.Controls.Add(Me.TxtSrValue)
+        Me.Controls.Add(Me.TxtSrDate)
+        Me.Controls.Add(Me.Label4)
+        Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.BtnSetPE)
         Me.Controls.Add(Me.TxtPEPath)
         Me.Controls.Add(Me.Label2)
@@ -204,4 +304,12 @@ Partial Class FrmPEandSRObs
     Friend WithEvents BtnSetPE As System.Windows.Forms.Button
     Friend WithEvents TxtPEPath As System.Windows.Forms.TextBox
     Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents Label3 As System.Windows.Forms.Label
+    Friend WithEvents Label4 As System.Windows.Forms.Label
+    Friend WithEvents TxtSrDate As System.Windows.Forms.TextBox
+    Friend WithEvents TxtSrValue As System.Windows.Forms.TextBox
+    Friend WithEvents txtPeValue As System.Windows.Forms.TextBox
+    Friend WithEvents txtPEDate As System.Windows.Forms.TextBox
+    Friend WithEvents Label6 As System.Windows.Forms.Label
+    Friend WithEvents Label7 As System.Windows.Forms.Label
 End Class

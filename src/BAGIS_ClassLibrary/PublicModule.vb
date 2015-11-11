@@ -2233,7 +2233,7 @@ Optional ByVal hasPaddingBackSlach As Boolean = False) As String
     End Function
 
     ' Verify that the vector dataset uses the same datum as the datum stored in the hruExtension
-    Public Function BA_VectorProjectionMatch(ByVal inputPath1 As String, ByVal inputPath2 As String) As Boolean
+    Public Function BA_VectorProjectionMatch(ByVal inputPath1 As String, ByVal inputPath2 As String, ByRef aoiProjection As String) As Boolean
         Dim pGeoDataset As IGeoDataset = Nothing
         Dim pGeoDataset2 As IGeoDataset = Nothing
         Dim spRef1 As ISpatialReference = Nothing
@@ -2261,11 +2261,19 @@ Optional ByVal hasPaddingBackSlach As Boolean = False) As String
             End If
             If pGeoDataset2 IsNot Nothing Then
                 spRef2 = pGeoDataset2.SpatialReference
-                'Spatial reference for the dataset in question
+                'Check datums first
+                Dim datumStr1 As String = BA_DatumString(spRef1)
+                Dim datumStr2 As String = BA_DatumString(spRef2)
+                If (String.Compare(datumStr1, datumStr2) <> 0) Then
+                    aoiProjection = datumStr2
+                    Return False
+                End If
+                'Check projections if we passed the first test
                 If TypeOf spRef1 Is IProjectedCoordinateSystem Then
                     Dim proj1 As IProjectedCoordinateSystem = CType(spRef1, IProjectedCoordinateSystem)
                     Dim proj2 As IProjectedCoordinateSystem = TryCast(spRef2, IProjectedCoordinateSystem)
                     If proj2 IsNot Nothing Then
+                        aoiProjection = proj2.Name
                         Return proj1.FactoryCode.Equals(proj2.FactoryCode)
                     End If
                 ElseIf TypeOf spRef1 Is IGeographicCoordinateSystem Then

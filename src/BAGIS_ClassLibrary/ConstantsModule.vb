@@ -184,7 +184,7 @@
     Public Const BA_Invalid_Data As String = "Invalid"
     Public Const BA_Valid_Data As String = ""
 
-    'Constant layer names for BAGIS-P JH_Coeff calculation
+    'Constant layer names for jh_coeff data
     Public Const BA_JH_Coef_Aug_Tmax As String = "JH_Coef_Aug_Tmax"
     Public Const BA_JH_Coef_Aug_Tmin As String = "JH_Coef_Aug_Tmin"
     Public Const BA_JH_Coef_Jul_Tmax As String = "JH_Coef_Jul_Tmax"
@@ -192,9 +192,12 @@
 
     'Constant parameter names for parameters calculated at the AOI-level
     Public Const BA_Aoi_Parameter_JH_Coef As String = "Aoi_Parameter_JH_Coef"
+    Public Const BA_Aoi_Parameter_SR_Obs As String = "SR_Obs"
+    Public Const BA_Aoi_Parameter_PE_Obs As String = "PE_Obs"
 
     'Constant prefix for BAGIS warning messages from GP
-    Public Const BA_Warning_Message_Prefix As String = "BAGIS Message:"
+    Public Const BA_Warning_Message_Prefix As String = "BAGIS Message"
+
 End Module
 
 
