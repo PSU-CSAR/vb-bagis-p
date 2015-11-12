@@ -208,7 +208,7 @@ Public Class FrmPEandSRObs
                         Else
                             m_aoiParamTable.Add(BA_Aoi_Parameter_SR_Obs, newParameter)
                         End If
-                        TxtSrDate.Text = newParameter.DateUpdated.ToString("MM/dd/yy")
+                        TxtSrDate.Text = newParameter.DateUpdated.ToString("MM/dd/yyyy")
                         If newParameter.ValuesList IsNot Nothing Then
                             TxtSrValue.Text = newParameter.ValuesList(0)
                         End If
@@ -240,7 +240,7 @@ Public Class FrmPEandSRObs
             If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Obs) Then
                 Dim srObsParam As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_SR_Obs)
                 If srObsParam IsNot Nothing Then
-                    TxtSrDate.Text = srObsParam.DateUpdated.ToString("MM/dd/yy")
+                    TxtSrDate.Text = srObsParam.DateUpdated.ToString("MM/dd/yyyy")
                     If srObsParam.ValuesList IsNot Nothing Then
                         TxtSrValue.Text = srObsParam.ValuesList(0)
                     End If
@@ -321,4 +321,9 @@ Public Class FrmPEandSRObs
         Dim settingsPath As String = BA_GetLocalSettingsPath(TxtAoiPath.Text)
         Return BA_SaveAOIParameters(srcList, settingsPath)
     End Function
+
+    Private Sub BtnAbout_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnAbout.Click
+        Dim toolHelpForm As FrmHelp = New FrmHelp(BA_HelpTopics.PeAndObsTool)
+        toolHelpForm.ShowDialog()
+    End Sub
 End Class

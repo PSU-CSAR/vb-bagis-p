@@ -34,14 +34,14 @@ Partial Class FrmHelp
         Me.LblDescription.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblDescription.Location = New System.Drawing.Point(12, 9)
         Me.LblDescription.Name = "LblDescription"
-        Me.LblDescription.Size = New System.Drawing.Size(608, 210)
+        Me.LblDescription.Size = New System.Drawing.Size(608, 342)
         Me.LblDescription.TabIndex = 31
         Me.LblDescription.Text = "Description here."
         '
         'BtnOK
         '
         Me.BtnOK.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnOK.Location = New System.Drawing.Point(542, 222)
+        Me.BtnOK.Location = New System.Drawing.Point(545, 363)
         Me.BtnOK.Name = "BtnOK"
         Me.BtnOK.Size = New System.Drawing.Size(75, 23)
         Me.BtnOK.TabIndex = 32
@@ -51,7 +51,7 @@ Partial Class FrmHelp
         'PictureBox
         '
         Me.PictureBox.BackColor = System.Drawing.Color.White
-        Me.PictureBox.Location = New System.Drawing.Point(9, 248)
+        Me.PictureBox.Location = New System.Drawing.Point(12, 389)
         Me.PictureBox.Margin = New System.Windows.Forms.Padding(0)
         Me.PictureBox.Name = "PictureBox"
         Me.PictureBox.Size = New System.Drawing.Size(608, 225)
@@ -66,7 +66,7 @@ Partial Class FrmHelp
         Me.AutoScroll = True
         Me.AutoSize = True
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(632, 482)
+        Me.ClientSize = New System.Drawing.Size(632, 623)
         Me.Controls.Add(Me.BtnOK)
         Me.Controls.Add(Me.PictureBox)
         Me.Controls.Add(Me.LblDescription)

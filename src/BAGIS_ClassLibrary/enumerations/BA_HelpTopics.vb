@@ -23,4 +23,5 @@ Public Enum BA_HelpTopics
     ReclassZones
     TimberlineTool
     SequentialId
+    PeAndObsTool
 End Enum
