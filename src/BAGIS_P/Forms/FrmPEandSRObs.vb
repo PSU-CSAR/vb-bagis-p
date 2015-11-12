@@ -8,7 +8,6 @@ Imports ESRI.ArcGIS.Geometry
 Public Class FrmPEandSRObs
 
     Private Const SR_COLUMN_PREFIX As String = "SR"
-    Private Const MISSING_VALUE As String = "-99"
     Dim m_aoiParamTable As IDictionary(Of String, AoiParameter)
 
     Public Sub New()
@@ -267,7 +266,6 @@ Public Class FrmPEandSRObs
                 fClass = BA_OpenFeatureClassFromFile(parentPath, fileName)
             End If
             Dim srValues As List(Of String) = New List(Of String)
-            Dim numMonths As Short = 12
             If fClass IsNot Nothing Then
                 pQF.WhereClause = BA_FIELD_OBJECT_ID & " = " & oid
                 fCursor = fClass.Search(pQF, False)
@@ -275,13 +273,13 @@ Public Class FrmPEandSRObs
                 If pFeature IsNot Nothing Then
                     Dim srFields As IFields = pFeature.Fields
                     Dim idxSR As Integer
-                    For i As Short = 1 To numMonths
+                    For i As Short = 1 To NUM_MONTHS
                         Dim fieldName As String = SR_COLUMN_PREFIX & i.ToString("D2")
                         idxSR = srFields.FindField(fieldName)
                         If idxSR > -1 Then
                             srValues.Add(Convert.ToString(pFeature.Value(idxSR)))
                         Else
-                            srValues.Add(MISSING_VALUE)
+                            srValues.Add(BA_9999)
                             missingValues += 1
                         End If
                     Next
@@ -289,11 +287,11 @@ Public Class FrmPEandSRObs
             End If
             Dim returnObj As AoiParameter = New AoiParameter(BA_Aoi_Parameter_SR_Obs)
             'Populate srValues with default values if there was an error
-            If srValues.Count < numMonths Then
+            If srValues.Count < NUM_MONTHS Then
                 missingValues = 0
                 srValues.Clear()
-                For i As Short = 1 To numMonths
-                    srValues.Add(MISSING_VALUE)
+                For i As Short = 1 To NUM_MONTHS
+                    srValues.Add(BA_9999)
                     missingValues += 1
                 Next
             End If

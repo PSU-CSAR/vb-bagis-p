@@ -523,7 +523,8 @@ Public Class FrmExportParametersEwsf
         ' 7. find jh_coeff column in nmonths table and overwrite with calculated jh_coeff value
         Dim nmonthsTable As ParameterTable = m_tablesTable(NMONTHS)
         If nmonthsTable IsNot Nothing Then
-            BA_UpdateJHCoefInTable(nmonthsTable, jhcoeffValue)
+            'BA_UpdateJHCoefInTable(nmonthsTable, jhcoeffValue)
+            BA_UpdateParametersInNmonthsTable(nmonthsTable, aoiParamTable)
             m_tablesTable(NMONTHS) = nmonthsTable
         End If
 

@@ -34,8 +34,7 @@ Module ParameterModule
     Public BASIN_LAT As String = "basin_lat"
     Public HEADER_KEY As String = "header_key"
     Public MISSING_VALUE As String = "missing_value"
-    Public JH_COEF_HEADER As String = "jh_coef"
-
+    Public NUM_MONTHS As Short = 12
 
     'Retrieves the single dimension parameters from the parameter file and populates selected parameters from
     'the hru dataset
