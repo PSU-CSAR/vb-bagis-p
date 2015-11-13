@@ -672,67 +672,71 @@ Module MethodModule
         Return result
     End Function
 
-    Public Sub BA_UpdateJHCoefInTable(ByRef nmonthsTable As ParameterTable, ByVal jh_coeff As Double)
-        Dim idxCol As Short = -1
-        For i As Short = 0 To nmonthsTable.Headers.GetUpperBound(0)
-            If nmonthsTable.Headers(i).Equals(BA_Aoi_Parameter_jh_coef) Then
-                idxCol = i
-                Exit For
-            End If
-        Next
-        If idxCol > -1 Then
-            For j As Integer = 0 To nmonthsTable.Values.GetUpperBound(0)
-                nmonthsTable.Values(j, idxCol) = jh_coeff
+    Public Function BA_UpdateParametersInNmonthsTable(ByRef nmonthsTable As ParameterTable, ByVal updateTable As IDictionary(Of String, AoiParameter)) As ParameterTable
+        'Put ParameterTable information into structures that are easier to use
+        Dim headerList As List(Of String) = New List(Of String)
+        headerList.AddRange(nmonthsTable.Headers)
+        Dim monthsList As IList(Of List(Of String)) = New List(Of List(Of String))
+        For i As Integer = 0 To nmonthsTable.Values.GetUpperBound(0)
+            Dim paramsList As IList(Of String) = New List(Of String)
+            For j As Integer = 0 To nmonthsTable.Values.GetUpperBound(1)
+                paramsList.Add(nmonthsTable.Values(i, j))
             Next
-        End If
-    End Sub
+            monthsList.Add(paramsList)
+        Next
 
-    Public Sub BA_UpdateParametersInNmonthsTable(ByRef nmonthsTable As ParameterTable, ByVal updateTable As IDictionary(Of String, AoiParameter))
         For Each pName As String In updateTable.Keys
             Dim nextParam As AoiParameter = updateTable(pName)
             Dim idxCol As Short = -1
             'Looking for the column existing in the table
-            For i As Short = 0 To nmonthsTable.Headers.GetUpperBound(0)
-                If nmonthsTable.Headers(i).Equals(pName) Then
+            For i As Short = 0 To headerList.Count - 1
+                If headerList(i).Equals(pName) Then
                     idxCol = i
                     Exit For
                 End If
             Next
+
             'Add the column header if we didn't find it
             If idxCol = -1 Then
-                System.Array.Resize(nmonthsTable.Headers, nmonthsTable.Headers.Length + 2)
-                nmonthsTable.Headers(nmonthsTable.Headers.Length - 1) = pName
-                idxCol = nmonthsTable.Headers.Length - 1
-            End If
-            'Copy the values into a 2D list so we can manipulate the length if we need to
-            Dim parentList As IList(Of List(Of String)) = New List(Of List(Of String))
-            For i As Integer = 0 To nmonthsTable.Values.GetUpperBound(0)
-                Dim childList As IList(Of String) = New List(Of String)
-                For j As Integer = 0 To nmonthsTable.Values.GetUpperBound(1)
-                    childList.Add(nmonthsTable.Values(i, j))
+                headerList.Add(pName)
+                idxCol = headerList.Count - 1
+                'Add an entry to each paramList too
+                For Each paramList As List(Of String) In monthsList
+                    paramList.Add(BA_9999)
                 Next
-                parentList.Add(childList)
-            Next
+            End If
 
             'We found the column
             If idxCol > -1 Then
-                Dim columnToUpdate As IList(Of String) = parentList(idxCol)
-                'The parameter is a single value and should be populated to all months
-                If Not String.IsNullOrEmpty(nextParam.Value) Then
-                    Dim nextParamValue As Double = Convert.ToDouble(nextParam.Value)
-                    For j As Integer = 0 To columnToUpdate.Count - 1
-                        'nmonthsTable.Values(j, idxCol) = nextParamValue
-                        columnToUpdate(j) = nextParamValue
-                    Next
-                ElseIf nextParam.ValuesList IsNot Nothing AndAlso nextParam.ValuesList.Count = NUM_MONTHS Then
-                    For j As Integer = 0 To columnToUpdate.Count - 1
-                        'nmonthsTable.Values(j, idxCol) = Convert.ToDouble(nextParam.ValuesList(j))
-                        columnToUpdate(j) = Convert.ToDouble(nextParam.ValuesList(j))
-                    Next
-                End If
+                Dim i As Short = 0
+                For Each paramList As List(Of String) In monthsList
+                    ''The parameter is a single value and should be populated to all months
+                    If Not String.IsNullOrEmpty(nextParam.Value) Then
+                        Dim nextParamValue As String = nextParam.Value
+                        paramList(idxCol) = nextParamValue
+                    ElseIf nextParam.ValuesList IsNot Nothing AndAlso nextParam.ValuesList.Count = NUM_MONTHS Then
+                        paramList(idxCol) = nextParam.ValuesList(i)
+                    End If
+                    i += 1
+                Next
             End If
         Next
-    End Sub
+
+        'Reassemble the data in ParameterTable structure
+        Dim updatedHeaders() As String = headerList.ToArray
+        Dim updatedValues(monthsList.Count, headerList.Count) As String
+        Dim m As Short = 0
+        For Each paramList As List(Of String) In monthsList
+            Dim p As Integer = 0
+            For Each param As String In paramList
+                updatedValues(m, p) = param
+                p += 1
+            Next
+            m += 1
+        Next
+        Dim retVal As ParameterTable = New ParameterTable(nmonthsTable.Name, nmonthsTable.Dimension1, nmonthsTable.Dimension2, updatedValues, updatedHeaders)
+        Return retVal
+    End Function
 
     Public Function BA_LoadAoiParameters(ByVal settingsPath As String) As IDictionary(Of String, AoiParameter)
         Dim pSettings As Settings = BA_CreateOrLoadSettingsFile(settingsPath)

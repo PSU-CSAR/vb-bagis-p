@@ -520,11 +520,10 @@ Public Class FrmExportParametersEwsf
             End If
         End If
 
-        ' 7. find jh_coeff column in nmonths table and overwrite with calculated jh_coeff value
+        ' 7. find AOI-level in nmonths table and overwrite them with calculated values
         Dim nmonthsTable As ParameterTable = m_tablesTable(NMONTHS)
         If nmonthsTable IsNot Nothing Then
-            'BA_UpdateJHCoefInTable(nmonthsTable, jhcoeffValue)
-            BA_UpdateParametersInNmonthsTable(nmonthsTable, aoiParamTable)
+            nmonthsTable = BA_UpdateParametersInNmonthsTable(nmonthsTable, aoiParamTable)
             m_tablesTable(NMONTHS) = nmonthsTable
         End If
 
