@@ -534,7 +534,7 @@ Public Class FrmExportParametersEwsf
         m_exportMessage = "Reading spatial parameters calculated by BAGIS-P .........."
         LblStatus.Text = m_exportMessage
         Dim tableName As String = CStr(LstProfiles.SelectedItem) & BA_PARAM_TABLE_SUFFIX
-        Dim success As BA_ReturnCode = VerifyParameterValuesInTable(hruParamPath, tableName, True)
+        Dim success As Boolean = VerifyParameterValuesInTable(hruParamPath, tableName, True)
         Dim retVal As BA_ReturnCode = BA_ReturnCode.Success
 
         If success = True Then
@@ -612,6 +612,10 @@ Public Class FrmExportParametersEwsf
                 MessageBox.Show("Parameter file export complete !", _
                                 "File export", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
+        Else
+            TimerStatus.Enabled = False
+            m_exportMessage = ""
+            LblStatus.Text = m_exportMessage
         End If
         EnableButtons(True)
     End Sub
