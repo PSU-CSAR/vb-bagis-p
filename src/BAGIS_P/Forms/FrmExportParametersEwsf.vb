@@ -22,6 +22,9 @@ Public Class FrmExportParametersEwsf
     Dim m_exportMessage As String
     Dim m_linearUnit As String
     Dim m_hru As Hru
+    Dim m_aoiParamTable As IDictionary(Of String, AoiParameter)
+    Dim m_hasSrObs As Boolean = False
+    Dim m_hasPeObs As Boolean = False
     Private Const METER As String = "Meter"
     Private Const FOOT As String = "Foot"
 
@@ -62,6 +65,8 @@ Public Class FrmExportParametersEwsf
                 End If
 
                 SetDemResolution()
+                ManageAoiParameterFields()
+
             Catch ex As Exception
                 MessageBox.Show("Unable to load current aoi. Exception: " & ex.Message)
             End Try
@@ -117,6 +122,7 @@ Public Class FrmExportParametersEwsf
                 End If
 
                 SetDemResolution()
+                ManageAoiParameterFields()
             End If
         Catch ex As Exception
             MessageBox.Show("BtnSelectAoi_Click Exception: " & ex.Message)
@@ -401,11 +407,9 @@ Public Class FrmExportParametersEwsf
         TimerStatus.Enabled = True
 
         'Check to see if jh_coeff has been previously calculated
-        Dim localSettingsPath As String = BA_GetLocalSettingsPath(m_aoi.FilePath)
-        Dim aoiParamTable As IDictionary(Of String, AoiParameter) = BA_LoadAoiParameters(localSettingsPath)
         Dim jhcoeffValue As Double = BA_9999
-        If aoiParamTable.ContainsKey(BA_Aoi_Parameter_JH_Coef) Then
-            Dim jhcoeffParam As AoiParameter = aoiParamTable(BA_Aoi_Parameter_JH_Coef)
+        If m_aoiParamTable IsNot Nothing AndAlso m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_jh_coef) Then
+            Dim jhcoeffParam As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_jh_coef)
             jhcoeffValue = CDbl(jhcoeffParam.Value)
             Dim sb As StringBuilder = New StringBuilder
             sb.Append("The mean Jenson-Haise PET coefficient was last calculated for this AOI on ")
@@ -496,7 +500,7 @@ Public Class FrmExportParametersEwsf
 
                     If jhcoeffValue <> BA_9999 Then
                         ' 6. Save the value to the aoiParameters in the settings.xml
-                        jh_success = SaveJhCoef(aoiParamTable, jhcoeffValue, localSettingsPath)
+                        jh_success = SaveJhCoef(m_aoiParamTable, jhcoeffValue, BA_GetLocalSettingsPath(m_aoi.FilePath))
                         If jh_success <> BA_ReturnCode.Success Then
                             warning += "The results of the AOI JH_Coeff calculation could not "
                             warning += "be saved to the AOI settings.xml file. Please contact a "
@@ -523,52 +527,52 @@ Public Class FrmExportParametersEwsf
         ' 7. find AOI-level in nmonths table and overwrite them with calculated values
         Dim nmonthsTable As ParameterTable = m_tablesTable(NMONTHS)
         If nmonthsTable IsNot Nothing Then
-            nmonthsTable = BA_UpdateParametersInNmonthsTable(nmonthsTable, aoiParamTable)
+            nmonthsTable = BA_UpdateParametersInNmonthsTable(nmonthsTable, m_aoiParamTable)
             m_tablesTable(NMONTHS) = nmonthsTable
         End If
 
-            m_exportMessage = "Reading spatial parameters calculated by BAGIS-P .........."
-            LblStatus.Text = m_exportMessage
-            Dim tableName As String = CStr(LstProfiles.SelectedItem) & BA_PARAM_TABLE_SUFFIX
-            Dim success As BA_ReturnCode = VerifyParameterValuesInTable(hruParamPath, tableName, True)
-            Dim retVal As BA_ReturnCode = BA_ReturnCode.Success
+        m_exportMessage = "Reading spatial parameters calculated by BAGIS-P .........."
+        LblStatus.Text = m_exportMessage
+        Dim tableName As String = CStr(LstProfiles.SelectedItem) & BA_PARAM_TABLE_SUFFIX
+        Dim success As BA_ReturnCode = VerifyParameterValuesInTable(hruParamPath, tableName, True)
+        Dim retVal As BA_ReturnCode = BA_ReturnCode.Success
 
-            If success = True Then
-                If m_spatialParamsTable Is Nothing Then
-                    'If we did not edit the spatial params table, it will be nothing and we need to initialize it from the template
-                    m_spatialParamsTable = BA_ReadNhruParams(TxtParameterTemplate.Text, ",", TxtNHru.Text, m_reqSpatialParameters, _
-                                                             m_missingSpatialParameters, missingData)
+        If success = True Then
+            If m_spatialParamsTable Is Nothing Then
+                'If we did not edit the spatial params table, it will be nothing and we need to initialize it from the template
+                m_spatialParamsTable = BA_ReadNhruParams(TxtParameterTemplate.Text, ",", TxtNHru.Text, m_reqSpatialParameters, _
+                                                         m_missingSpatialParameters, missingData)
+            End If
+            m_exportMessage = "Generating parameter export file  .........."
+            LblStatus.Text = m_exportMessage
+            BA_ExportParameterFile(TxtOutputFolder.Text, TxtDescription.Text, TxtVersion.Text, m_paramsTable, m_tablesTable, hruParamPath, _
+                                   tableName, CInt(TxtNHru.Text), m_spatialParamsTable, missingData, m_radplSpatialParameters)
+            Dim zipFolder As String = Nothing
+            If CkParametersOnly.Checked = False Then
+                'Export Geodatabase file to shapefile
+                Dim targetFolder As String = "Please Return"
+                Dim targetFile As String = BA_GetBareName(TxtOutputFolder.Text, targetFolder)
+                Dim tempBagisFolder As String = "BagisZip"
+                'Delete tempBagisFolder if it exists to make sure we don't have old data
+                If BA_Folder_ExistsWindowsIO(targetFolder & tempBagisFolder) Then
+                    BA_Remove_Folder(targetFolder & tempBagisFolder)
                 End If
-                m_exportMessage = "Generating parameter export file  .........."
+                zipFolder = BA_CreateFolder(targetFolder, tempBagisFolder)
+                'Strip extension from parameter file name so we can add the .shp
+                If Not String.IsNullOrEmpty(targetFile) Then
+                    Dim idxExtension As Integer = targetFile.IndexOf(".")
+                    If idxExtension > 0 Then
+                        targetFile = targetFile.Substring(0, idxExtension)
+                    End If
+                End If
+                Dim hruGdbName As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name)
+                Dim vName As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.HruZonesVector), False)
+                retVal = BA_ConvertGDBToShapefile(hruGdbName, vName, zipFolder, targetFile)
+                'Copy the parameter file into the tempBagisFolder
+                File.Copy(TxtOutputFolder.Text, zipFolder & "\" & BA_GetBareName(TxtOutputFolder.Text), True)
+                m_exportMessage = "Converting HRU zones to ASCII .........."
                 LblStatus.Text = m_exportMessage
-                BA_ExportParameterFile(TxtOutputFolder.Text, TxtDescription.Text, TxtVersion.Text, m_paramsTable, m_tablesTable, hruParamPath, _
-                                       tableName, CInt(TxtNHru.Text), m_spatialParamsTable, missingData, m_radplSpatialParameters)
-                Dim zipFolder As String = Nothing
-                If CkParametersOnly.Checked = False Then
-                    'Export Geodatabase file to shapefile
-                    Dim targetFolder As String = "Please Return"
-                    Dim targetFile As String = BA_GetBareName(TxtOutputFolder.Text, targetFolder)
-                    Dim tempBagisFolder As String = "BagisZip"
-                    'Delete tempBagisFolder if it exists to make sure we don't have old data
-                    If BA_Folder_ExistsWindowsIO(targetFolder & tempBagisFolder) Then
-                        BA_Remove_Folder(targetFolder & tempBagisFolder)
-                    End If
-                    zipFolder = BA_CreateFolder(targetFolder, tempBagisFolder)
-                    'Strip extension from parameter file name so we can add the .shp
-                    If Not String.IsNullOrEmpty(targetFile) Then
-                        Dim idxExtension As Integer = targetFile.IndexOf(".")
-                        If idxExtension > 0 Then
-                            targetFile = targetFile.Substring(0, idxExtension)
-                        End If
-                    End If
-                    Dim hruGdbName As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name)
-                    Dim vName As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.HruZonesVector), False)
-                    retVal = BA_ConvertGDBToShapefile(hruGdbName, vName, zipFolder, targetFile)
-                    'Copy the parameter file into the tempBagisFolder
-                    File.Copy(TxtOutputFolder.Text, zipFolder & "\" & BA_GetBareName(TxtOutputFolder.Text), True)
-                    m_exportMessage = "Converting HRU zones to ASCII .........."
-                    LblStatus.Text = m_exportMessage
-                    Dim hruClipPath As String = AddZonesToZipFolder(zipFolder, hruGdbName, targetFile)
+                Dim hruClipPath As String = AddZonesToZipFolder(zipFolder, hruGdbName, targetFile)
                 If String.IsNullOrEmpty(hruClipPath) Then
                     MessageBox.Show("An error occurred while packaging the HRU zones and DEM for eWsf. They are not included in the zip file.", "HRU zones error", MessageBoxButtons.OK)
                 Else
@@ -598,18 +602,18 @@ Public Class FrmExportParametersEwsf
                 LblStatus.Text = m_exportMessage
                 Dim zipFileName As String = BA_StandardizeShapefileName(targetFile, False) & ".zip"
                 retVal = BA_ZipFolder(zipFolder, zipFileName)
-                End If
-
-                If success = True And retVal = BA_ReturnCode.Success Then
-                    BA_Remove_Folder(zipFolder)
-                    TimerStatus.Enabled = False
-                    m_exportMessage = ""
-                    LblStatus.Text = m_exportMessage
-                    MessageBox.Show("Parameter file export complete !", _
-                                    "File export", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                End If
             End If
-            EnableButtons(True)
+
+            If success = True And retVal = BA_ReturnCode.Success Then
+                BA_Remove_Folder(zipFolder)
+                TimerStatus.Enabled = False
+                m_exportMessage = ""
+                LblStatus.Text = m_exportMessage
+                MessageBox.Show("Parameter file export complete !", _
+                                "File export", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
+        End If
+        EnableButtons(True)
     End Sub
 
     Public WriteOnly Property ParamsTable As Hashtable
@@ -986,5 +990,43 @@ Public Class FrmExportParametersEwsf
             End If
         End If
         TxtMinPolySize.Text = Format(minPolyArea, "###,###,##0.00000") & " " & BA_EnumDescription(measureUnit)
+    End Sub
+
+    Private Sub ManageAoiParameterFields()
+        Dim localSettingsPath As String = BA_GetLocalSettingsPath(m_aoi.FilePath)
+        m_aoiParamTable = BA_LoadAoiParameters(localSettingsPath)
+        If m_aoiParamTable IsNot Nothing Then
+            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_PE_Obs) Then
+                Dim pe_param As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_PE_Obs)
+                If pe_param.ValuesList IsNot Nothing And pe_param.ValuesList.Count = NUM_MONTHS Then m_hasPeObs = True
+            End If
+            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Obs) Then
+                Dim sr_param As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_SR_Obs)
+                If sr_param.ValuesList IsNot Nothing And sr_param.ValuesList.Count = NUM_MONTHS Then m_hasSrObs = True
+            End If
+        End If
+        If m_hasPeObs AndAlso m_hasSrObs Then
+            CkPeAndSrObs.Checked = True
+        Else
+            CkPeAndSrObs.Checked = False
+        End If
+    End Sub
+
+    Private Sub CkPeAndSrObs_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CkPeAndSrObs.CheckedChanged
+        If CType(sender, CheckBox).Checked Then
+            Dim sb As StringBuilder = New StringBuilder
+            If m_hasPeObs = False And m_hasSrObs = False Then
+                sb.Append("The observed Potential Evaporation and Solar Radiation have not been calculated for this AOI." & vbCrLf)
+                CType(sender, CheckBox).Checked = False
+            ElseIf m_hasPeObs = False Then
+                sb.Append("The observed Potential Evaporation has not been calculated for this AOI." & vbCrLf)
+            ElseIf m_hasSrObs = False Then
+                sb.Append("The observed Solar Radiation has not been calculated for this AOI." & vbCrLf)
+            End If
+            If sb.Length > 0 Then
+                sb.Append(vbCrLf & "Please use the BAGIS-P 'PE_Obs and SR_Obs Tool' to manage these parameters." & vbCrLf)
+                MessageBox.Show(sb.ToString, "Observed Potential Evaporation and Solar Radiation", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
+        End If
     End Sub
 End Class
