@@ -620,6 +620,7 @@ Partial Class FrmExportParametersEwsf
         '
         'LblPreCalculated
         '
+        Me.LblPreCalculated.Enabled = False
         Me.LblPreCalculated.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblPreCalculated.Location = New System.Drawing.Point(166, 169)
         Me.LblPreCalculated.Name = "LblPreCalculated"
@@ -630,8 +631,7 @@ Partial Class FrmExportParametersEwsf
         'CkUsePreCalculated
         '
         Me.CkUsePreCalculated.AutoSize = True
-        Me.CkUsePreCalculated.Checked = True
-        Me.CkUsePreCalculated.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.CkUsePreCalculated.Enabled = False
         Me.CkUsePreCalculated.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CkUsePreCalculated.Location = New System.Drawing.Point(172, 189)
         Me.CkUsePreCalculated.Name = "CkUsePreCalculated"
@@ -643,6 +643,7 @@ Partial Class FrmExportParametersEwsf
         '
         'Label3
         '
+        Me.Label3.Enabled = False
         Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label3.Location = New System.Drawing.Point(168, 209)
         Me.Label3.Name = "Label3"

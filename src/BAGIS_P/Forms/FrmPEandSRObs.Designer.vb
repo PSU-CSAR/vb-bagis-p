@@ -122,7 +122,7 @@ Partial Class FrmPEandSRObs
         '
         Me.BtnSetSR.Enabled = False
         Me.BtnSetSR.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnSetSR.Location = New System.Drawing.Point(626, 37)
+        Me.BtnSetSR.Location = New System.Drawing.Point(624, 64)
         Me.BtnSetSR.Name = "BtnSetSR"
         Me.BtnSetSR.Size = New System.Drawing.Size(60, 25)
         Me.BtnSetSR.TabIndex = 94
@@ -133,7 +133,7 @@ Partial Class FrmPEandSRObs
         '
         Me.BtnSetPE.Enabled = False
         Me.BtnSetPE.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnSetPE.Location = New System.Drawing.Point(626, 89)
+        Me.BtnSetPE.Location = New System.Drawing.Point(624, 114)
         Me.BtnSetPE.Name = "BtnSetPE"
         Me.BtnSetPE.Size = New System.Drawing.Size(60, 25)
         Me.BtnSetPE.TabIndex = 98

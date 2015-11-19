@@ -2298,4 +2298,77 @@ Optional ByVal hasPaddingBackSlach As Boolean = False) As String
         End Try
     End Function
 
+    Public Function BA_DatumMatchFiles(ByVal path1 As String, ByVal type1 As esriDatasetType, ByVal path2 As String, ByVal type2 As esriDatasetType, _
+                                       ByVal aoiDatum As String) As Boolean
+        Dim pGeoDataset As IGeoDataset = Nothing
+        Dim pGeoDataset2 As IGeoDataset = Nothing
+        Dim spRef1 As ISpatialReference = Nothing
+        Dim spRef2 As ISpatialReference = Nothing
+        Try
+            'Get the datum for dataset1
+            Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(path1)
+            Dim parentPath As String = "PleaseReturn"
+            Dim fileName As String = BA_GetBareName(path1, parentPath)
+            Select Case type1
+                Case esriDatasetType.esriDTFeatureClass, esriDatasetType.esriDTFeatureClass
+                    If wType = WorkspaceType.Raster Then
+                        pGeoDataset = BA_OpenFeatureClassFromFile(parentPath, fileName)
+                    ElseIf wType = WorkspaceType.Geodatabase Then
+                        pGeoDataset = BA_OpenFeatureClassFromGDB(parentPath, fileName)
+                    End If
+                Case esriDatasetType.esriDTRasterDataset, esriDatasetType.esriDTRasterBand 'raster
+                    If wType = WorkspaceType.Raster Then
+                        pGeoDataset = BA_OpenRasterFromFile(parentPath, fileName)
+                    ElseIf wType = WorkspaceType.Geodatabase Then
+                        pGeoDataset = BA_OpenRasterFromGDB(parentPath, fileName)
+                    End If
+                Case Else 'unsupported format
+                    Debug.Print("BA_DatumMatchFiles: the datasettype provided is not supported")
+            End Select
+            'Spatial reference for the dataset1 in question
+            spRef1 = pGeoDataset.SpatialReference
+
+            'Get the datum for dataset1
+            wType = BA_GetWorkspaceTypeFromPath(path2)
+            fileName = BA_GetBareName(path2, parentPath)
+            Select Case type2
+                Case esriDatasetType.esriDTFeatureClass, esriDatasetType.esriDTFeatureClass
+                    If wType = WorkspaceType.Raster Then
+                        pGeoDataset2 = BA_OpenFeatureClassFromFile(parentPath, fileName)
+                    ElseIf wType = WorkspaceType.Geodatabase Then
+                        pGeoDataset2 = BA_OpenFeatureClassFromGDB(parentPath, fileName)
+                    End If
+                Case esriDatasetType.esriDTRasterDataset, esriDatasetType.esriDTRasterBand 'raster
+                    If wType = WorkspaceType.Raster Then
+                        pGeoDataset2 = BA_OpenRasterFromFile(parentPath, fileName)
+                    ElseIf wType = WorkspaceType.Geodatabase Then
+                        pGeoDataset2 = BA_OpenRasterFromGDB(parentPath, fileName)
+                    End If
+                Case Else 'unsupported format
+                    Debug.Print("BA_DatumMatchFiles: the datasettype2 provided is not supported")
+            End Select
+            'Spatial reference for the dataset1 in question
+            spRef2 = pGeoDataset2.SpatialReference
+            'Check datums
+            Dim datumStr1 As String = BA_DatumString(spRef1)
+            Dim datumStr2 As String = BA_DatumString(spRef2)
+            If (String.Compare(datumStr1, datumStr2) = 0) Then
+                Return True
+            Else
+                aoiDatum = datumStr1
+                Return False
+            End If
+        Catch ex As Exception
+            Debug.Print("BA_DatumMatchFiles Exception: " & ex.Message)
+            Return False
+        Finally
+            pGeoDataset = Nothing
+            pGeoDataset2 = Nothing
+            spRef1 = Nothing
+            spRef2 = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
+    End Function
+
 End Module

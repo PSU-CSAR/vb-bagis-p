@@ -8,6 +8,8 @@ Imports ESRI.ArcGIS.Geometry
 Public Class FrmPEandSRObs
 
     Private Const SR_COLUMN_PREFIX As String = "SR"
+    Private Const MONTHS_3 As Short = 3
+    Dim m_january As DateTime = New DateTime(2015, 1, 1)
     Dim m_aoiParamTable As IDictionary(Of String, AoiParameter)
 
     Public Sub New()
@@ -115,9 +117,7 @@ Public Class FrmPEandSRObs
         Else
             MessageBox.Show("The selected layer '" & pDatasetName.Name & "' cannot be used because the projection does not match the AOI projection '" & aoiProjection & _
                             "'. Please reproject or select another data layer and try again.", "Invalid projection", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Exit Sub
         End If
-
     End Sub
 
     Private Sub BtnSetPE_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSetPE.Click
@@ -142,7 +142,50 @@ Public Class FrmPEandSRObs
         Dim pGxDataset As IGxDataset = pGxObject.Next
         Dim pDatasetName As IDatasetName = pGxDataset.DatasetName
         Dim Data_Path As String = pDatasetName.WorkspaceName.PathName
-        TxtPEPath.Text = Data_Path & "\" & pDatasetName.Name
+        Dim fullPath As String = pDatasetName.WorkspaceName.PathName & "\" & pDatasetName.Name
+
+        'Ensure selected layer uses the correct projection
+        Dim aoiGdb As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi, True)
+        Dim aoiDatum As String = Nothing    'Variable to hold PE projection for error message
+        Dim aoi_v As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
+        Dim validDatum As Boolean = BA_DatumMatchFiles(fullPath, esriDatasetType.esriDTRasterDataset, aoiGdb & aoi_v, esriDatasetType.esriDTFeatureClass, aoiDatum)
+
+        If Not validDatum Then
+            MessageBox.Show("The selected layer '" & pDatasetName.Name & "' cannot be used because the datum does not match the AOI datum '" & aoiDatum & _
+                            "'. Please reproject or select another data layer and try again.", "Invalid datum", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End If
+
+        Dim strSearch As String = m_january.Month.ToString("D2")
+        Dim idxMonth As Integer = pDatasetName.Name.IndexOf(strSearch)
+        Dim missingMonths As IList(Of String) = New List(Of String)
+        'We have January, now look for other 11
+        If idxMonth > -1 Then
+            Dim prefix As String = pDatasetName.Name.Substring(0, idxMonth)
+            Dim suffix As String = pDatasetName.Name.Substring(idxMonth + 2, pDatasetName.Name.Length - (idxMonth + 2))
+            Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(pDatasetName.WorkspaceName.PathName)
+            For i As Short = 2 To MONTHS_3
+                Dim fileName As String = prefix & i.ToString("D2") & suffix
+                If Not BA_File_Exists(pDatasetName.WorkspaceName.PathName & "\" & fileName, wType, esriDatasetType.esriDTRasterDataset) Then
+                    missingMonths.Add(pDatasetName.WorkspaceName.PathName & "\" & fileName)
+                End If
+            Next
+            If missingMonths.Count > 0 Then
+                Dim errMsg As String = "The The selected layer '" & pDatasetName.Name & "' cannot be used because the following months are missing from the data: " & vbCrLf & vbCrLf
+                For i As Short = 0 To missingMonths.Count - 1
+                    errMsg += missingMonths(i) & vbCrLf
+                Next
+                MessageBox.Show(errMsg, "Missing data", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Exit Sub
+            End If
+        Else
+            MessageBox.Show("The selected layer '" & pDatasetName.Name & "' cannot be used because there is not a '01' in the name indicating that it contains data for January. Please select another data layer", _
+                            "Invalid data", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End If
+
+        'Passed all the tests!
+        TxtPEPath.Text = fullPath
     End Sub
 
     Private Sub ManageCalculateButton()
@@ -228,8 +271,9 @@ Public Class FrmPEandSRObs
     End Function
 
     Private Sub BtnCalculate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCalculate.Click
-        CalculateSRObs()
-        SaveValues()
+        'CalculateSRObs()
+        'SaveValues()
+        CalculatePEObs()
     End Sub
 
     Private Sub PopulateForm()
@@ -324,4 +368,39 @@ Public Class FrmPEandSRObs
         Dim toolHelpForm As FrmHelp = New FrmHelp(BA_HelpTopics.PeAndObsTool)
         toolHelpForm.ShowDialog()
     End Sub
+
+    Private Function CalculatePEObs() As BA_ReturnCode
+        Dim tableName As String = "tblPE"
+        Dim zoneFilePath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi)
+        Dim zoneFileName As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
+        Dim snapRasterPath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi, True) & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
+        Dim valueFilePath As String = TxtPEPath.Text
+        Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_AOI_NAME, valueFilePath, _
+                                                                 zoneFilePath, tableName, snapRasterPath, StatisticsTypeString.MEAN)
+        Dim pTable As ITable = Nothing
+        Dim pCursor As ICursor = Nothing
+        Dim pRow As IRow = Nothing
+        Try
+            If success = BA_ReturnCode.Success Then
+                pTable = BA_OpenTableFromGDB(zoneFilePath, tableName)
+                If pTable IsNot Nothing Then
+                    Dim idxMean As Integer = pTable.FindField(StatisticsFieldName.MEAN.ToString)
+                    If idxMean > -1 Then
+                        pCursor = pTable.Search(Nothing, False)
+                        pRow = pCursor.NextRow
+                        If pRow IsNot Nothing Then
+                            MessageBox.Show(Convert.ToString(pRow.Value(idxMean)))
+                        End If
+                    End If
+                End If
+            End If
+        Catch ex As Exception
+            Debug.Print("CalculatePEObs() Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+
+        End Try
+
+
+    End Function
 End Class
