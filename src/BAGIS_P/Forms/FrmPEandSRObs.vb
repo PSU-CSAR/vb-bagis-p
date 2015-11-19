@@ -8,8 +8,9 @@ Imports ESRI.ArcGIS.Geometry
 Public Class FrmPEandSRObs
 
     Private Const SR_COLUMN_PREFIX As String = "SR"
-    Private Const MONTHS_3 As Short = 3
     Dim m_january As DateTime = New DateTime(2015, 1, 1)
+    Dim m_pe_prefix As String = Nothing
+    Dim m_pe_suffix As String = Nothing
     Dim m_aoiParamTable As IDictionary(Of String, AoiParameter)
 
     Public Sub New()
@@ -161,22 +162,22 @@ Public Class FrmPEandSRObs
         Dim missingMonths As IList(Of String) = New List(Of String)
         'We have January, now look for other 11
         If idxMonth > -1 Then
-            Dim prefix As String = pDatasetName.Name.Substring(0, idxMonth)
-            Dim suffix As String = pDatasetName.Name.Substring(idxMonth + 2, pDatasetName.Name.Length - (idxMonth + 2))
+            m_pe_prefix = pDatasetName.Name.Substring(0, idxMonth)
+            m_pe_suffix = pDatasetName.Name.Substring(idxMonth + 2, pDatasetName.Name.Length - (idxMonth + 2))
             Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(pDatasetName.WorkspaceName.PathName)
-            For i As Short = 2 To MONTHS_3
-                Dim fileName As String = prefix & i.ToString("D2") & suffix
+            For i As Short = 2 To NUM_MONTHS
+                Dim fileName As String = m_pe_prefix & i.ToString("D2") & m_pe_suffix
                 If Not BA_File_Exists(pDatasetName.WorkspaceName.PathName & "\" & fileName, wType, esriDatasetType.esriDTRasterDataset) Then
-                    missingMonths.Add(pDatasetName.WorkspaceName.PathName & "\" & fileName)
+                    'missingMonths.Add(pDatasetName.WorkspaceName.PathName & "\" & fileName)
+                    missingMonths.Add(i.ToString("D2"))
                 End If
             Next
             If missingMonths.Count > 0 Then
-                Dim errMsg As String = "The The selected layer '" & pDatasetName.Name & "' cannot be used because the following months are missing from the data: " & vbCrLf & vbCrLf
+                Dim errMsg As String = "Some months associated with the selected layer '" & pDatasetName.Name & "' could not be found. If this layer is used, the PE value will not be calculated for the following months: " & vbCrLf & vbCrLf
                 For i As Short = 0 To missingMonths.Count - 1
                     errMsg += missingMonths(i) & vbCrLf
                 Next
-                MessageBox.Show(errMsg, "Missing data", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                Exit Sub
+                MessageBox.Show(errMsg, "Missing data", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
         Else
             MessageBox.Show("The selected layer '" & pDatasetName.Name & "' cannot be used because there is not a '01' in the name indicating that it contains data for January. Please select another data layer", _
@@ -271,9 +272,15 @@ Public Class FrmPEandSRObs
     End Function
 
     Private Sub BtnCalculate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCalculate.Click
-        'CalculateSRObs()
-        'SaveValues()
+        BtnCalculate.Enabled = False
+        LblStatus.Text = "Calculating solar radiation"
+        CalculateSRObs()
+        LblStatus.Text = "Calculating potential evaporation"
         CalculatePEObs()
+        LblStatus.Text = "Saving values to AOI"
+        SaveValues()
+        LblStatus.Text = Nothing
+        BtnCalculate.Enabled = True
     End Sub
 
     Private Sub PopulateForm()
@@ -291,6 +298,18 @@ Public Class FrmPEandSRObs
             Else
                 TxtSrDate.Text = Nothing
                 TxtSrValue.Text = Nothing
+            End If
+            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_PE_Obs) Then
+                Dim peObsParam As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_PE_Obs)
+                If peObsParam IsNot Nothing Then
+                    txtPEDate.Text = peObsParam.DateUpdated.ToString("MM/dd/yyyy")
+                    If peObsParam.ValuesList IsNot Nothing Then
+                        txtPeValue.Text = peObsParam.ValuesList(0)
+                    End If
+                End If
+            Else
+                txtPEDate.Text = Nothing
+                txtPeValue.Text = Nothing
             End If
         End If
     End Sub
@@ -370,29 +389,57 @@ Public Class FrmPEandSRObs
     End Sub
 
     Private Function CalculatePEObs() As BA_ReturnCode
+
+        Dim pTable As ITable = Nothing
+        Dim pCursor As ICursor = Nothing
+        Dim pRow As IRow = Nothing
         Dim tableName As String = "tblPE"
         Dim zoneFilePath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi)
         Dim zoneFileName As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
         Dim snapRasterPath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi, True) & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
-        Dim valueFilePath As String = TxtPEPath.Text
-        Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_AOI_NAME, valueFilePath, _
-                                                                 zoneFilePath, tableName, snapRasterPath, StatisticsTypeString.MEAN)
-        Dim pTable As ITable = Nothing
-        Dim pCursor As ICursor = Nothing
-        Dim pRow As IRow = Nothing
+        Dim parentFolder As String = "PleaseReturn"
+        Dim tempName As String = BA_GetBareName(TxtPEPath.Text, parentFolder)
+        Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(parentFolder)
+        Dim valuesList As IList(Of String) = New List(Of String)
+
         Try
-            If success = BA_ReturnCode.Success Then
-                pTable = BA_OpenTableFromGDB(zoneFilePath, tableName)
-                If pTable IsNot Nothing Then
-                    Dim idxMean As Integer = pTable.FindField(StatisticsFieldName.MEAN.ToString)
-                    If idxMean > -1 Then
-                        pCursor = pTable.Search(Nothing, False)
-                        pRow = pCursor.NextRow
-                        If pRow IsNot Nothing Then
-                            MessageBox.Show(Convert.ToString(pRow.Value(idxMean)))
+            For i As Short = 1 To NUM_MONTHS
+                Dim fileName As String = m_pe_prefix & i.ToString("D2") & m_pe_suffix
+                Dim valueFilePath As String = parentFolder & fileName
+                Dim peValue As String = BA_9999
+                If BA_File_Exists(valueFilePath, wType, esriDatasetType.esriDTRasterDataset) Then
+                    LblStatus.Text = "Calculating potential evaporation for " & MonthName(i)
+                    Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_AOI_NAME, valueFilePath, _
+                                                                             zoneFilePath, tableName, snapRasterPath, StatisticsTypeString.MEAN)
+                    If success = BA_ReturnCode.Success Then
+                        pTable = BA_OpenTableFromGDB(zoneFilePath, tableName)
+                        If pTable IsNot Nothing Then
+                            Dim idxMean As Integer = pTable.FindField(StatisticsFieldName.MEAN.ToString)
+                            If idxMean > -1 Then
+                                pCursor = pTable.Search(Nothing, False)
+                                pRow = pCursor.NextRow
+                                If pRow IsNot Nothing Then
+                                    'Convert millimeters to inches
+                                    Dim inchesValue As Double = Convert.ToDouble(pRow.Value(idxMean)) / BA_Inches_To_Millimeters
+                                    peValue = Convert.ToString(inchesValue / DateTime.DaysInMonth(m_january.Year, i))
+                                End If
+                            End If
                         End If
                     End If
                 End If
+                valuesList.Add(peValue)
+            Next
+            'Create the new parameter and add to table
+            Dim newParameter As AoiParameter = New AoiParameter(BA_Aoi_Parameter_PE_Obs)
+            newParameter.ValuesList = valuesList
+            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_PE_Obs) Then
+                m_aoiParamTable(BA_Aoi_Parameter_PE_Obs) = newParameter
+            Else
+                m_aoiParamTable.Add(BA_Aoi_Parameter_PE_Obs, newParameter)
+            End If
+            txtPEDate.Text = newParameter.DateUpdated.ToString("MM/dd/yyyy")
+            If newParameter.ValuesList IsNot Nothing Then
+                txtPeValue.Text = newParameter.ValuesList(0)
             End If
         Catch ex As Exception
             Debug.Print("CalculatePEObs() Exception: " & ex.Message)

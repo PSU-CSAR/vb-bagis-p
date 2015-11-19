@@ -43,6 +43,7 @@ Partial Class FrmPEandSRObs
         Me.Label7 = New System.Windows.Forms.Label()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.BtnAbout = New System.Windows.Forms.Button()
+        Me.LblStatus = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'TxtAoiPath
@@ -265,11 +266,23 @@ Partial Class FrmPEandSRObs
         Me.BtnAbout.Text = "Tell me more"
         Me.BtnAbout.UseVisualStyleBackColor = True
         '
+        'LblStatus
+        '
+        Me.LblStatus.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.LblStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblStatus.ForeColor = System.Drawing.Color.Red
+        Me.LblStatus.Location = New System.Drawing.Point(6, 166)
+        Me.LblStatus.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblStatus.Name = "LblStatus"
+        Me.LblStatus.Size = New System.Drawing.Size(364, 20)
+        Me.LblStatus.TabIndex = 117
+        '
         'FrmPEandSRObs
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(696, 218)
+        Me.Controls.Add(Me.LblStatus)
         Me.Controls.Add(Me.BtnAbout)
         Me.Controls.Add(Me.txtPeValue)
         Me.Controls.Add(Me.txtPEDate)
@@ -319,4 +332,5 @@ Partial Class FrmPEandSRObs
     Friend WithEvents Label7 As System.Windows.Forms.Label
     Friend WithEvents Label8 As System.Windows.Forms.Label
     Friend WithEvents BtnAbout As System.Windows.Forms.Button
+    Friend WithEvents LblStatus As System.Windows.Forms.Label
 End Class
