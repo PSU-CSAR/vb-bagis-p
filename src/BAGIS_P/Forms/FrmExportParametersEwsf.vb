@@ -527,7 +527,13 @@ Public Class FrmExportParametersEwsf
         ' 7. find AOI-level in nmonths table and overwrite them with calculated values
         Dim nmonthsTable As ParameterTable = m_tablesTable(NMONTHS)
         If nmonthsTable IsNot Nothing Then
-            nmonthsTable = BA_UpdateParametersInNmonthsTable(nmonthsTable, m_aoiParamTable)
+            Dim paramNamesToUpdate As IList(Of String) = New List(Of String)
+            paramNamesToUpdate.Add(BA_Aoi_Parameter_jh_coef)
+            If CkPeAndSrObs.Checked Then
+                paramNamesToUpdate.Add(BA_Aoi_Parameter_PE_Obs)
+                paramNamesToUpdate.Add(BA_Aoi_Parameter_SR_Obs)
+            End If
+            nmonthsTable = BA_UpdateParametersInNmonthsTable(nmonthsTable, m_aoiParamTable, paramNamesToUpdate)
             m_tablesTable(NMONTHS) = nmonthsTable
         End If
 
