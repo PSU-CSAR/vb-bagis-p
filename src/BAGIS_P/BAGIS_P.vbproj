@@ -159,6 +159,7 @@
     <Compile Include="Buttons\BtnAbout.vb" />
     <Compile Include="Buttons\BtnDataManager.vb" />
     <Compile Include="Buttons\BtnLocalDataManager.vb" />
+    <Compile Include="Buttons\BtnParametersFromLayers.vb" />
     <Compile Include="Buttons\BtnParameterViewer.vb" />
     <Compile Include="Buttons\BtnPEandSRObs.vb" />
     <Compile Include="Buttons\BtnPublicMethodEditor.vb" />
@@ -224,6 +225,12 @@
       <DependentUpon>FrmExportParameters.vb</DependentUpon>
     </Compile>
     <Compile Include="Forms\FrmExportParameters.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmParametersFromLayers.Designer.vb">
+      <DependentUpon>FrmParametersFromLayers.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FrmParametersFromLayers.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\FrmParameterTable.Designer.vb">
@@ -378,6 +385,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmExportParameters.resx">
       <DependentUpon>FrmExportParameters.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FrmParametersFromLayers.resx">
+      <DependentUpon>FrmParametersFromLayers.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmParameterTable.resx">
       <DependentUpon>FrmParameterTable.vb</DependentUpon>
@@ -571,6 +581,7 @@
     </Content>
     <AddInContent Include="Images\BtnParameterDescription.png" />
     <AddInContent Include="Images\BtnPEandSRObs.png" />
+    <AddInContent Include="Images\BtnParametersFromLayers.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BAGIS_ClassLibrary\BAGIS_ClassLibrary.vbproj">
