@@ -280,6 +280,7 @@ Public Class FrmPEandSRObs
         LblStatus.Text = "Saving values to AOI"
         SaveValues()
         LblStatus.Text = Nothing
+        MessageBox.Show("PE and SR Obs calculations are complete!", "Calculations complete", MessageBoxButtons.OK, MessageBoxIcon.Information)
         BtnCalculate.Enabled = True
     End Sub
 
