@@ -22,8 +22,11 @@ Partial Class FrmParametersFromLayers
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle7 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.TxtAoiPath = New System.Windows.Forms.TextBox()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.BtnSelectAoi = New System.Windows.Forms.Button()
@@ -44,13 +47,13 @@ Partial Class FrmParametersFromLayers
         Me.LstAoiRasterLayers = New System.Windows.Forms.ListBox()
         Me.LblRasterLayers = New System.Windows.Forms.Label()
         Me.GrpReclass = New System.Windows.Forms.GroupBox()
+        Me.TxtProfileName = New System.Windows.Forms.TextBox()
+        Me.Label2 = New System.Windows.Forms.Label()
         Me.CboReclassField = New System.Windows.Forms.ComboBox()
         Me.Label9 = New System.Windows.Forms.Label()
         Me.DataGridView1 = New System.Windows.Forms.DataGridView()
-        Me.OldValue = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.NewValues = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.Label2 = New System.Windows.Forms.Label()
-        Me.TxtProfileName = New System.Windows.Forms.TextBox()
+        Me.LayerValues = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.ParameterValues = New System.Windows.Forms.DataGridViewTextBoxColumn()
         CType(Me.GrdCalcParameters, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GrpLayerType.SuspendLayout()
         Me.GrpReclass.SuspendLayout()
@@ -92,7 +95,7 @@ Partial Class FrmParametersFromLayers
         '
         Me.BtnCalculate.Enabled = False
         Me.BtnCalculate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnCalculate.Location = New System.Drawing.Point(474, 519)
+        Me.BtnCalculate.Location = New System.Drawing.Point(462, 461)
         Me.BtnCalculate.Name = "BtnCalculate"
         Me.BtnCalculate.Size = New System.Drawing.Size(175, 25)
         Me.BtnCalculate.TabIndex = 93
@@ -102,7 +105,7 @@ Partial Class FrmParametersFromLayers
         'BtnClose
         '
         Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnClose.Location = New System.Drawing.Point(654, 519)
+        Me.BtnClose.Location = New System.Drawing.Point(642, 461)
         Me.BtnClose.Name = "BtnClose"
         Me.BtnClose.Size = New System.Drawing.Size(65, 25)
         Me.BtnClose.TabIndex = 92
@@ -143,6 +146,14 @@ Partial Class FrmParametersFromLayers
         '
         Me.GrdCalcParameters.AllowUserToAddRows = False
         Me.GrdCalcParameters.AllowUserToDeleteRows = False
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.GrdCalcParameters.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.GrdCalcParameters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.GrdCalcParameters.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.DataGridViewTextBoxColumn1, Me.DataGridViewTextBoxColumn2})
         Me.GrdCalcParameters.Location = New System.Drawing.Point(4, 196)
@@ -156,8 +167,8 @@ Partial Class FrmParametersFromLayers
         '
         'DataGridViewTextBoxColumn1
         '
-        DataGridViewCellStyle6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.DataGridViewTextBoxColumn1.DefaultCellStyle = DataGridViewCellStyle6
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.DataGridViewTextBoxColumn1.DefaultCellStyle = DataGridViewCellStyle2
         Me.DataGridViewTextBoxColumn1.HeaderText = "Parameter"
         Me.DataGridViewTextBoxColumn1.Name = "DataGridViewTextBoxColumn1"
         Me.DataGridViewTextBoxColumn1.ReadOnly = True
@@ -165,6 +176,8 @@ Partial Class FrmParametersFromLayers
         '
         'DataGridViewTextBoxColumn2
         '
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.DataGridViewTextBoxColumn2.DefaultCellStyle = DataGridViewCellStyle3
         Me.DataGridViewTextBoxColumn2.HeaderText = "Date Calculated"
         Me.DataGridViewTextBoxColumn2.Name = "DataGridViewTextBoxColumn2"
         Me.DataGridViewTextBoxColumn2.ReadOnly = True
@@ -184,7 +197,7 @@ Partial Class FrmParametersFromLayers
         'BtnViewBagisParams
         '
         Me.BtnViewBagisParams.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnViewBagisParams.Location = New System.Drawing.Point(4, 440)
+        Me.BtnViewBagisParams.Location = New System.Drawing.Point(3, 461)
         Me.BtnViewBagisParams.Name = "BtnViewBagisParams"
         Me.BtnViewBagisParams.Size = New System.Drawing.Size(135, 25)
         Me.BtnViewBagisParams.TabIndex = 136
@@ -263,18 +276,39 @@ Partial Class FrmParametersFromLayers
         Me.GrpReclass.Controls.Add(Me.Label9)
         Me.GrpReclass.Controls.Add(Me.DataGridView1)
         Me.GrpReclass.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GrpReclass.Location = New System.Drawing.Point(388, 214)
+        Me.GrpReclass.Location = New System.Drawing.Point(358, 206)
         Me.GrpReclass.Name = "GrpReclass"
-        Me.GrpReclass.Size = New System.Drawing.Size(331, 299)
+        Me.GrpReclass.Size = New System.Drawing.Size(351, 250)
         Me.GrpReclass.TabIndex = 141
         Me.GrpReclass.TabStop = False
         Me.GrpReclass.Text = "Reclass"
+        '
+        'TxtProfileName
+        '
+        Me.TxtProfileName.BackColor = System.Drawing.SystemColors.ControlLightLight
+        Me.TxtProfileName.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtProfileName.Location = New System.Drawing.Point(149, 15)
+        Me.TxtProfileName.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtProfileName.Name = "TxtProfileName"
+        Me.TxtProfileName.ReadOnly = True
+        Me.TxtProfileName.Size = New System.Drawing.Size(191, 22)
+        Me.TxtProfileName.TabIndex = 142
+        '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label2.Location = New System.Drawing.Point(6, 18)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(146, 16)
+        Me.Label2.TabIndex = 142
+        Me.Label2.Text = "Output param name:"
         '
         'CboReclassField
         '
         Me.CboReclassField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.CboReclassField.FormattingEnabled = True
-        Me.CboReclassField.Location = New System.Drawing.Point(108, 44)
+        Me.CboReclassField.Location = New System.Drawing.Point(149, 44)
         Me.CboReclassField.Name = "CboReclassField"
         Me.CboReclassField.Size = New System.Drawing.Size(110, 24)
         Me.CboReclassField.TabIndex = 22
@@ -285,63 +319,45 @@ Partial Class FrmParametersFromLayers
         Me.Label9.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label9.Location = New System.Drawing.Point(7, 50)
         Me.Label9.Name = "Label9"
-        Me.Label9.Size = New System.Drawing.Size(103, 16)
+        Me.Label9.Size = New System.Drawing.Size(127, 16)
         Me.Label9.TabIndex = 21
-        Me.Label9.Text = "Reclass field:"
+        Me.Label9.Text = "Layer value field:"
         '
         'DataGridView1
         '
         Me.DataGridView1.AllowUserToAddRows = False
         Me.DataGridView1.AllowUserToDeleteRows = False
         Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.DataGridView1.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.OldValue, Me.NewValues})
-        Me.DataGridView1.Location = New System.Drawing.Point(7, 74)
+        Me.DataGridView1.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.LayerValues, Me.ParameterValues})
+        Me.DataGridView1.Location = New System.Drawing.Point(10, 74)
         Me.DataGridView1.Name = "DataGridView1"
-        Me.DataGridView1.Size = New System.Drawing.Size(275, 165)
+        Me.DataGridView1.Size = New System.Drawing.Size(330, 165)
         Me.DataGridView1.TabIndex = 5
         '
-        'OldValue
+        'LayerValues
         '
-        DataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle7.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.OldValue.DefaultCellStyle = DataGridViewCellStyle7
-        Me.OldValue.HeaderText = "Old Values"
-        Me.OldValue.Name = "OldValue"
-        Me.OldValue.ReadOnly = True
-        Me.OldValue.Width = 110
+        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.LayerValues.DefaultCellStyle = DataGridViewCellStyle4
+        Me.LayerValues.HeaderText = "Layer Values"
+        Me.LayerValues.Name = "LayerValues"
+        Me.LayerValues.ReadOnly = True
+        Me.LayerValues.Width = 140
         '
-        'NewValues
+        'ParameterValues
         '
-        Me.NewValues.HeaderText = "New Values"
-        Me.NewValues.Name = "NewValues"
-        Me.NewValues.Width = 110
-        '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(6, 18)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(142, 16)
-        Me.Label2.TabIndex = 142
-        Me.Label2.Text = "Output param name"
-        '
-        'TxtProfileName
-        '
-        Me.TxtProfileName.BackColor = System.Drawing.SystemColors.ControlLightLight
-        Me.TxtProfileName.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtProfileName.Location = New System.Drawing.Point(146, 15)
-        Me.TxtProfileName.Margin = New System.Windows.Forms.Padding(4)
-        Me.TxtProfileName.Name = "TxtProfileName"
-        Me.TxtProfileName.ReadOnly = True
-        Me.TxtProfileName.Size = New System.Drawing.Size(178, 22)
-        Me.TxtProfileName.TabIndex = 142
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ParameterValues.DefaultCellStyle = DataGridViewCellStyle5
+        Me.ParameterValues.HeaderText = "Parameter Values"
+        Me.ParameterValues.Name = "ParameterValues"
+        Me.ParameterValues.Width = 140
         '
         'FrmParametersFromLayers
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(726, 556)
+        Me.ClientSize = New System.Drawing.Size(719, 495)
         Me.Controls.Add(Me.GrpReclass)
         Me.Controls.Add(Me.LstAoiRasterLayers)
         Me.Controls.Add(Me.LblRasterLayers)
@@ -380,8 +396,6 @@ Partial Class FrmParametersFromLayers
     Friend WithEvents LstHruLayers As System.Windows.Forms.ListBox
     Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents GrdCalcParameters As System.Windows.Forms.DataGridView
-    Friend WithEvents DataGridViewTextBoxColumn1 As System.Windows.Forms.DataGridViewTextBoxColumn
-    Friend WithEvents DataGridViewTextBoxColumn2 As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents BtnDeleteSelected As System.Windows.Forms.Button
     Friend WithEvents BtnViewBagisParams As System.Windows.Forms.Button
     Friend WithEvents LblToolTip As System.Windows.Forms.Label
@@ -395,7 +409,9 @@ Partial Class FrmParametersFromLayers
     Friend WithEvents CboReclassField As System.Windows.Forms.ComboBox
     Friend WithEvents Label9 As System.Windows.Forms.Label
     Friend WithEvents DataGridView1 As System.Windows.Forms.DataGridView
-    Friend WithEvents OldValue As System.Windows.Forms.DataGridViewTextBoxColumn
-    Friend WithEvents NewValues As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents TxtProfileName As System.Windows.Forms.TextBox
+    Friend WithEvents DataGridViewTextBoxColumn1 As System.Windows.Forms.DataGridViewTextBoxColumn
+    Friend WithEvents DataGridViewTextBoxColumn2 As System.Windows.Forms.DataGridViewTextBoxColumn
+    Friend WithEvents LayerValues As System.Windows.Forms.DataGridViewTextBoxColumn
+    Friend WithEvents ParameterValues As System.Windows.Forms.DataGridViewTextBoxColumn
 End Class

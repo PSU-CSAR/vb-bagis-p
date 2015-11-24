@@ -1746,4 +1746,34 @@ Public Module GeodatabaseModule
         End Try
     End Function
 
+    Public Function BA_AddUserFieldToVector(ByVal folderName As String, ByVal fileName As String, ByVal fieldName As String, _
+                                            ByVal fieldType As esriFieldType, ByVal fieldLength As Integer) As BA_ReturnCode
+        Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(folderName)
+        Dim targetFC As IFeatureClass = Nothing
+        Dim tFields As IFieldsEdit = Nothing
+        Try
+            If wType = WorkspaceType.Geodatabase Then
+                targetFC = BA_OpenFeatureClassFromGDB(folderName, fileName)
+            Else
+                targetFC = BA_OpenFeatureClassFromFile(folderName, fileName)
+            End If
+            If targetFC IsNot Nothing Then
+                tFields = CType(targetFC.Fields, IFieldsEdit)
+
+                ' Create the new field.
+                Dim newField As IField = New FieldClass()
+                Dim newFieldEdit As IFieldEdit = CType(newField, IFieldEdit)
+                If fieldLength > -1 Then newField.Length_2 = fieldLength ' Only string fields require that you set the length.
+                newField.Name_2 = fieldName
+                newFieldEdit.Type_2 = fieldType
+                tFields.AddField(newField)
+
+
+            End If
+        Catch ex As Exception
+            Debug.Print("BA_AddUserFieldToVector Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        End Try
+    End Function
+
 End Module
