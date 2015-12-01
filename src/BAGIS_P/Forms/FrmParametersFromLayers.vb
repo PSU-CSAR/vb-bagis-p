@@ -10,6 +10,7 @@ Public Class FrmParametersFromLayers
 
     Dim m_aoi As Aoi
     Dim m_layersList As IList(Of LayerListItem) = New List(Of LayerListItem)
+    Dim m_idxLayerValues As Short = 0
     Dim m_idxParamValues As Short = 1
 
     Public Sub New()
@@ -298,11 +299,40 @@ Public Class FrmParametersFromLayers
                 Exit Sub
             End If
         End If
-        Dim idxField As Integer = BA_AddUserFieldToVector(hruGdbPath, BA_GetBareName(v_name), TxtParamName.Text, _
-                                                          esriFieldType.esriFieldTypeDouble, 0)
-        If idxField > -1 Then
-
+        Dim zonesFC As IFeatureClass = BA_OpenFeatureClassFromGDB(hruGdbPath, BA_GetBareName(v_name))
+        Dim idxHruId As Integer = zonesFC.FindField(BA_FIELD_HRU_ID)
+        If idxHruId < 0 Then
+            Dim retVal As BA_ReturnCode = BA_CreateHruIdField(hruGdbPath, BA_GetBareName(v_name))
+            If retVal <> BA_ReturnCode.Success Then
+                MessageBox.Show("The HRU_ID field could not be found in the selected HRU. Parameters from layers cannot be calculated.")
+                Exit Sub
+            End If
         End If
+        Dim idxField As Integer = zonesFC.FindField(TxtParamName.Text)
+        If idxField > -1 Then
+            'The field already exists; ask user if they want to overwrite
+            Dim strMessage As String = "The output parameter name already exists for this HRU. Do you want to overwrite the current values? "
+            Dim res As DialogResult = MessageBox.Show(strMessage, "Name already exists", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+            If res <> DialogResult.Yes Then
+                TxtParamName.Focus()
+                Exit Sub
+            End If
+        Else
+            idxField = BA_AddUserFieldToVector(hruGdbPath, BA_GetBareName(v_name), TxtParamName.Text, _
+                                                   esriFieldType.esriFieldTypeDouble, 0)
+        End If
+        If idxField > -1 Then
+            Dim tableName As String = "tmpTable"
+            Dim rasterItem As LayerListItem = LstAoiRasterLayers.SelectedItem
+            Dim snapRasterPath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi, True) & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
+            Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(hruGdbPath, BA_GetBareName(v_name), BA_FIELD_HRU_ID, rasterItem.Value, _
+                                                hruGdbPath, tableName, snapRasterPath, StatisticsTypeString.MAJORITY)
+            If success = BA_ReturnCode.Success Then
+
+            End If
+        End If
+
+        ResetForm()
     End Sub
 
     Private Sub TxtParamName_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtParamName.Leave
@@ -342,4 +372,67 @@ Public Class FrmParametersFromLayers
     Private Sub LstHruLayers_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LstHruLayers.SelectedIndexChanged
         ManageCalculateButton()
     End Sub
+
+    Private Sub ResetForm()
+        LstHruLayers.ClearSelected()
+        LstAoiRasterLayers.ClearSelected()
+        RdoHru.Checked = True
+        TxtParamName.Text = Nothing
+        CboReclassField.SelectedIndex = -1
+    End Sub
+
+    Private Function AppendParametersToHru(ByVal hruGdbPath As String, ByVal v_name As String, ByVal t_name As String, ByVal idxParam As Integer) As BA_ReturnCode
+        Dim fClass As IFeatureClass = Nothing
+        Dim pTable As ITable = Nothing
+        Dim tCursor As ICursor = Nothing
+        Dim tRow As IRow = Nothing
+        Dim fCursor As IFeatureCursor = Nothing
+        Dim fFeature As IFeature = Nothing
+        Dim fQuery As IQueryFilter = New QueryFilter()
+        Try
+            fClass = BA_OpenFeatureClassFromGDB(hruGdbPath, v_name)
+            If fClass IsNot Nothing Then
+                pTable = BA_OpenTableFromGDB(hruGdbPath, t_name)
+                If pTable IsNot Nothing Then
+                    Dim idxTHruId As Integer = pTable.FindField(BA_FIELD_HRU_ID)
+                    Dim idxTMajorityId As Integer = -1
+                    If idxTHruId > -1 Then
+                        idxTMajorityId = pTable.FindField(StatisticsTypeString.MAJORITY.ToString)
+                        If idxTMajorityId > -1 Then
+                            tCursor = pTable.Search(Nothing, False)
+                            If tCursor IsNot Nothing Then
+                                tRow = tCursor.NextRow
+                                Do While tRow IsNot Nothing
+                                    Dim hruId As String = Convert.ToString(tRow.Value(idxTHruId))
+                                    Dim paramValue As Double = Convert.ToDouble(tRow.Value(idxTMajorityId))
+                                    'Now get the value out of the grid in case user wanted to change it
+                                    For Each gRow As DataGridViewRow In GrdValues.Rows
+                                        Dim layerValue As Double = Convert.ToDouble(gRow.Cells(m_idxLayerValues).Value)
+                                        If layerValue = paramValue Then
+                                            paramValue = Convert.ToDouble(gRow.Cells(m_idxParamValues).Value)
+                                            Exit For
+                                        End If
+                                    Next
+                                    fQuery.WhereClause = "WHERE " & BA_FIELD_HRU_ID & " = " & hruId
+                                    fCursor = fClass.Update(fQuery, False)
+                                    If fCursor IsNot Nothing Then
+                                        'We assume there is only one row with the unique id
+                                        fFeature = fCursor.NextFeature
+                                        fFeature.Value(idxParam) = paramValue
+                                        fFeature.Store()
+                                    End If
+                                    tRow = tCursor.NextRow
+                                Loop
+                            End If
+                        End If
+                    End If
+                End If
+            End If
+        Catch ex As Exception
+            Debug.Print("AppendParametersToHru Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+
+        End Try
+    End Function
 End Class
