@@ -1747,10 +1747,10 @@ Public Module GeodatabaseModule
     End Function
 
     Public Function BA_AddUserFieldToVector(ByVal folderName As String, ByVal fileName As String, ByVal fieldName As String, _
-                                            ByVal fieldType As esriFieldType, ByVal fieldLength As Integer) As BA_ReturnCode
+                                            ByVal fieldType As esriFieldType, ByVal fieldLength As Integer) As Integer
         Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(folderName)
         Dim targetFC As IFeatureClass = Nothing
-        Dim tFields As IFieldsEdit = Nothing
+        Dim schemaLock As ISchemaLock = Nothing
         Try
             If wType = WorkspaceType.Geodatabase Then
                 targetFC = BA_OpenFeatureClassFromGDB(folderName, fileName)
@@ -1758,21 +1758,30 @@ Public Module GeodatabaseModule
                 targetFC = BA_OpenFeatureClassFromFile(folderName, fileName)
             End If
             If targetFC IsNot Nothing Then
-                tFields = CType(targetFC.Fields, IFieldsEdit)
+                schemaLock = CType(targetFC, ISchemaLock)
+                'A try block is necessary, as an exclusive lock might not be available.
+                schemaLock.ChangeSchemaLock(esriSchemaLock.esriExclusiveSchemaLock)
 
                 ' Create the new field.
-                Dim newField As IField = New FieldClass()
-                Dim newFieldEdit As IFieldEdit = CType(newField, IFieldEdit)
-                If fieldLength > -1 Then newField.Length_2 = fieldLength ' Only string fields require that you set the length.
-                newField.Name_2 = fieldName
+                Dim newFieldEdit As IFieldEdit = New Field()
+                If fieldLength > 0 Then newFieldEdit.Length_2 = fieldLength ' Only string fields require that you set the length.
+                newFieldEdit.Name_2 = fieldName
                 newFieldEdit.Type_2 = fieldType
-                tFields.AddField(newField)
-
-
+                'Must add field to FC instead of iFields because it's an existing table
+                targetFC.AddField(newFieldEdit)
+                Dim idxField As Integer = targetFC.FindField(fieldName)
+                Return idxField
             End If
+            Return BA_ReturnCode.ReadError
         Catch ex As Exception
             Debug.Print("BA_AddUserFieldToVector Exception: " & ex.Message)
-            Return BA_ReturnCode.UnknownError
+            Return -1
+        Finally
+            ' Set the lock to shared, whether or not an error occurred.
+            schemaLock.ChangeSchemaLock(esriSchemaLock.esriSharedSchemaLock)
+            targetFC = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
         End Try
     End Function
 

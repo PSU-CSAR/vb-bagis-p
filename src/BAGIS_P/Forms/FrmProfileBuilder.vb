@@ -1493,26 +1493,7 @@ Public Class FrmProfileBuilder
                         LblStatus.Text = "Creating vector copy of grid for BAGIS-P"
                         Dim hruGdbPath As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, selHruName)
                         If Not BA_File_Exists(hruGdbPath & BA_EnumDescription(PublicPath.HruZonesVector), WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
-                            'Convert raster grid to 'grid_zones_v' shapefile
-                            Dim retVal As Short = BA_Raster2PolygonShapefileFromPath(hruGdbPath & BA_EnumDescription(PublicPath.HruGrid), hruGdbPath & BA_EnumDescription(PublicPath.HruZonesVector), False)
-                            If retVal = 1 Then
-                                Dim zonesVectorName As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.HruZonesVector), False)
-                                Dim tempVectorName As String = "dissolve_v"
-                                'If successful, add HRU_ID column and copy values from 'grid_code' column
-                                success = BA_CreateHruIdField(hruGdbPath, zonesVectorName)
-                                'If this is a non-contiguous HRU, we need to dissolve on HRU ID
-                                If success = BA_ReturnCode.Success AndAlso BA_IsNonContiguousHru(hruGdbPath, zonesVectorName, BA_GetBareName(BA_EnumDescription(PublicPath.HruGrid))) = True Then
-                                    success = BA_Dissolve(hruGdbPath & "\" & zonesVectorName, BA_FIELD_HRU_ID, hruGdbPath & "\" & tempVectorName)
-                                    If success = BA_ReturnCode.Success Then
-                                        'After dissolving, remove the original shapefile
-                                        retVal = BA_Remove_ShapefileFromGDB(hruGdbPath, zonesVectorName)
-                                        If retVal = 1 Then
-                                            'And rename the dissolved file to grid_zones_v
-                                            BA_RenameFeatureClassInGDB(hruGdbPath, tempVectorName, zonesVectorName)
-                                        End If
-                                    End If
-                                End If
-                            End If
+                            success = BA_Create_grid_zones_v(hruGdbPath)
                         End If
                         ''Check to see if params table exists for selected profile
                         'If it does drop and recreate so we only have columns from this run

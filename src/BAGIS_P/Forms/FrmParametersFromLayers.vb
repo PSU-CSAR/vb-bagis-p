@@ -10,6 +10,7 @@ Public Class FrmParametersFromLayers
 
     Dim m_aoi As Aoi
     Dim m_layersList As IList(Of LayerListItem) = New List(Of LayerListItem)
+    Dim m_idxParamValues As Short = 1
 
     Public Sub New()
 
@@ -31,6 +32,7 @@ Public Class FrmParametersFromLayers
                     dirZonesArr = dirZones.GetDirectories
                     LoadHruLayers(dirZonesArr)
                     LoadRasters()
+                    RdoHru.Checked = True
                 End If
 
             Catch ex As Exception
@@ -90,6 +92,7 @@ Public Class FrmParametersFromLayers
                     dirZonesArr = dirZones.GetDirectories
                     LoadHruLayers(dirZonesArr)
                     LoadRasters()
+                    RdoHru.Checked = True
                 End If
             End If
         Catch ex As Exception
@@ -209,12 +212,12 @@ Public Class FrmParametersFromLayers
                 CboReclassField.SelectedIndex = 0
             End If
         Else
-            DataGridView1.Rows.Clear()
+            GrdValues.Rows.Clear()
         End If
     End Sub
 
     Private Sub CopyUniqueValuesToReclass()
-        DataGridView1.Rows.Clear()
+        GrdValues.Rows.Clear()
         Dim pGeoDataset As IGeoDataset = Nothing
         Dim pRasterBandCollection As IRasterBandCollection = Nothing
         Dim pRasterBand As IRasterBand = Nothing
@@ -253,7 +256,7 @@ Public Class FrmParametersFromLayers
                 Dim pObj As Object = pEnumVar.Current
                 While pObj IsNot Nothing
                     Dim pArray As String() = {pObj, pObj}
-                    DataGridView1.Rows.Add(pArray)
+                    GrdValues.Rows.Add(pArray)
                     pEnumVar.MoveNext()
                     pObj = pEnumVar.Current
                 End While
@@ -261,6 +264,7 @@ Public Class FrmParametersFromLayers
         Catch ex As Exception
             MessageBox.Show("CopyUniqueValuesToReclass Exception: " + ex.Message)
         Finally
+            ManageCalculateButton()
             pEnumVar = Nothing
             pData = Nothing
             pCursor = Nothing
@@ -278,5 +282,64 @@ Public Class FrmParametersFromLayers
         If CboReclassField.SelectedIndex > -1 Then
             CopyUniqueValuesToReclass()
         End If
+    End Sub
+
+    Private Sub BtnCalculate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCalculate.Click
+        'Add field to grid_zones_v
+        Dim hruItem As LayerListItem = LstHruLayers.SelectedItem
+        Dim hruGdbPath As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, hruItem.Name)
+        Dim v_name As String = BA_EnumDescription(PublicPath.HruZonesVector)
+        'Make sure grid_zones_v exists
+        If Not BA_File_Exists(hruGdbPath & v_name, WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
+            Dim retVal As BA_ReturnCode = BA_Create_grid_zones_v(hruGdbPath)
+            If retVal <> BA_ReturnCode.Success Then
+                MessageBox.Show("The " & BA_GetBareName(v_name) & " file could not be created." & _
+                                " Parameters from Layers cannot be calculated.")
+                Exit Sub
+            End If
+        End If
+        Dim idxField As Integer = BA_AddUserFieldToVector(hruGdbPath, BA_GetBareName(v_name), TxtParamName.Text, _
+                                                          esriFieldType.esriFieldTypeDouble, 0)
+        If idxField > -1 Then
+
+        End If
+    End Sub
+
+    Private Sub TxtParamName_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtParamName.Leave
+        '@ToDo: Need to validate
+        'Names must begin with a letter, not a number or special character such as an asterisk (*) or percent sign (%).
+        'Names should not contain spaces.
+        ManageCalculateButton()
+    End Sub
+
+    Private Sub ManageCalculateButton()
+        'Does the parameter have a name "
+        If String.IsNullOrEmpty(TxtParamName.Text) Then
+            BtnCalculate.Enabled = False
+            Exit Sub
+        End If
+        'Has an HRU dataset been selected ?
+        If LstHruLayers.SelectedIndex < 0 Then
+            BtnCalculate.Enabled = False
+            Exit Sub
+        End If
+        'Is the layers value table populated ? 
+        If GrdValues.Rows.Count < 1 Then
+            BtnCalculate.Enabled = False
+            Exit Sub
+        End If
+        ' Do we have a numeric value for each of the layer values
+        For Each pRow As DataGridViewRow In GrdValues.Rows
+            Dim paramValue As Object = pRow.Cells(m_idxParamValues).Value
+            If Not IsNumeric(paramValue) Then
+                BtnCalculate.Enabled = False
+                Exit Sub
+            End If
+        Next
+        BtnCalculate.Enabled = True
+    End Sub
+
+    Private Sub LstHruLayers_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LstHruLayers.SelectedIndexChanged
+        ManageCalculateButton()
     End Sub
 End Class
