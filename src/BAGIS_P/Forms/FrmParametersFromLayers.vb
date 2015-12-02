@@ -146,13 +146,13 @@ Public Class FrmParametersFromLayers
                 LstAoiRasterLayers.Items.Add(item)
             End If
         Next
-        ClearReclass(Nothing, False)
+        GrdValues.Rows.Clear()
     End Sub
 
     Private Sub RdoHru_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles RdoHru.CheckedChanged
         LstAoiRasterLayers.Items.Clear()
         LstAoiRasterLayers.Items.AddRange(LstHruLayers.Items)
-        ClearReclass(Nothing, False)
+        GrdValues.Rows.Clear()
     End Sub
 
     Private Sub LstAoiRasterLayers_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles LstAoiRasterLayers.SelectedIndexChanged
@@ -176,11 +176,11 @@ Public Class FrmParametersFromLayers
                         Dim errMsg As String = "The selected raster does not have an attribute table. Please use ArcMap to create an attribute table for the raster."
                         MessageBox.Show(errMsg, "Missing attribute table", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     End If
-                    ClearReclass(pRasterBand, validVAT)
+                    CopyUniqueValuesToReclass()
                 Else
                     Dim errorMsg As String = "Unable to open layer '" & item.Name & "'"
                     MessageBox.Show(errorMsg, "Invalid layer", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                    ClearReclass(Nothing, False)
+                    GrdValues.Rows.Clear()
                 End If
             End If
         Catch ex As Exception
@@ -192,29 +192,6 @@ Public Class FrmParametersFromLayers
             ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(selGeoDataset)
         End Try
 
-    End Sub
-
-    Private Sub ClearReclass(ByVal rasterBand As IRasterBand, ByVal hasAttributeTable As Boolean)
-        CboReclassField.Items.Clear()
-        Dim idxValue As Integer = -1
-        If rasterBand IsNot Nothing AndAlso hasAttributeTable = True Then
-            Dim pTable As ITable = rasterBand.AttributeTable
-            Dim pFields As IFields = pTable.Fields
-            Dim uBound As Integer = pFields.FieldCount - 1
-            For i = 1 To uBound
-                Dim pField As IField = pFields.Field(i)
-                CboReclassField.Items.Add(pField.Name)
-                'Always set the selected index to 'VALUE'
-                If pField.Name.ToUpper.Equals(BA_FIELD_VALUE) Then idxValue = i
-            Next
-            If idxValue > -1 Then
-                CboReclassField.SelectedIndex = idxValue - 1
-            Else
-                CboReclassField.SelectedIndex = 0
-            End If
-        Else
-            GrdValues.Rows.Clear()
-        End If
     End Sub
 
     Private Sub CopyUniqueValuesToReclass()
@@ -243,8 +220,7 @@ Public Class FrmParametersFromLayers
                 pRasterBand = pRasterBandCollection.Item(0)
                 pTable = pRasterBand.AttributeTable
                 pCursor = pTable.Search(Nothing, False)
-                Dim fieldName As String = CStr(CboReclassField.SelectedItem)
-                pData.Field = fieldName
+                pData.Field = BA_FIELD_VALUE
                 pData.Cursor = pCursor
                 pEnumVar = pData.UniqueValues
                 Dim valueCount As Integer = pData.UniqueValueCount
@@ -279,30 +255,24 @@ Public Class FrmParametersFromLayers
 
     End Sub
 
-    Private Sub CboReclassField_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CboReclassField.SelectedIndexChanged
-        If CboReclassField.SelectedIndex > -1 Then
-            CopyUniqueValuesToReclass()
-        End If
-    End Sub
-
     Private Sub BtnCalculate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCalculate.Click
         'Add field to grid_zones_v
         Dim hruItem As LayerListItem = LstHruLayers.SelectedItem
         Dim hruGdbPath As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, hruItem.Name)
-        Dim v_name As String = BA_EnumDescription(PublicPath.HruZonesVector)
+        Dim v_name As String = BA_GetBareName(BA_EnumDescription(PublicPath.HruZonesVector))
         'Make sure grid_zones_v exists
-        If Not BA_File_Exists(hruGdbPath & v_name, WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
+        If Not BA_File_Exists(hruGdbPath & "\" & v_name, WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
             Dim retVal As BA_ReturnCode = BA_Create_grid_zones_v(hruGdbPath)
             If retVal <> BA_ReturnCode.Success Then
-                MessageBox.Show("The " & BA_GetBareName(v_name) & " file could not be created." & _
+                MessageBox.Show("The " & v_name & " file could not be created." & _
                                 " Parameters from Layers cannot be calculated.")
                 Exit Sub
             End If
         End If
-        Dim zonesFC As IFeatureClass = BA_OpenFeatureClassFromGDB(hruGdbPath, BA_GetBareName(v_name))
+        Dim zonesFC As IFeatureClass = BA_OpenFeatureClassFromGDB(hruGdbPath, v_name)
         Dim idxHruId As Integer = zonesFC.FindField(BA_FIELD_HRU_ID)
         If idxHruId < 0 Then
-            Dim retVal As BA_ReturnCode = BA_CreateHruIdField(hruGdbPath, BA_GetBareName(v_name))
+            Dim retVal As BA_ReturnCode = BA_CreateHruIdField(hruGdbPath, v_name)
             If retVal <> BA_ReturnCode.Success Then
                 MessageBox.Show("The HRU_ID field could not be found in the selected HRU. Parameters from layers cannot be calculated.")
                 Exit Sub
@@ -318,17 +288,17 @@ Public Class FrmParametersFromLayers
                 Exit Sub
             End If
         Else
-            idxField = BA_AddUserFieldToVector(hruGdbPath, BA_GetBareName(v_name), TxtParamName.Text, _
+            idxField = BA_AddUserFieldToVector(hruGdbPath, v_name, TxtParamName.Text, _
                                                    esriFieldType.esriFieldTypeDouble, 0)
         End If
         If idxField > -1 Then
             Dim tableName As String = "tmpTable"
             Dim rasterItem As LayerListItem = LstAoiRasterLayers.SelectedItem
             Dim snapRasterPath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi, True) & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
-            Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(hruGdbPath, BA_GetBareName(v_name), BA_FIELD_HRU_ID, rasterItem.Value, _
+            Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(hruGdbPath, v_name, BA_FIELD_HRU_ID, rasterItem.Value, _
                                                 hruGdbPath, tableName, snapRasterPath, StatisticsTypeString.MAJORITY)
             If success = BA_ReturnCode.Success Then
-
+                success = AppendParametersToHru(hruGdbPath, v_name, tableName, idxField)
             End If
         End If
 
@@ -378,7 +348,7 @@ Public Class FrmParametersFromLayers
         LstAoiRasterLayers.ClearSelected()
         RdoHru.Checked = True
         TxtParamName.Text = Nothing
-        CboReclassField.SelectedIndex = -1
+        GrdValues.Rows.Clear()
     End Sub
 
     Private Function AppendParametersToHru(ByVal hruGdbPath As String, ByVal v_name As String, ByVal t_name As String, ByVal idxParam As Integer) As BA_ReturnCode
@@ -413,7 +383,7 @@ Public Class FrmParametersFromLayers
                                             Exit For
                                         End If
                                     Next
-                                    fQuery.WhereClause = "WHERE " & BA_FIELD_HRU_ID & " = " & hruId
+                                    fQuery.WhereClause = BA_FIELD_HRU_ID & " = " & hruId
                                     fCursor = fClass.Update(fQuery, False)
                                     If fCursor IsNot Nothing Then
                                         'We assume there is only one row with the unique id

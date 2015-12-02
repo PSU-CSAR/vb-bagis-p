@@ -49,8 +49,6 @@ Partial Class FrmParametersFromLayers
         Me.GrpReclass = New System.Windows.Forms.GroupBox()
         Me.TxtParamName = New System.Windows.Forms.TextBox()
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.CboReclassField = New System.Windows.Forms.ComboBox()
-        Me.Label9 = New System.Windows.Forms.Label()
         Me.GrdValues = New System.Windows.Forms.DataGridView()
         Me.LayerValues = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.ParameterValues = New System.Windows.Forms.DataGridViewTextBoxColumn()
@@ -272,13 +270,11 @@ Partial Class FrmParametersFromLayers
         '
         Me.GrpReclass.Controls.Add(Me.TxtParamName)
         Me.GrpReclass.Controls.Add(Me.Label2)
-        Me.GrpReclass.Controls.Add(Me.CboReclassField)
-        Me.GrpReclass.Controls.Add(Me.Label9)
         Me.GrpReclass.Controls.Add(Me.GrdValues)
         Me.GrpReclass.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.GrpReclass.Location = New System.Drawing.Point(358, 206)
+        Me.GrpReclass.Location = New System.Drawing.Point(345, 206)
         Me.GrpReclass.Name = "GrpReclass"
-        Me.GrpReclass.Size = New System.Drawing.Size(351, 250)
+        Me.GrpReclass.Size = New System.Drawing.Size(364, 250)
         Me.GrpReclass.TabIndex = 141
         Me.GrpReclass.TabStop = False
         Me.GrpReclass.Text = "Reclass"
@@ -291,37 +287,18 @@ Partial Class FrmParametersFromLayers
         Me.TxtParamName.Margin = New System.Windows.Forms.Padding(4)
         Me.TxtParamName.MaxLength = 30
         Me.TxtParamName.Name = "TxtParamName"
-        Me.TxtParamName.Size = New System.Drawing.Size(191, 22)
+        Me.TxtParamName.Size = New System.Drawing.Size(208, 22)
         Me.TxtParamName.TabIndex = 142
         '
         'Label2
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(6, 18)
+        Me.Label2.Location = New System.Drawing.Point(4, 18)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(146, 16)
         Me.Label2.TabIndex = 142
         Me.Label2.Text = "Output param name:"
-        '
-        'CboReclassField
-        '
-        Me.CboReclassField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.CboReclassField.FormattingEnabled = True
-        Me.CboReclassField.Location = New System.Drawing.Point(149, 44)
-        Me.CboReclassField.Name = "CboReclassField"
-        Me.CboReclassField.Size = New System.Drawing.Size(110, 24)
-        Me.CboReclassField.TabIndex = 22
-        '
-        'Label9
-        '
-        Me.Label9.AutoSize = True
-        Me.Label9.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label9.Location = New System.Drawing.Point(7, 50)
-        Me.Label9.Name = "Label9"
-        Me.Label9.Size = New System.Drawing.Size(127, 16)
-        Me.Label9.TabIndex = 21
-        Me.Label9.Text = "Layer value field:"
         '
         'GrdValues
         '
@@ -329,9 +306,9 @@ Partial Class FrmParametersFromLayers
         Me.GrdValues.AllowUserToDeleteRows = False
         Me.GrdValues.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.GrdValues.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.LayerValues, Me.ParameterValues})
-        Me.GrdValues.Location = New System.Drawing.Point(10, 74)
+        Me.GrdValues.Location = New System.Drawing.Point(8, 50)
         Me.GrdValues.Name = "GrdValues"
-        Me.GrdValues.Size = New System.Drawing.Size(330, 165)
+        Me.GrdValues.Size = New System.Drawing.Size(350, 165)
         Me.GrdValues.TabIndex = 5
         '
         'LayerValues
@@ -343,7 +320,7 @@ Partial Class FrmParametersFromLayers
         Me.LayerValues.HeaderText = "Layer Values"
         Me.LayerValues.Name = "LayerValues"
         Me.LayerValues.ReadOnly = True
-        Me.LayerValues.Width = 140
+        Me.LayerValues.Width = 145
         '
         'ParameterValues
         '
@@ -351,7 +328,7 @@ Partial Class FrmParametersFromLayers
         Me.ParameterValues.DefaultCellStyle = DataGridViewCellStyle10
         Me.ParameterValues.HeaderText = "Parameter Values"
         Me.ParameterValues.Name = "ParameterValues"
-        Me.ParameterValues.Width = 140
+        Me.ParameterValues.Width = 145
         '
         'FrmParametersFromLayers
         '
@@ -406,8 +383,6 @@ Partial Class FrmParametersFromLayers
     Friend WithEvents LblRasterLayers As System.Windows.Forms.Label
     Friend WithEvents GrpReclass As System.Windows.Forms.GroupBox
     Friend WithEvents Label2 As System.Windows.Forms.Label
-    Friend WithEvents CboReclassField As System.Windows.Forms.ComboBox
-    Friend WithEvents Label9 As System.Windows.Forms.Label
     Friend WithEvents GrdValues As System.Windows.Forms.DataGridView
     Friend WithEvents TxtParamName As System.Windows.Forms.TextBox
     Friend WithEvents DataGridViewTextBoxColumn1 As System.Windows.Forms.DataGridViewTextBoxColumn
