@@ -12,6 +12,7 @@ Public Class FrmParametersFromLayers
     Dim m_layersList As IList(Of LayerListItem) = New List(Of LayerListItem)
     Dim m_idxLayerValues As Short = 0
     Dim m_idxParamValues As Short = 1
+    Dim m_validTxtParamName As Boolean = False
 
     Public Sub New()
 
@@ -305,16 +306,32 @@ Public Class FrmParametersFromLayers
         ResetForm()
     End Sub
 
-    Private Sub TxtParamName_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtParamName.Leave
+    Private Sub TxtParamName_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtParamName.TextChanged
         '@ToDo: Need to validate
-        'Names must begin with a letter, not a number or special character such as an asterisk (*) or percent sign (%).
-        'Names should not contain spaces.
+        TxtParamNameError.Text = Nothing
+        If Not String.IsNullOrEmpty(TxtParamName.Text) Then
+            'Names should not contain spaces.
+            TxtParamName.Text = Trim(TxtParamName.Text)
+            'Names must begin with a letter, not a number or special character such as an asterisk (*) or percent sign (%).
+            Dim pos1 As Char = TxtParamName.Text.Substring(0, 1)
+            If Not Char.IsLetter(pos1) Then
+                TxtParamNameError.Text = "Parameter names must begin with a letter"
+                m_validTxtParamName = False
+            Else
+                m_validTxtParamName = True
+            End If
+        End If
         ManageCalculateButton()
     End Sub
 
     Private Sub ManageCalculateButton()
         'Does the parameter have a name "
         If String.IsNullOrEmpty(TxtParamName.Text) Then
+            BtnCalculate.Enabled = False
+            Exit Sub
+        End If
+        'Is the parameter name valid ?
+        If Not m_validTxtParamName Then
             BtnCalculate.Enabled = False
             Exit Sub
         End If
@@ -379,6 +396,8 @@ Public Class FrmParametersFromLayers
                                     For Each gRow As DataGridViewRow In GrdValues.Rows
                                         Dim layerValue As Double = Convert.ToDouble(gRow.Cells(m_idxLayerValues).Value)
                                         If layerValue = paramValue Then
+                                            Dim tempParamValue As Double = 0
+                                            Double.TryParse(gRow.Cells(m_idxParamValues).Value, tempParamValue)
                                             paramValue = Convert.ToDouble(gRow.Cells(m_idxParamValues).Value)
                                             Exit For
                                         End If
@@ -405,4 +424,19 @@ Public Class FrmParametersFromLayers
 
         End Try
     End Function
+
+    Private Sub GrdValues_CellEndEdit(ByVal sender As Object, ByVal e As System.Windows.Forms.DataGridViewCellEventArgs) Handles GrdValues.CellEndEdit
+        Dim strA As String = TryCast(GrdValues.Item(e.ColumnIndex, e.RowIndex).Value, String)
+        Dim dblA As Double
+        If Not String.IsNullOrEmpty(strA) Then
+            Dim success As Boolean = Double.TryParse(strA, dblA)
+            If success = False Then
+                MessageBox.Show("Parameter values must be numeric!")
+            End If
+            GrdValues.Item(e.ColumnIndex, e.RowIndex).Value = dblA
+        Else
+            GrdValues.Item(e.ColumnIndex, e.RowIndex).Value = dblA
+        End If
+    End Sub
+
 End Class
