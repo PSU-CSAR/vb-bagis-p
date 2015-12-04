@@ -64,6 +64,7 @@ Partial Class FrmProfileBuilder
         Me.BtnVerify = New System.Windows.Forms.Button()
         Me.BtnCalculate = New System.Windows.Forms.Button()
         Me.PnlProfile = New System.Windows.Forms.Panel()
+        Me.BtnToggleUse = New System.Windows.Forms.Button()
         Me.LblStatus = New System.Windows.Forms.Label()
         Me.BtnExportProfile = New System.Windows.Forms.Button()
         Me.BtnImport = New System.Windows.Forms.Button()
@@ -74,7 +75,7 @@ Partial Class FrmProfileBuilder
         Me.GrdCompleteProfiles = New System.Windows.Forms.DataGridView()
         Me.DataGridViewTextBoxColumn1 = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.DataGridViewTextBoxColumn2 = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.Label6 = New System.Windows.Forms.Label()
+        Me.LblCompletedProfiles = New System.Windows.Forms.Label()
         Me.PnlSubAoi = New System.Windows.Forms.Panel()
         Me.RichTextBox1 = New System.Windows.Forms.RichTextBox()
         Me.TxtSubAoiCount = New System.Windows.Forms.TextBox()
@@ -84,9 +85,8 @@ Partial Class FrmProfileBuilder
         Me.CkAppendSubAoi = New System.Windows.Forms.CheckBox()
         Me.TxtLblPath = New System.Windows.Forms.TextBox()
         Me.TxtNoData = New System.Windows.Forms.TextBox()
-        Me.Label2 = New System.Windows.Forms.Label()
+        Me.LblNoData = New System.Windows.Forms.Label()
         Me.BtnViewLog = New System.Windows.Forms.Button()
-        Me.BtnToggleUse = New System.Windows.Forms.Button()
         CType(Me.GrdProfiles, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.GrdMethods, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PnlProfile.SuspendLayout()
@@ -100,18 +100,18 @@ Partial Class FrmProfileBuilder
         Me.TxtAoiPath.BackColor = System.Drawing.SystemColors.ButtonFace
         Me.TxtAoiPath.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtAoiPath.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.TxtAoiPath.Location = New System.Drawing.Point(237, 11)
-        Me.TxtAoiPath.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtAoiPath.Location = New System.Drawing.Point(246, 10)
+        Me.TxtAoiPath.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TxtAoiPath.Name = "TxtAoiPath"
         Me.TxtAoiPath.ReadOnly = True
-        Me.TxtAoiPath.Size = New System.Drawing.Size(446, 22)
+        Me.TxtAoiPath.Size = New System.Drawing.Size(480, 30)
         Me.TxtAoiPath.TabIndex = 100
         '
         'BtnSelectAoi
         '
         Me.BtnSelectAoi.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnSelectAoi.Location = New System.Drawing.Point(4, 7)
-        Me.BtnSelectAoi.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnSelectAoi.Location = New System.Drawing.Point(4, 8)
+        Me.BtnSelectAoi.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnSelectAoi.Name = "BtnSelectAoi"
         Me.BtnSelectAoi.Size = New System.Drawing.Size(140, 34)
         Me.BtnSelectAoi.TabIndex = 54
@@ -122,10 +122,10 @@ Partial Class FrmProfileBuilder
         '
         Me.LblHruLayers.AutoSize = True
         Me.LblHruLayers.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblHruLayers.Location = New System.Drawing.Point(777, 6)
+        Me.LblHruLayers.Location = New System.Drawing.Point(831, 6)
         Me.LblHruLayers.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.LblHruLayers.Name = "LblHruLayers"
-        Me.LblHruLayers.Size = New System.Drawing.Size(137, 16)
+        Me.LblHruLayers.Size = New System.Drawing.Size(194, 25)
         Me.LblHruLayers.TabIndex = 58
         Me.LblHruLayers.Text = "HRU Layers in AOI"
         '
@@ -135,12 +135,12 @@ Partial Class FrmProfileBuilder
         Me.GrdProfiles.AllowUserToDeleteRows = False
         Me.GrdProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.GrdProfiles.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.Profiles})
-        Me.GrdProfiles.Location = New System.Drawing.Point(7, 204)
-        Me.GrdProfiles.Margin = New System.Windows.Forms.Padding(4)
+        Me.GrdProfiles.Location = New System.Drawing.Point(8, 218)
+        Me.GrdProfiles.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.GrdProfiles.Name = "GrdProfiles"
         Me.GrdProfiles.ReadOnly = True
         Me.GrdProfiles.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.GrdProfiles.Size = New System.Drawing.Size(295, 375)
+        Me.GrdProfiles.Size = New System.Drawing.Size(320, 375)
         Me.GrdProfiles.TabIndex = 59
         '
         'Profiles
@@ -150,16 +150,16 @@ Partial Class FrmProfileBuilder
         Me.Profiles.HeaderText = "Profiles"
         Me.Profiles.Name = "Profiles"
         Me.Profiles.ReadOnly = True
-        Me.Profiles.Width = 245
+        Me.Profiles.Width = 265
         '
         'BtnEditProfile
         '
         Me.BtnEditProfile.Enabled = False
         Me.BtnEditProfile.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnEditProfile.Location = New System.Drawing.Point(80, 588)
-        Me.BtnEditProfile.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnEditProfile.Location = New System.Drawing.Point(87, 598)
+        Me.BtnEditProfile.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnEditProfile.Name = "BtnEditProfile"
-        Me.BtnEditProfile.Size = New System.Drawing.Size(70, 31)
+        Me.BtnEditProfile.Size = New System.Drawing.Size(70, 32)
         Me.BtnEditProfile.TabIndex = 63
         Me.BtnEditProfile.Text = "Edit"
         Me.BtnEditProfile.UseVisualStyleBackColor = True
@@ -169,10 +169,10 @@ Partial Class FrmProfileBuilder
         '
         Me.BtnProfileCopy.Enabled = False
         Me.BtnProfileCopy.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnProfileCopy.Location = New System.Drawing.Point(230, 588)
-        Me.BtnProfileCopy.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnProfileCopy.Location = New System.Drawing.Point(249, 598)
+        Me.BtnProfileCopy.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnProfileCopy.Name = "BtnProfileCopy"
-        Me.BtnProfileCopy.Size = New System.Drawing.Size(70, 31)
+        Me.BtnProfileCopy.Size = New System.Drawing.Size(70, 32)
         Me.BtnProfileCopy.TabIndex = 62
         Me.BtnProfileCopy.Text = "Copy"
         Me.BtnProfileCopy.UseVisualStyleBackColor = True
@@ -182,10 +182,10 @@ Partial Class FrmProfileBuilder
         '
         Me.BtnProfileDelete.Enabled = False
         Me.BtnProfileDelete.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnProfileDelete.Location = New System.Drawing.Point(155, 588)
-        Me.BtnProfileDelete.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnProfileDelete.Location = New System.Drawing.Point(164, 598)
+        Me.BtnProfileDelete.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnProfileDelete.Name = "BtnProfileDelete"
-        Me.BtnProfileDelete.Size = New System.Drawing.Size(70, 31)
+        Me.BtnProfileDelete.Size = New System.Drawing.Size(80, 32)
         Me.BtnProfileDelete.TabIndex = 61
         Me.BtnProfileDelete.Text = "Delete"
         Me.BtnProfileDelete.UseVisualStyleBackColor = True
@@ -194,10 +194,10 @@ Partial Class FrmProfileBuilder
         '
         Me.BtnProfileNew.Enabled = False
         Me.BtnProfileNew.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnProfileNew.Location = New System.Drawing.Point(6, 588)
-        Me.BtnProfileNew.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnProfileNew.Location = New System.Drawing.Point(10, 598)
+        Me.BtnProfileNew.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnProfileNew.Name = "BtnProfileNew"
-        Me.BtnProfileNew.Size = New System.Drawing.Size(70, 31)
+        Me.BtnProfileNew.Size = New System.Drawing.Size(70, 32)
         Me.BtnProfileNew.TabIndex = 60
         Me.BtnProfileNew.Text = "New"
         Me.BtnProfileNew.UseVisualStyleBackColor = True
@@ -207,10 +207,10 @@ Partial Class FrmProfileBuilder
         '
         Me.BtnEditMethod.Enabled = False
         Me.BtnEditMethod.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnEditMethod.Location = New System.Drawing.Point(545, 102)
-        Me.BtnEditMethod.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnEditMethod.Location = New System.Drawing.Point(578, 98)
+        Me.BtnEditMethod.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnEditMethod.Name = "BtnEditMethod"
-        Me.BtnEditMethod.Size = New System.Drawing.Size(140, 31)
+        Me.BtnEditMethod.Size = New System.Drawing.Size(140, 34)
         Me.BtnEditMethod.TabIndex = 78
         Me.BtnEditMethod.Text = "Edit Method"
         Me.BtnEditMethod.UseVisualStyleBackColor = True
@@ -222,71 +222,71 @@ Partial Class FrmProfileBuilder
         Me.Label8.Location = New System.Drawing.Point(318, 69)
         Me.Label8.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label8.Name = "Label8"
-        Me.Label8.Size = New System.Drawing.Size(97, 16)
+        Me.Label8.Size = New System.Drawing.Size(137, 25)
         Me.Label8.TabIndex = 77
         Me.Label8.Text = "Model name:"
         '
         'TxtModelName
         '
         Me.TxtModelName.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtModelName.Location = New System.Drawing.Point(507, 68)
-        Me.TxtModelName.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtModelName.Location = New System.Drawing.Point(516, 69)
+        Me.TxtModelName.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TxtModelName.Name = "TxtModelName"
         Me.TxtModelName.ReadOnly = True
-        Me.TxtModelName.Size = New System.Drawing.Size(177, 22)
+        Me.TxtModelName.Size = New System.Drawing.Size(200, 30)
         Me.TxtModelName.TabIndex = 76
         '
         'Label7
         '
         Me.Label7.AutoSize = True
         Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label7.Location = New System.Drawing.Point(317, 38)
+        Me.Label7.Location = New System.Drawing.Point(316, 38)
         Me.Label7.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label7.Name = "Label7"
-        Me.Label7.Size = New System.Drawing.Size(111, 16)
+        Me.Label7.Size = New System.Drawing.Size(156, 25)
         Me.Label7.TabIndex = 75
         Me.Label7.Text = "Toolbox name:"
         '
         'TxtToolboxName
         '
         Me.TxtToolboxName.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtToolboxName.Location = New System.Drawing.Point(470, 36)
-        Me.TxtToolboxName.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtToolboxName.Location = New System.Drawing.Point(478, 36)
+        Me.TxtToolboxName.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TxtToolboxName.Name = "TxtToolboxName"
         Me.TxtToolboxName.ReadOnly = True
-        Me.TxtToolboxName.Size = New System.Drawing.Size(214, 22)
+        Me.TxtToolboxName.Size = New System.Drawing.Size(236, 30)
         Me.TxtToolboxName.TabIndex = 74
         '
         'Label1
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(317, 7)
+        Me.Label1.Location = New System.Drawing.Point(316, 8)
         Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(116, 16)
+        Me.Label1.Size = New System.Drawing.Size(168, 25)
         Me.Label1.TabIndex = 71
         Me.Label1.Text = "Current method:"
         '
         'TxtSelMethod
         '
         Me.TxtSelMethod.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtSelMethod.Location = New System.Drawing.Point(470, 5)
-        Me.TxtSelMethod.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtSelMethod.Location = New System.Drawing.Point(478, 4)
+        Me.TxtSelMethod.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TxtSelMethod.Name = "TxtSelMethod"
         Me.TxtSelMethod.ReadOnly = True
-        Me.TxtSelMethod.Size = New System.Drawing.Size(214, 22)
+        Me.TxtSelMethod.Size = New System.Drawing.Size(236, 30)
         Me.TxtSelMethod.TabIndex = 70
         '
         'TxtDescription
         '
         Me.TxtDescription.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtDescription.Location = New System.Drawing.Point(118, 66)
-        Me.TxtDescription.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtDescription.Location = New System.Drawing.Point(126, 70)
+        Me.TxtDescription.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TxtDescription.Multiline = True
         Me.TxtDescription.Name = "TxtDescription"
         Me.TxtDescription.ReadOnly = True
-        Me.TxtDescription.Size = New System.Drawing.Size(182, 53)
+        Me.TxtDescription.Size = New System.Drawing.Size(182, 55)
         Me.TxtDescription.TabIndex = 69
         '
         'Label4
@@ -296,7 +296,7 @@ Partial Class FrmProfileBuilder
         Me.Label4.Location = New System.Drawing.Point(4, 66)
         Me.Label4.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(91, 16)
+        Me.Label4.Size = New System.Drawing.Size(127, 25)
         Me.Label4.TabIndex = 68
         Me.Label4.Text = "Description:"
         '
@@ -307,48 +307,48 @@ Partial Class FrmProfileBuilder
         Me.Label3.Location = New System.Drawing.Point(4, 38)
         Me.Label3.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(146, 16)
+        Me.Label3.Size = New System.Drawing.Size(206, 25)
         Me.Label3.TabIndex = 67
         Me.Label3.Text = "Number of methods:"
         '
         'TxtNumMethods
         '
-        Me.TxtNumMethods.Location = New System.Drawing.Point(196, 36)
-        Me.TxtNumMethods.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtNumMethods.Location = New System.Drawing.Point(206, 36)
+        Me.TxtNumMethods.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TxtNumMethods.Name = "TxtNumMethods"
         Me.TxtNumMethods.ReadOnly = True
-        Me.TxtNumMethods.Size = New System.Drawing.Size(56, 22)
+        Me.TxtNumMethods.Size = New System.Drawing.Size(56, 30)
         Me.TxtNumMethods.TabIndex = 66
         '
         'LblCurrentProfile
         '
         Me.LblCurrentProfile.AutoSize = True
         Me.LblCurrentProfile.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblCurrentProfile.Location = New System.Drawing.Point(4, 7)
+        Me.LblCurrentProfile.Location = New System.Drawing.Point(4, 8)
         Me.LblCurrentProfile.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.LblCurrentProfile.Name = "LblCurrentProfile"
-        Me.LblCurrentProfile.Size = New System.Drawing.Size(109, 16)
+        Me.LblCurrentProfile.Size = New System.Drawing.Size(156, 25)
         Me.LblCurrentProfile.TabIndex = 65
         Me.LblCurrentProfile.Text = "Current profile:"
         '
         'TxtProfileName
         '
         Me.TxtProfileName.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtProfileName.Location = New System.Drawing.Point(143, 5)
-        Me.TxtProfileName.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtProfileName.Location = New System.Drawing.Point(154, 4)
+        Me.TxtProfileName.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TxtProfileName.Name = "TxtProfileName"
         Me.TxtProfileName.ReadOnly = True
-        Me.TxtProfileName.Size = New System.Drawing.Size(157, 22)
+        Me.TxtProfileName.Size = New System.Drawing.Size(157, 30)
         Me.TxtProfileName.TabIndex = 64
         '
         'BtnApply
         '
         Me.BtnApply.Enabled = False
         Me.BtnApply.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnApply.Location = New System.Drawing.Point(165, 127)
-        Me.BtnApply.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnApply.Location = New System.Drawing.Point(166, 134)
+        Me.BtnApply.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnApply.Name = "BtnApply"
-        Me.BtnApply.Size = New System.Drawing.Size(135, 31)
+        Me.BtnApply.Size = New System.Drawing.Size(160, 34)
         Me.BtnApply.TabIndex = 80
         Me.BtnApply.Text = "Apply Changes"
         Me.BtnApply.UseVisualStyleBackColor = True
@@ -357,10 +357,10 @@ Partial Class FrmProfileBuilder
         'BtnClose
         '
         Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnClose.Location = New System.Drawing.Point(920, 638)
-        Me.BtnClose.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnClose.Location = New System.Drawing.Point(974, 658)
+        Me.BtnClose.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnClose.Name = "BtnClose"
-        Me.BtnClose.Size = New System.Drawing.Size(87, 31)
+        Me.BtnClose.Size = New System.Drawing.Size(90, 34)
         Me.BtnClose.TabIndex = 79
         Me.BtnClose.Text = "Close"
         Me.BtnClose.UseVisualStyleBackColor = True
@@ -371,11 +371,11 @@ Partial Class FrmProfileBuilder
         Me.GrdMethods.AllowUserToDeleteRows = False
         Me.GrdMethods.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.GrdMethods.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.Methods, Me.ColStatus, Me.IncludeMethod})
-        Me.GrdMethods.Location = New System.Drawing.Point(321, 204)
-        Me.GrdMethods.Margin = New System.Windows.Forms.Padding(4)
+        Me.GrdMethods.Location = New System.Drawing.Point(351, 218)
+        Me.GrdMethods.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.GrdMethods.Name = "GrdMethods"
         Me.GrdMethods.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.GrdMethods.Size = New System.Drawing.Size(365, 375)
+        Me.GrdMethods.Size = New System.Drawing.Size(364, 375)
         Me.GrdMethods.TabIndex = 81
         '
         'Methods
@@ -412,10 +412,10 @@ Partial Class FrmProfileBuilder
         '
         Me.BtnAddMethod.Enabled = False
         Me.BtnAddMethod.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnAddMethod.Location = New System.Drawing.Point(477, 588)
-        Me.BtnAddMethod.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnAddMethod.Location = New System.Drawing.Point(498, 598)
+        Me.BtnAddMethod.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnAddMethod.Name = "BtnAddMethod"
-        Me.BtnAddMethod.Size = New System.Drawing.Size(205, 31)
+        Me.BtnAddMethod.Size = New System.Drawing.Size(236, 32)
         Me.BtnAddMethod.TabIndex = 84
         Me.BtnAddMethod.Text = "Add Method(s) to Profile"
         Me.BtnAddMethod.UseVisualStyleBackColor = True
@@ -425,10 +425,10 @@ Partial Class FrmProfileBuilder
         '
         Me.BtnMethodDelete.Enabled = False
         Me.BtnMethodDelete.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnMethodDelete.Location = New System.Drawing.Point(401, 588)
-        Me.BtnMethodDelete.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnMethodDelete.Location = New System.Drawing.Point(416, 598)
+        Me.BtnMethodDelete.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnMethodDelete.Name = "BtnMethodDelete"
-        Me.BtnMethodDelete.Size = New System.Drawing.Size(70, 31)
+        Me.BtnMethodDelete.Size = New System.Drawing.Size(80, 32)
         Me.BtnMethodDelete.TabIndex = 83
         Me.BtnMethodDelete.Text = "Delete"
         Me.BtnMethodDelete.UseVisualStyleBackColor = True
@@ -438,10 +438,10 @@ Partial Class FrmProfileBuilder
         '
         Me.BtnMethodNew.Enabled = False
         Me.BtnMethodNew.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnMethodNew.Location = New System.Drawing.Point(325, 588)
-        Me.BtnMethodNew.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnMethodNew.Location = New System.Drawing.Point(344, 598)
+        Me.BtnMethodNew.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnMethodNew.Name = "BtnMethodNew"
-        Me.BtnMethodNew.Size = New System.Drawing.Size(70, 31)
+        Me.BtnMethodNew.Size = New System.Drawing.Size(70, 32)
         Me.BtnMethodNew.TabIndex = 82
         Me.BtnMethodNew.Text = "New"
         Me.BtnMethodNew.UseVisualStyleBackColor = True
@@ -451,10 +451,10 @@ Partial Class FrmProfileBuilder
         '
         Me.BtnVerify.Enabled = False
         Me.BtnVerify.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnVerify.Location = New System.Drawing.Point(695, 161)
-        Me.BtnVerify.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnVerify.Location = New System.Drawing.Point(732, 177)
+        Me.BtnVerify.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnVerify.Name = "BtnVerify"
-        Me.BtnVerify.Size = New System.Drawing.Size(85, 31)
+        Me.BtnVerify.Size = New System.Drawing.Size(86, 34)
         Me.BtnVerify.TabIndex = 85
         Me.BtnVerify.Text = "Verify"
         Me.BtnVerify.UseVisualStyleBackColor = True
@@ -463,10 +463,10 @@ Partial Class FrmProfileBuilder
         '
         Me.BtnCalculate.Enabled = False
         Me.BtnCalculate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnCalculate.Location = New System.Drawing.Point(784, 161)
-        Me.BtnCalculate.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnCalculate.Location = New System.Drawing.Point(819, 177)
+        Me.BtnCalculate.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnCalculate.Name = "BtnCalculate"
-        Me.BtnCalculate.Size = New System.Drawing.Size(225, 31)
+        Me.BtnCalculate.Size = New System.Drawing.Size(255, 34)
         Me.BtnCalculate.TabIndex = 86
         Me.BtnCalculate.Text = "(Re)Calculate Parameters"
         Me.BtnCalculate.UseVisualStyleBackColor = True
@@ -501,30 +501,42 @@ Partial Class FrmProfileBuilder
         Me.PnlProfile.Controls.Add(Me.TxtToolboxName)
         Me.PnlProfile.Controls.Add(Me.Label1)
         Me.PnlProfile.Location = New System.Drawing.Point(-3, 50)
-        Me.PnlProfile.Margin = New System.Windows.Forms.Padding(4)
+        Me.PnlProfile.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.PnlProfile.Name = "PnlProfile"
-        Me.PnlProfile.Size = New System.Drawing.Size(692, 625)
+        Me.PnlProfile.Size = New System.Drawing.Size(735, 650)
         Me.PnlProfile.TabIndex = 87
+        '
+        'BtnToggleUse
+        '
+        Me.BtnToggleUse.Enabled = False
+        Me.BtnToggleUse.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnToggleUse.Location = New System.Drawing.Point(588, 177)
+        Me.BtnToggleUse.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnToggleUse.Name = "BtnToggleUse"
+        Me.BtnToggleUse.Size = New System.Drawing.Size(130, 34)
+        Me.BtnToggleUse.TabIndex = 89
+        Me.BtnToggleUse.Text = "Toggle Use"
+        Me.BtnToggleUse.UseVisualStyleBackColor = True
         '
         'LblStatus
         '
         Me.LblStatus.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.LblStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblStatus.ForeColor = System.Drawing.Color.Red
-        Me.LblStatus.Location = New System.Drawing.Point(322, 138)
+        Me.LblStatus.Location = New System.Drawing.Point(354, 140)
         Me.LblStatus.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.LblStatus.Name = "LblStatus"
-        Me.LblStatus.Size = New System.Drawing.Size(364, 20)
+        Me.LblStatus.Size = New System.Drawing.Size(364, 30)
         Me.LblStatus.TabIndex = 88
         '
         'BtnExportProfile
         '
         Me.BtnExportProfile.Enabled = False
         Me.BtnExportProfile.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnExportProfile.Location = New System.Drawing.Point(184, 166)
-        Me.BtnExportProfile.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnExportProfile.Location = New System.Drawing.Point(208, 177)
+        Me.BtnExportProfile.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnExportProfile.Name = "BtnExportProfile"
-        Me.BtnExportProfile.Size = New System.Drawing.Size(125, 31)
+        Me.BtnExportProfile.Size = New System.Drawing.Size(140, 34)
         Me.BtnExportProfile.TabIndex = 87
         Me.BtnExportProfile.Text = "Export Profile"
         Me.BtnExportProfile.UseVisualStyleBackColor = True
@@ -534,10 +546,10 @@ Partial Class FrmProfileBuilder
         '
         Me.BtnImport.Enabled = False
         Me.BtnImport.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnImport.Location = New System.Drawing.Point(6, 166)
-        Me.BtnImport.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnImport.Location = New System.Drawing.Point(6, 177)
+        Me.BtnImport.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnImport.Name = "BtnImport"
-        Me.BtnImport.Size = New System.Drawing.Size(175, 31)
+        Me.BtnImport.Size = New System.Drawing.Size(202, 34)
         Me.BtnImport.TabIndex = 86
         Me.BtnImport.Text = "Import Public Profile"
         Me.BtnImport.UseVisualStyleBackColor = True
@@ -548,12 +560,12 @@ Partial Class FrmProfileBuilder
         Me.GrdHruLayers.AllowUserToDeleteRows = False
         Me.GrdHruLayers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.GrdHruLayers.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.HruName, Me.Completed})
-        Me.GrdHruLayers.Location = New System.Drawing.Point(695, 31)
-        Me.GrdHruLayers.Margin = New System.Windows.Forms.Padding(4)
+        Me.GrdHruLayers.Location = New System.Drawing.Point(732, 32)
+        Me.GrdHruLayers.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.GrdHruLayers.Name = "GrdHruLayers"
         Me.GrdHruLayers.ReadOnly = True
         Me.GrdHruLayers.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.GrdHruLayers.Size = New System.Drawing.Size(315, 123)
+        Me.GrdHruLayers.Size = New System.Drawing.Size(334, 140)
         Me.GrdHruLayers.TabIndex = 87
         '
         'HruName
@@ -563,7 +575,7 @@ Partial Class FrmProfileBuilder
         Me.HruName.HeaderText = "HRU Name"
         Me.HruName.Name = "HruName"
         Me.HruName.ReadOnly = True
-        Me.HruName.Width = 140
+        Me.HruName.Width = 145
         '
         'Completed
         '
@@ -572,7 +584,7 @@ Partial Class FrmProfileBuilder
         Me.Completed.HeaderText = "# Complete"
         Me.Completed.Name = "Completed"
         Me.Completed.ReadOnly = True
-        Me.Completed.Width = 125
+        Me.Completed.Width = 140
         '
         'GrdCompleteProfiles
         '
@@ -580,13 +592,13 @@ Partial Class FrmProfileBuilder
         Me.GrdCompleteProfiles.AllowUserToDeleteRows = False
         Me.GrdCompleteProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.GrdCompleteProfiles.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.DataGridViewTextBoxColumn1, Me.DataGridViewTextBoxColumn2})
-        Me.GrdCompleteProfiles.Location = New System.Drawing.Point(695, 254)
-        Me.GrdCompleteProfiles.Margin = New System.Windows.Forms.Padding(4)
+        Me.GrdCompleteProfiles.Location = New System.Drawing.Point(732, 276)
+        Me.GrdCompleteProfiles.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.GrdCompleteProfiles.MultiSelect = False
         Me.GrdCompleteProfiles.Name = "GrdCompleteProfiles"
         Me.GrdCompleteProfiles.ReadOnly = True
         Me.GrdCompleteProfiles.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.GrdCompleteProfiles.Size = New System.Drawing.Size(315, 123)
+        Me.GrdCompleteProfiles.Size = New System.Drawing.Size(334, 140)
         Me.GrdCompleteProfiles.TabIndex = 89
         '
         'DataGridViewTextBoxColumn1
@@ -596,25 +608,25 @@ Partial Class FrmProfileBuilder
         Me.DataGridViewTextBoxColumn1.HeaderText = "Profile Name"
         Me.DataGridViewTextBoxColumn1.Name = "DataGridViewTextBoxColumn1"
         Me.DataGridViewTextBoxColumn1.ReadOnly = True
-        Me.DataGridViewTextBoxColumn1.Width = 140
+        Me.DataGridViewTextBoxColumn1.Width = 155
         '
         'DataGridViewTextBoxColumn2
         '
         Me.DataGridViewTextBoxColumn2.HeaderText = "Completed"
         Me.DataGridViewTextBoxColumn2.Name = "DataGridViewTextBoxColumn2"
         Me.DataGridViewTextBoxColumn2.ReadOnly = True
-        Me.DataGridViewTextBoxColumn2.Width = 130
+        Me.DataGridViewTextBoxColumn2.Width = 135
         '
-        'Label6
+        'LblCompletedProfiles
         '
-        Me.Label6.AutoSize = True
-        Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.Location = New System.Drawing.Point(778, 230)
-        Me.Label6.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(140, 16)
-        Me.Label6.TabIndex = 88
-        Me.Label6.Text = "Completed Profiles"
+        Me.LblCompletedProfiles.AutoSize = True
+        Me.LblCompletedProfiles.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblCompletedProfiles.Location = New System.Drawing.Point(778, 250)
+        Me.LblCompletedProfiles.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblCompletedProfiles.Name = "LblCompletedProfiles"
+        Me.LblCompletedProfiles.Size = New System.Drawing.Size(194, 25)
+        Me.LblCompletedProfiles.TabIndex = 88
+        Me.LblCompletedProfiles.Text = "Completed Profiles"
         '
         'PnlSubAoi
         '
@@ -624,41 +636,41 @@ Partial Class FrmProfileBuilder
         Me.PnlSubAoi.Controls.Add(Me.CboSubAoiId)
         Me.PnlSubAoi.Controls.Add(Me.Label9)
         Me.PnlSubAoi.Controls.Add(Me.CkAppendSubAoi)
-        Me.PnlSubAoi.Location = New System.Drawing.Point(695, 416)
+        Me.PnlSubAoi.Location = New System.Drawing.Point(734, 456)
         Me.PnlSubAoi.Name = "PnlSubAoi"
-        Me.PnlSubAoi.Size = New System.Drawing.Size(315, 193)
+        Me.PnlSubAoi.Size = New System.Drawing.Size(330, 194)
         Me.PnlSubAoi.TabIndex = 94
         '
         'RichTextBox1
         '
         Me.RichTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.RichTextBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.RichTextBox1.Location = New System.Drawing.Point(5, 112)
+        Me.RichTextBox1.Location = New System.Drawing.Point(4, 117)
         Me.RichTextBox1.Name = "RichTextBox1"
         Me.RichTextBox1.ReadOnly = True
-        Me.RichTextBox1.Size = New System.Drawing.Size(307, 77)
+        Me.RichTextBox1.Size = New System.Drawing.Size(326, 80)
         Me.RichTextBox1.TabIndex = 95
         Me.RichTextBox1.Text = "Please use the SubAOI ID Tool on the " & Global.Microsoft.VisualBasic.ChrW(10) & "BAGIS-P AOI Parameterization menu to " & Global.Microsoft.VisualBasic.ChrW(10) & "manag" & _
-            "e the SubAOI ID Layers"
+    "e the SubAOI ID Layers"
         '
         'TxtSubAoiCount
         '
         Me.TxtSubAoiCount.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtSubAoiCount.Location = New System.Drawing.Point(225, 94)
-        Me.TxtSubAoiCount.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtSubAoiCount.Location = New System.Drawing.Point(264, 94)
+        Me.TxtSubAoiCount.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TxtSubAoiCount.Name = "TxtSubAoiCount"
         Me.TxtSubAoiCount.ReadOnly = True
-        Me.TxtSubAoiCount.Size = New System.Drawing.Size(73, 21)
+        Me.TxtSubAoiCount.Size = New System.Drawing.Size(73, 28)
         Me.TxtSubAoiCount.TabIndex = 94
         '
         'Label10
         '
         Me.Label10.AutoSize = True
         Me.Label10.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label10.Location = New System.Drawing.Point(4, 94)
+        Me.Label10.Location = New System.Drawing.Point(4, 96)
         Me.Label10.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label10.Name = "Label10"
-        Me.Label10.Size = New System.Drawing.Size(186, 15)
+        Me.Label10.Size = New System.Drawing.Size(265, 22)
         Me.Label10.TabIndex = 98
         Me.Label10.Text = "# of SubAOIs in the ID layer:"
         '
@@ -666,9 +678,9 @@ Partial Class FrmProfileBuilder
         '
         Me.CboSubAoiId.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.CboSubAoiId.FormattingEnabled = True
-        Me.CboSubAoiId.Location = New System.Drawing.Point(12, 60)
+        Me.CboSubAoiId.Location = New System.Drawing.Point(12, 63)
         Me.CboSubAoiId.Name = "CboSubAoiId"
-        Me.CboSubAoiId.Size = New System.Drawing.Size(185, 24)
+        Me.CboSubAoiId.Size = New System.Drawing.Size(186, 33)
         Me.CboSubAoiId.Sorted = True
         Me.CboSubAoiId.TabIndex = 97
         '
@@ -676,10 +688,10 @@ Partial Class FrmProfileBuilder
         '
         Me.Label9.AutoSize = True
         Me.Label9.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label9.Location = New System.Drawing.Point(8, 40)
+        Me.Label9.Location = New System.Drawing.Point(8, 39)
         Me.Label9.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label9.Name = "Label9"
-        Me.Label9.Size = New System.Drawing.Size(146, 15)
+        Me.Label9.Size = New System.Drawing.Size(208, 22)
         Me.Label9.TabIndex = 96
         Me.Label9.Text = "SubAOI ID layer used:"
         '
@@ -687,10 +699,10 @@ Partial Class FrmProfileBuilder
         '
         Me.CkAppendSubAoi.AutoSize = True
         Me.CkAppendSubAoi.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CkAppendSubAoi.Location = New System.Drawing.Point(4, 16)
-        Me.CkAppendSubAoi.Margin = New System.Windows.Forms.Padding(4)
+        Me.CkAppendSubAoi.Location = New System.Drawing.Point(4, 14)
+        Me.CkAppendSubAoi.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.CkAppendSubAoi.Name = "CkAppendSubAoi"
-        Me.CkAppendSubAoi.Size = New System.Drawing.Size(258, 19)
+        Me.CkAppendSubAoi.Size = New System.Drawing.Size(363, 26)
         Me.CkAppendSubAoi.TabIndex = 95
         Me.CkAppendSubAoi.Text = "Append SubAOI ID to Parameter File"
         Me.CkAppendSubAoi.UseVisualStyleBackColor = True
@@ -700,69 +712,58 @@ Partial Class FrmProfileBuilder
         Me.TxtLblPath.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TxtLblPath.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtLblPath.Location = New System.Drawing.Point(154, 15)
-        Me.TxtLblPath.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtLblPath.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TxtLblPath.Name = "TxtLblPath"
         Me.TxtLblPath.ReadOnly = True
-        Me.TxtLblPath.Size = New System.Drawing.Size(65, 15)
+        Me.TxtLblPath.Size = New System.Drawing.Size(90, 23)
         Me.TxtLblPath.TabIndex = 87
         Me.TxtLblPath.Text = "AOI Path:"
         '
         'TxtNoData
         '
-        Me.TxtNoData.Location = New System.Drawing.Point(842, 196)
-        Me.TxtNoData.Margin = New System.Windows.Forms.Padding(4)
+        Me.TxtNoData.Location = New System.Drawing.Point(915, 218)
+        Me.TxtNoData.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.TxtNoData.Name = "TxtNoData"
-        Me.TxtNoData.Size = New System.Drawing.Size(50, 22)
+        Me.TxtNoData.Size = New System.Drawing.Size(50, 30)
         Me.TxtNoData.TabIndex = 87
         Me.TxtNoData.Text = "-99"
         '
-        'Label2
+        'LblNoData
         '
-        Me.Label2.AutoSize = True
-        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(705, 199)
-        Me.Label2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(113, 16)
-        Me.Label2.TabIndex = 101
-        Me.Label2.Text = "No Data Value:"
+        Me.LblNoData.AutoSize = True
+        Me.LblNoData.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblNoData.Location = New System.Drawing.Point(759, 219)
+        Me.LblNoData.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.LblNoData.Name = "LblNoData"
+        Me.LblNoData.Size = New System.Drawing.Size(159, 25)
+        Me.LblNoData.TabIndex = 101
+        Me.LblNoData.Text = "No Data Value:"
         '
         'BtnViewLog
         '
         Me.BtnViewLog.Enabled = False
         Me.BtnViewLog.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnViewLog.Location = New System.Drawing.Point(695, 382)
-        Me.BtnViewLog.Margin = New System.Windows.Forms.Padding(4)
+        Me.BtnViewLog.Location = New System.Drawing.Point(734, 426)
+        Me.BtnViewLog.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.BtnViewLog.Name = "BtnViewLog"
-        Me.BtnViewLog.Size = New System.Drawing.Size(100, 31)
+        Me.BtnViewLog.Size = New System.Drawing.Size(110, 34)
         Me.BtnViewLog.TabIndex = 102
         Me.BtnViewLog.Text = "View Log"
         Me.BtnViewLog.UseVisualStyleBackColor = True
         '
-        'BtnToggleUse
-        '
-        Me.BtnToggleUse.Enabled = False
-        Me.BtnToggleUse.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnToggleUse.Location = New System.Drawing.Point(594, 166)
-        Me.BtnToggleUse.Margin = New System.Windows.Forms.Padding(4)
-        Me.BtnToggleUse.Name = "BtnToggleUse"
-        Me.BtnToggleUse.Size = New System.Drawing.Size(90, 31)
-        Me.BtnToggleUse.TabIndex = 89
-        Me.BtnToggleUse.Text = "Toggle Use"
-        Me.BtnToggleUse.UseVisualStyleBackColor = True
-        '
         'FrmProfileBuilder
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1014, 677)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(144.0!, 144.0!)
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi
+        Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+        Me.ClientSize = New System.Drawing.Size(1074, 700)
         Me.Controls.Add(Me.BtnViewLog)
-        Me.Controls.Add(Me.Label2)
+        Me.Controls.Add(Me.LblNoData)
         Me.Controls.Add(Me.TxtNoData)
         Me.Controls.Add(Me.TxtLblPath)
         Me.Controls.Add(Me.PnlSubAoi)
         Me.Controls.Add(Me.GrdCompleteProfiles)
-        Me.Controls.Add(Me.Label6)
+        Me.Controls.Add(Me.LblCompletedProfiles)
         Me.Controls.Add(Me.GrdHruLayers)
         Me.Controls.Add(Me.PnlProfile)
         Me.Controls.Add(Me.BtnCalculate)
@@ -773,7 +774,7 @@ Partial Class FrmProfileBuilder
         Me.Controls.Add(Me.BtnSelectAoi)
         Me.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
-        Me.Margin = New System.Windows.Forms.Padding(4)
+        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.Name = "FrmProfileBuilder"
         Me.ShowIcon = False
         Me.Text = "Profile Builder"
@@ -826,7 +827,7 @@ Partial Class FrmProfileBuilder
     Friend WithEvents IncludeMethod As System.Windows.Forms.DataGridViewCheckBoxColumn
     Friend WithEvents GrdHruLayers As System.Windows.Forms.DataGridView
     Friend WithEvents GrdCompleteProfiles As System.Windows.Forms.DataGridView
-    Friend WithEvents Label6 As System.Windows.Forms.Label
+    Friend WithEvents LblCompletedProfiles As System.Windows.Forms.Label
     Friend WithEvents PnlSubAoi As System.Windows.Forms.Panel
     Friend WithEvents TxtSubAoiCount As System.Windows.Forms.TextBox
     Friend WithEvents Label10 As System.Windows.Forms.Label
@@ -836,14 +837,14 @@ Partial Class FrmProfileBuilder
     Friend WithEvents RichTextBox1 As System.Windows.Forms.RichTextBox
     Friend WithEvents TxtLblPath As System.Windows.Forms.TextBox
     Friend WithEvents TxtNoData As System.Windows.Forms.TextBox
-    Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents LblNoData As System.Windows.Forms.Label
     Friend WithEvents BtnExportProfile As System.Windows.Forms.Button
+    Friend WithEvents LblStatus As System.Windows.Forms.Label
+    Friend WithEvents BtnViewLog As System.Windows.Forms.Button
+    Friend WithEvents BtnToggleUse As System.Windows.Forms.Button
     Friend WithEvents Profiles As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents HruName As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents Completed As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents DataGridViewTextBoxColumn1 As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents DataGridViewTextBoxColumn2 As System.Windows.Forms.DataGridViewTextBoxColumn
-    Friend WithEvents LblStatus As System.Windows.Forms.Label
-    Friend WithEvents BtnViewLog As System.Windows.Forms.Button
-    Friend WithEvents BtnToggleUse As System.Windows.Forms.Button
 End Class

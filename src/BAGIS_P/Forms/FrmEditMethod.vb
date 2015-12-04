@@ -19,6 +19,11 @@ Public Class FrmEditMethod
     Const TXT_PREFIX As String = "txt"
     Const SELECT_ONE As String = "Select one"
     Const CBO_PREFIX As String = "cbo"
+    Dim m_btnCloseX As Integer
+    Dim m_btnDeleteX As Integer
+    Dim m_btnEditModelX As Integer
+    Dim m_btnApplyX As Integer
+    Dim m_btnResetX As Integer
 
     Public Sub New(ByVal frmProfileBuilder As FrmProfileBuilder, ByVal selProfile As Profile, _
                    ByVal selMethod As Method, ByVal aoiPath As String)
@@ -38,6 +43,7 @@ Public Class FrmEditMethod
             Next
         End If
 
+        SaveButtonXLocations()
         LoadMethodList(selMethod)
     End Sub
 
@@ -58,6 +64,7 @@ Public Class FrmEditMethod
         End If
 
         m_aoiPath = aoiPath
+        SaveButtonXLocations()
         LoadMethodList(Nothing)
         PositionCloseAndSaveButtons()
     End Sub
@@ -83,6 +90,7 @@ Public Class FrmEditMethod
             End If
         End If
 
+        SaveButtonXLocations()
         LoadMethodList(Nothing)
         PositionCloseAndSaveButtons()
     End Sub
@@ -337,10 +345,10 @@ Public Class FrmEditMethod
             m_paramTable = New Hashtable
             Dim paramList As List(Of ModelParameter) = BA_GetModelParameters(pModel)
             Dim hasUserParams As Boolean = False    'Indicates if we should display the Model Parameters: header
-            Dim xValueLabel As Integer = 277
-            Dim yValueLabel As Integer = 207
-            Dim xValueInput As Integer = 470
-            Dim yValueInput As Integer = 207
+            Dim xValueLabel As Integer = LblFieldNames.Location.X
+            Dim yValueLabel As Integer = LblFieldNames.Location.Y + 45
+            Dim xValueInput As Integer = TxtFieldNames.Location.X
+            Dim yValueInput As Integer = TxtFieldNames.Location.Y + 45
 
             'Dim testDbParam As New ModelParameter(9, "db_blah", Nothing)
             'paramList.Add(testDbParam)
@@ -375,10 +383,11 @@ Public Class FrmEditMethod
                     End If
                 End If
                 'Add Model Parameters label if we have parameters for the user
+                Dim y_spacing As Integer = 40
                 If hasUserParams = True Then
                     CreateLabel(xValueLabel, yValueInput, "Model Parameters")
-                    yValueLabel = yValueLabel + 30
-                    yValueInput = yValueInput + 30
+                    yValueLabel = yValueLabel + y_spacing
+                    yValueInput = yValueInput + y_spacing
                 End If
                 Dim sb As StringBuilder = New StringBuilder
                 For Each key As String In m_paramTable.Keys
@@ -388,10 +397,10 @@ Public Class FrmEditMethod
                             Dim dataParam As ModelParameter = m_paramTable(key)
                             CreateLabel(xValueLabel, yValueLabel, key)
                             'Move the position down for the next potential parameter
-                            yValueLabel = yValueLabel + 30
+                            yValueLabel = yValueLabel + y_spacing
                             CreateCboBoxForDataBin(xValueInput, yValueInput, key, dataParam.Value)
                             'Move the position down for the next potential parameter
-                            yValueInput = yValueInput + 30
+                            yValueInput = yValueInput + y_spacing
                         ElseIf key.Substring(0, BA_FIELD_PREFIX.Length).ToLower = BA_FIELD_PREFIX Then
                             'This is a field name parameter, we append the field name to the field name display
                             Dim dataParam As ModelParameter = m_paramTable(key)
@@ -402,10 +411,10 @@ Public Class FrmEditMethod
                             Dim txtParam As ModelParameter = m_paramTable(key)
                             CreateLabel(xValueLabel, yValueLabel, key)
                             'Move the position down for the next potential parameter
-                            yValueLabel = yValueLabel + 30
+                            yValueLabel = yValueLabel + y_spacing
                             CreateTextBoxForParam(xValueInput, yValueInput, key, txtParam.Value)
                             'Move the position down for the next potential parameter
-                            yValueInput = yValueInput + 30
+                            yValueInput = yValueInput + y_spacing
                         End If
                     End If
                 Next
@@ -599,25 +608,24 @@ Public Class FrmEditMethod
     End Sub
 
     Public Sub PositionCloseAndSaveButtons()
-        Dim yPos As Integer = 250
+        Dim yPos As Integer = 350
         If m_parameterLabels IsNot Nothing AndAlso m_parameterLabels.Count > 0 Then
             Dim lastLabel As String = m_parameterLabels(m_parameterLabels.Count - 1)
             Dim ctrlLabel As Control = Me.Controls.Find(lastLabel, False)(0)
             yPos = ctrlLabel.Location.Y
             yPos = yPos + 35
-            BtnClose.Location = New System.Drawing.Point(463, yPos)
-            BtnDelete.Location = New System.Drawing.Point(536, yPos)
-            BtnEditModel.Location = New System.Drawing.Point(608, yPos)
-            BtnApply.Location = New System.Drawing.Point(696, yPos)
-            BtnResetToolboxPath.Location = New System.Drawing.Point(8, yPos)
+            BtnClose.Location = New System.Drawing.Point(m_btnCloseX, yPos)
+            BtnDelete.Location = New System.Drawing.Point(m_btnDeleteX, yPos)
+            BtnEditModel.Location = New System.Drawing.Point(m_btnEditModelX, yPos)
+            BtnApply.Location = New System.Drawing.Point(m_btnApplyX, yPos)
+            BtnResetToolboxPath.Location = New System.Drawing.Point(m_btnResetX, yPos)
         Else
-            BtnClose.Location = New System.Drawing.Point(463, yPos)
-            BtnDelete.Location = New System.Drawing.Point(536, yPos)
-            BtnEditModel.Location = New System.Drawing.Point(608, yPos)
-            BtnApply.Location = New System.Drawing.Point(696, yPos)
-            BtnResetToolboxPath.Location = New System.Drawing.Point(8, yPos)
+            BtnClose.Location = New System.Drawing.Point(m_btnCloseX, yPos)
+            BtnDelete.Location = New System.Drawing.Point(m_btnDeleteX, yPos)
+            BtnEditModel.Location = New System.Drawing.Point(m_btnEditModelX, yPos)
+            BtnApply.Location = New System.Drawing.Point(m_btnApplyX, yPos)
+            BtnResetToolboxPath.Location = New System.Drawing.Point(m_btnResetX, yPos)
         End If
-        Me.Height = yPos + 70
     End Sub
 
     Private Function ValidateParameters() As BA_ReturnCode
@@ -778,5 +786,13 @@ Public Class FrmEditMethod
                 Next
             End If
         End If
+    End Sub
+
+    Private Sub SaveButtonXLocations()
+        m_btnCloseX = BtnClose.Location.X
+        m_btnApplyX = BtnApply.Location.X
+        m_btnDeleteX = BtnDelete.Location.X
+        m_btnEditModelX = BtnEditModel.Location.X
+        m_btnResetX = BtnResetToolboxPath.Location.X
     End Sub
 End Class

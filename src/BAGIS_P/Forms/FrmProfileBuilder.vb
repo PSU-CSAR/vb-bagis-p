@@ -53,9 +53,12 @@ Public Class FrmProfileBuilder
             TxtAoiPath.Text = settingsPath & BA_StandardizePathString(bagisFolder)
             Dim pntLblPath As Point = New Point(9, 9)
             TxtLblPath.Location = pntLblPath
-            TxtLblPath.Width = 125
-            TxtLblPath.Height = 35
-            TxtLblPath.Font = LblCurrentProfile.Font
+            TxtLblPath.Width = LblCurrentProfile.Width
+            TxtLblPath.Height = LblCurrentProfile.Height
+            Dim pathFont As Font = New Font(LblCurrentProfile.Font.FontFamily, _
+                                            LblCurrentProfile.Font.Size, _
+                                            LblCurrentProfile.Font.Style)
+            TxtLblPath.Font = pathFont
             TxtLblPath.Text = "Settings folder:"
             Dim pntTxtPath As Point = New Point(140, 7)
             TxtAoiPath.Location = pntTxtPath
@@ -63,20 +66,19 @@ Public Class FrmProfileBuilder
             TxtAoiPath.Height = 25
             PnlProfile.TabIndex = 1
             'Reposition close button
-            Dim pntBtnClose As Point = New Point(615, 625)
+            Dim posY = BtnProfileDelete.Location.Y
+            Dim pntBtnClose As Point = New Point(420, posY + 35)
             PnlProfile.Controls.Add(BtnClose)
             BtnClose.Location = pntBtnClose
-            BtnClose.Width = 65
             'Hide import public profile button
             BtnImport.Visible = False
             'Hide export local profile button
             BtnExportProfile.Visible = False
-            'Reposition 'Apply Changes' and 'Verify Profile' buttons
-            Dim pntBtnApply As Point = New Point(167, 128)
-            BtnApply.Location = pntBtnApply
+            'Reposition verify relative to export
+            Dim posX As Integer = BtnExportProfile.Location.X
             PnlProfile.Controls.Add(BtnVerify)
             BtnVerify.Width = 109
-            Dim pntVerify As Point = New Point(193, 166)
+            Dim pntVerify As Point = New Point(posX - 115, BtnExportProfile.Location.Y)
             BtnVerify.Location = pntVerify
             'Hide controls on right side of form
             LblHruLayers.Visible = False
@@ -84,11 +86,14 @@ Public Class FrmProfileBuilder
             GrdCompleteProfiles.Visible = False
             BtnCalculate.Visible = False
             BtnToggleUse.Visible = False
+            BtnViewLog.Visible = False
+            LblNoData.Visible = False
+            LblCompletedProfiles.Visible = False
             'Hide subAoi panel
             PnlSubAoi.Visible = False
             'Resize form
-            Me.Height = Me.Height + 40
-            Me.Width = Me.Width - 325
+            Me.Height = Me.Height + 30
+            Me.Width = Me.Width - 230
             PnlProfile.Height = PnlProfile.Height + 40
             'Format profiles grid
             RefreshProfileData()
@@ -96,8 +101,8 @@ Public Class FrmProfileBuilder
             'Format methods grid
             RefreshMethodData()
             GrdMethods.Columns("IncludeMethod").Visible = False
-            GrdMethods.Width = 336
-            LblStatus.Width = 335
+            'GrdMethods.Width = 336
+            'LblStatus.Width = 335
             'Re-Initialize m_methodStatusTable
             m_methodStatusTable = New Hashtable
         End If
