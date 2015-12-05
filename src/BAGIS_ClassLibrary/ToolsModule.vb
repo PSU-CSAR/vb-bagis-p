@@ -1145,6 +1145,33 @@ Public Module ToolsModule
         End Try
     End Function
 
+    'The JoinField tool joins a table to a feature class and adds the table fields to the input feature class
+    'If you don't want to alter the original feature class, you need to create a copy before using this
+    Public Function BA_JoinField(ByVal inputFeatureClassPath As String, ByVal inJoinField As String, _
+                                 ByVal joinTablePath As String, ByVal tableJoinField As String, ByVal fields As String) As BA_ReturnCode
+        Dim tool As JoinField = New JoinField
+        Dim success As Short = -1
+        Try
+            tool.in_data = inputFeatureClassPath
+            tool.in_field = inJoinField
+            tool.join_table = joinTablePath
+            tool.join_field = tableJoinField
+            tool.fields = fields
+            'No snaprasterpath for this tool
+            success = Execute_Geoprocessing(tool, False, Nothing)
+            If success = 1 Then
+                Return BA_ReturnCode.Success
+            Else
+                Return BA_ReturnCode.UnknownError
+            End If
+        Catch ex As Exception
+            Debug.Print("BA_JoinField Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+            tool = Nothing
+        End Try
+    End Function
+
     Public Function BA_ExtractByMask(ByVal maskFilePath As String, ByVal inputRasterPath As String, _
                                      ByVal snapRasterPath As String, ByVal outputRasterPath As String) As BA_ReturnCode
         Dim tool As ExtractByMask = New ExtractByMask

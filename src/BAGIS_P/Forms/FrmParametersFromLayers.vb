@@ -238,6 +238,8 @@ Public Class FrmParametersFromLayers
                     pEnumVar.MoveNext()
                     pObj = pEnumVar.Current
                 End While
+                'Add NoData entry
+                GrdValues.Rows.Add({BA_NODATA, CStr(BA_9999)})
             End If
         Catch ex As Exception
             MessageBox.Show("CopyUniqueValuesToReclass Exception: " + ex.Message)
@@ -257,6 +259,8 @@ Public Class FrmParametersFromLayers
     End Sub
 
     Private Sub BtnCalculate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCalculate.Click
+        BtnCalculate.Enabled = False
+        TxtStatus.Text = Nothing
         'Add field to grid_zones_v
         Dim hruItem As LayerListItem = LstHruLayers.SelectedItem
         Dim hruGdbPath As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, hruItem.Name)
@@ -267,15 +271,18 @@ Public Class FrmParametersFromLayers
             If retVal <> BA_ReturnCode.Success Then
                 MessageBox.Show("The " & v_name & " file could not be created." & _
                                 " Parameters from Layers cannot be calculated.")
+                BtnCalculate.Enabled = True
                 Exit Sub
             End If
         End If
+        TxtStatus.Text = "Checking for output parameter name in HRU"
         Dim zonesFC As IFeatureClass = BA_OpenFeatureClassFromGDB(hruGdbPath, v_name)
         Dim idxHruId As Integer = zonesFC.FindField(BA_FIELD_HRU_ID)
         If idxHruId < 0 Then
             Dim retVal As BA_ReturnCode = BA_CreateHruIdField(hruGdbPath, v_name)
             If retVal <> BA_ReturnCode.Success Then
                 MessageBox.Show("The HRU_ID field could not be found in the selected HRU. Parameters from layers cannot be calculated.")
+                BtnCalculate.Enabled = True
                 Exit Sub
             End If
         End If
@@ -286,36 +293,47 @@ Public Class FrmParametersFromLayers
             Dim res As DialogResult = MessageBox.Show(strMessage, "Name already exists", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
             If res <> DialogResult.Yes Then
                 TxtParamName.Focus()
+                BtnCalculate.Enabled = True
                 Exit Sub
             End If
         Else
             idxField = BA_AddUserFieldToVector(hruGdbPath, v_name, TxtParamName.Text, _
-                                                   esriFieldType.esriFieldTypeDouble, 0)
+            esriFieldType.esriFieldTypeDouble, 0)
         End If
         If idxField > -1 Then
             Dim tableName As String = "tmpTable"
             Dim rasterItem As LayerListItem = LstAoiRasterLayers.SelectedItem
             Dim snapRasterPath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi, True) & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
+            TxtStatus.Text = "Calculating majority layer value for each HRU"
             Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(hruGdbPath, v_name, BA_FIELD_HRU_ID, rasterItem.Value, _
                                                 hruGdbPath, tableName, snapRasterPath, StatisticsTypeString.MAJORITY)
             If success = BA_ReturnCode.Success Then
+                TxtStatus.Text = "Writing parameter value for each HRU"
                 success = AppendParametersToHru(hruGdbPath, v_name, tableName, idxField)
             End If
+            'Delete temporary table
+            If BA_File_Exists(hruGdbPath & "\" & tableName, WorkspaceType.Geodatabase, esriDatasetType.esriDTTable) Then
+                BA_Remove_TableFromGDB(hruGdbPath, tableName)
+            End If
+        Else
+            MessageBox.Show("The new parameter field could not be added the selected HRU. Parameters from layers cannot be calculated.")
+            BtnCalculate.Enabled = True
+            TxtStatus.Text = Nothing
+            Exit Sub
         End If
-
         ResetForm()
     End Sub
 
     Private Sub TxtParamName_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtParamName.TextChanged
         '@ToDo: Need to validate
-        TxtParamNameError.Text = Nothing
+        TxtStatus.Text = Nothing
         If Not String.IsNullOrEmpty(TxtParamName.Text) Then
             'Names should not contain spaces.
             TxtParamName.Text = Trim(TxtParamName.Text)
             'Names must begin with a letter, not a number or special character such as an asterisk (*) or percent sign (%).
             Dim pos1 As Char = TxtParamName.Text.Substring(0, 1)
             If Not Char.IsLetter(pos1) Then
-                TxtParamNameError.Text = "Parameter names must begin with a letter"
+                TxtStatus.Text = "Parameter names must begin with a letter"
                 m_validTxtParamName = False
             Else
                 m_validTxtParamName = True
@@ -369,60 +387,69 @@ Public Class FrmParametersFromLayers
     End Sub
 
     Private Function AppendParametersToHru(ByVal hruGdbPath As String, ByVal v_name As String, ByVal t_name As String, ByVal idxParam As Integer) As BA_ReturnCode
+        Dim inputFeatures As String = hruGdbPath & "\" & v_name
+        Dim inputTable As String = hruGdbPath & "\" & t_name
+        Dim fields As String = StatisticsTypeString.MAJORITY.ToString
+        'Join the table with the majority values to the target feature class; Majority value will be added to feature class
+        Dim success As BA_ReturnCode = BA_JoinField(inputFeatures, BA_FIELD_HRU_ID, inputTable, BA_FIELD_HRU_ID, fields)
         Dim fClass As IFeatureClass = Nothing
-        Dim pTable As ITable = Nothing
-        Dim tCursor As ICursor = Nothing
-        Dim tRow As IRow = Nothing
         Dim fCursor As IFeatureCursor = Nothing
         Dim fFeature As IFeature = Nothing
-        Dim fQuery As IQueryFilter = New QueryFilter()
         Try
-            fClass = BA_OpenFeatureClassFromGDB(hruGdbPath, v_name)
-            If fClass IsNot Nothing Then
-                pTable = BA_OpenTableFromGDB(hruGdbPath, t_name)
-                If pTable IsNot Nothing Then
-                    Dim idxTHruId As Integer = pTable.FindField(BA_FIELD_HRU_ID)
-                    Dim idxTMajorityId As Integer = -1
-                    If idxTHruId > -1 Then
-                        idxTMajorityId = pTable.FindField(StatisticsTypeString.MAJORITY.ToString)
-                        If idxTMajorityId > -1 Then
-                            tCursor = pTable.Search(Nothing, False)
-                            If tCursor IsNot Nothing Then
-                                tRow = tCursor.NextRow
-                                Do While tRow IsNot Nothing
-                                    Dim hruId As String = Convert.ToString(tRow.Value(idxTHruId))
-                                    Dim paramValue As Double = Convert.ToDouble(tRow.Value(idxTMajorityId))
-                                    'Now get the value out of the grid in case user wanted to change it
-                                    For Each gRow As DataGridViewRow In GrdValues.Rows
-                                        Dim layerValue As Double = Convert.ToDouble(gRow.Cells(m_idxLayerValues).Value)
-                                        If layerValue = paramValue Then
-                                            Dim tempParamValue As Double = 0
-                                            Double.TryParse(gRow.Cells(m_idxParamValues).Value, tempParamValue)
-                                            paramValue = Convert.ToDouble(gRow.Cells(m_idxParamValues).Value)
-                                            Exit For
-                                        End If
-                                    Next
-                                    fQuery.WhereClause = BA_FIELD_HRU_ID & " = " & hruId
-                                    fCursor = fClass.Update(fQuery, False)
-                                    If fCursor IsNot Nothing Then
-                                        'We assume there is only one row with the unique id
-                                        fFeature = fCursor.NextFeature
-                                        fFeature.Value(idxParam) = paramValue
-                                        fFeature.Store()
-                                    End If
-                                    tRow = tCursor.NextRow
-                                Loop
-                            End If
+            If success = BA_ReturnCode.Success Then
+                'We have the majority value in grid_zones_v in the 'MAJORITY' column
+                'Put all the values from the remap table in an Idictionary so we can access them quickly
+                Dim paramDictionary As IDictionary(Of String, Double) = New Dictionary(Of String, Double)
+                For Each gRow As DataGridViewRow In GrdValues.Rows
+                    Dim layerValue As String = Convert.ToString(gRow.Cells(m_idxLayerValues).Value)
+                    If Not paramDictionary.ContainsKey(layerValue) Then
+                        Dim tempParamValue As Double = 0
+                        Double.TryParse(gRow.Cells(m_idxParamValues).Value, tempParamValue)
+                        paramDictionary.Add(layerValue, tempParamValue)
+                    End If
+                Next
+                fClass = BA_OpenFeatureClassFromGDB(hruGdbPath, v_name)
+                If fClass IsNot Nothing Then
+                    Dim idxMajorityId = fClass.FindField(StatisticsTypeString.MAJORITY.ToString)
+                    If idxMajorityId > -1 Then
+                        fCursor = fClass.Update(Nothing, False)
+                        If fCursor IsNot Nothing Then
+                            fFeature = fCursor.NextFeature
+                            'Loop through all the HRU's
+                            Do While fFeature IsNot Nothing
+                                Dim paramValue As Double = 0.0
+                                'If the majority value is missing, use the no data value from the form grid
+                                If IsDBNull(fFeature.Value(idxMajorityId)) Then
+                                    paramValue = paramDictionary(BA_NODATA)
+                                Else
+                                    'Otherwise use the majority value to look up the parameter value from the form grid
+                                    Dim layerValue As String = Convert.ToString(fFeature.Value(idxMajorityId))
+                                    paramValue = paramDictionary(layerValue)
+                                End If
+                                fFeature.Value(idxParam) = paramValue
+                                fFeature.Store()
+                                fFeature = fCursor.NextFeature
+                            Loop
                         End If
+                        ' Delete the majority field; No longer needed
+                        Dim deleteFields As IFields = fClass.Fields
+                        fClass.DeleteField(deleteFields.Field(idxMajorityId))
+                        Return BA_ReturnCode.Success
                     End If
                 End If
             End If
+            Return BA_ReturnCode.UnknownError
         Catch ex As Exception
             Debug.Print("AppendParametersToHru Exception: " & ex.Message)
             Return BA_ReturnCode.UnknownError
         Finally
-
+            fClass = Nothing
+            fCursor = Nothing
+            fFeature = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
         End Try
+
     End Function
 
     Private Sub GrdValues_CellEndEdit(ByVal sender As Object, ByVal e As System.Windows.Forms.DataGridViewCellEventArgs) Handles GrdValues.CellEndEdit
