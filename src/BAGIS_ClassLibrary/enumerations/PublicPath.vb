@@ -63,4 +63,7 @@ Public Enum PublicPath
     'Table containing result of jh_coeff aoi calculation; Name passed into
     'bagis_method_building_blocks.tbx\JH_Coef_AOI model via parameter sys_jh_coef_table
     <Description("\jh_coef_aoi")> JhCoefAoiTable
+    <Description("\LayerParametersLog.xsl")> LayerParametersLogXsl
+    <Description("\LayerParametersLog.xml")> LayerParametersLogXml
+
 End Enum

@@ -13,6 +13,7 @@ Public Class FrmParametersFromLayers
     Dim m_idxLayerValues As Short = 0
     Dim m_idxParamValues As Short = 1
     Dim m_validTxtParamName As Boolean = False
+    Dim m_layerParameters As IDictionary = New Dictionary(Of String, LayerParameter)
 
     Public Sub New()
 
@@ -315,6 +316,17 @@ Public Class FrmParametersFromLayers
             If BA_File_Exists(hruGdbPath & "\" & tableName, WorkspaceType.Geodatabase, esriDatasetType.esriDTTable) Then
                 BA_Remove_TableFromGDB(hruGdbPath, tableName)
             End If
+            TxtStatus.Text = "Saving layer parameter log"
+            Dim newLayerParam As LayerParameter = CreateLayerParam()
+            If m_layerParameters.Contains(TxtParamName.Text) Then
+                m_layerParameters(TxtParamName.Text) = newLayerParam
+            Else
+                m_layerParameters.Add(TxtParamName.Text, newLayerParam)
+            End If
+            success = SaveLog(hruItem.Name)
+            If success <> BA_ReturnCode.Success Then
+                MessageBox.Show("An error occurred while trying to save the log")
+            End If
         Else
             MessageBox.Show("The new parameter field could not be added the selected HRU. Parameters from layers cannot be calculated.")
             BtnCalculate.Enabled = True
@@ -375,6 +387,19 @@ Public Class FrmParametersFromLayers
     End Sub
 
     Private Sub LstHruLayers_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LstHruLayers.SelectedIndexChanged
+        GrdCalcParameters.Rows.Clear()
+        'Re-initialize layer parameters dictionary
+        m_layerParameters = New Dictionary(Of String, LayerParameter)
+        Dim selItem As LayerListItem = LstHruLayers.SelectedItem
+        If selItem IsNot Nothing Then
+            m_layerParameters = BA_LoadLayerParametersFromXml(BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name))
+            'Create empty layer parameters dictionary if nothing was returned
+            If m_layerParameters Is Nothing Then
+                m_layerParameters = New Dictionary(Of String, LayerParameter)
+            Else
+                LoadLayerParameters()
+            End If
+        End If
         ManageCalculateButton()
     End Sub
 
@@ -466,4 +491,88 @@ Public Class FrmParametersFromLayers
         End If
     End Sub
 
+    Private Function SaveLog(ByVal hruName As String) As BA_ReturnCode
+        Try
+            Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+            Dim layerParameterTable As LayerParameterTable = New LayerParameterTable()
+            layerParameterTable.Version = bExt.version
+            Dim paramList As List(Of LayerParameter) = New List(Of LayerParameter)
+            For Each pName As String In m_layerParameters.Keys
+                Dim nextParam As LayerParameter = m_layerParameters(pName)
+                If nextParam IsNot Nothing Then
+                    paramList.Add(nextParam)
+                End If
+            Next
+            layerParameterTable.LayerParameters = paramList
+            Dim hruPath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, hruName)
+            Dim logPath As String = hruPath & BA_EnumDescription(PublicPath.LayerParametersLogXml)
+            layerParameterTable.Save(logPath)
+            Return BA_ReturnCode.Success
+        Catch ex As Exception
+            Debug.Print("SaveLog Exception: " & ex.Message)
+            Return BA_ReturnCode.WriteError
+        End Try
+    End Function
+
+    Private Sub LoadLayerParameters()
+        GrdCalcParameters.Rows.Clear()
+        Dim fc As IFeatureClass = Nothing
+        Try
+            Dim hruItem As LayerListItem = LstHruLayers.SelectedItem
+            Dim hruGdbPath As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, hruItem.Name)
+            Dim v_name As String = BA_GetBareName(BA_EnumDescription(PublicPath.HruZonesVector))
+            fc = BA_OpenFeatureClassFromGDB(hruGdbPath, v_name)
+            If fc IsNot Nothing Then
+                Dim missingNames As IList(Of String) = New List(Of String)
+                For Each pName In m_layerParameters.Keys
+                    'Only add the parameter to display if it's found in grid_zones_v
+                    Dim idxParam As Integer = fc.FindField(pName)
+                    If idxParam > 0 Then
+                        Dim nextParam As LayerParameter = m_layerParameters(pName)
+                        Dim nextDate As String = nextParam.DateUpdated.ToString("MM/dd/yyyy")
+                        Dim pArray As String() = {pName, nextDate}
+                        GrdCalcParameters.Rows.Add(pArray)
+                    Else
+                        missingNames.Add(pName)
+                    End If
+                Next
+                GrdCalcParameters.CurrentCell.Selected = False
+                'Remove any missing parameters from the dictionary
+                'It will be saved the next time a parameter is calculated
+                For Each mName As String In missingNames
+                    m_layerParameters.Remove(mName)
+                Next
+            End If
+        Catch ex As Exception
+            Debug.Print("LoadLayerParameters Exception: " & ex.Message)
+        End Try
+    End Sub
+
+    Private Function CreateLayerParam() As LayerParameter
+        Dim newParam As LayerParameter = New LayerParameter(TxtParamName.Text)
+        If RdoHru.Checked Then
+            newParam.LayerType = "HRU"
+        Else
+            newParam.LayerType = "Raster"
+        End If
+        Dim selItem As LayerListItem = LstAoiRasterLayers.SelectedItem
+        newParam.LayerPath = selItem.Value
+        Dim layerValues As IList(Of String) = New List(Of String)
+        Dim paramValues As IList(Of String) = New List(Of String)
+        For Each pRow As DataGridViewRow In GrdValues.Rows
+            layerValues.Add(Convert.ToString(pRow.Cells(0).Value))
+            paramValues.Add(Convert.ToString(pRow.Cells(1).Value))
+        Next
+        newParam.LayerValuesList = layerValues
+        newParam.ParameterValuesList = paramValues
+        Return newParam
+    End Function
+
+    Private Sub GrdCalcParameters_SelectionChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles GrdCalcParameters.SelectionChanged
+        If GrdCalcParameters.SelectedRows.Count > 0 Then
+            BtnDeleteSelected.Enabled = True
+        Else
+            BtnDeleteSelected.Enabled = False
+        End If
+    End Sub
 End Class

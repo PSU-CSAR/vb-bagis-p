@@ -1678,4 +1678,23 @@ Module ParameterModule
         End If
     End Function
 
+    Public Function BA_LoadLayerParametersFromXml(ByVal hruPath As String) As IDictionary(Of String, LayerParameter)
+        Dim logPath As String = hruPath & BA_EnumDescription(PublicPath.LayerParametersLogXml)
+        If BA_File_ExistsWindowsIO(logPath) Then
+            Dim obj As Object = SerializableData.Load(logPath, GetType(LayerParameterTable))
+            If obj IsNot Nothing Then
+                Dim lTable As LayerParameterTable = CType(obj, LayerParameterTable)
+                Dim paramDict As IDictionary(Of String, LayerParameter) = New Dictionary(Of String, LayerParameter)
+                For Each param As LayerParameter In lTable.LayerParameters
+                    paramDict(param.Name) = param
+                Next
+                Return paramDict
+            Else
+                Return Nothing
+            End If
+        Else
+            Return Nothing
+        End If
+    End Function
+
 End Module
