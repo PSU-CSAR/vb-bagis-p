@@ -74,7 +74,7 @@ Public Class ExportProfile
     Public Property DateCopiedText() As String
         Get
             Dim zone As System.TimeZoneInfo = System.TimeZoneInfo.Local
-            Dim strDate As String = m_dateCopied.ToString("d-MMM-yyyy h:m tt ")
+            Dim strDate As String = m_dateCopied.ToString("d-MMM-yyyy h:mm tt ")
             Return strDate & zone.DisplayName
         End Get
         Set(value As String)

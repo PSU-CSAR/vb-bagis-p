@@ -594,10 +594,12 @@ Public Class FrmParametersFromLayers
             Dim hruPath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name)
             Dim inputFile As String = hruPath & BA_EnumDescription(PublicPath.LayerParametersLogXml)
             Dim outputFile As String = hruPath & BA_EnumDescription(PublicPath.LayerParametersLogHtml)
+            TxtStatus.Text = "Generating log"
             Dim success As BA_ReturnCode = BA_XSLTransformToHtml(inputFile, xslTemplate, outputFile)
             If success = BA_ReturnCode.Success Then
                 Process.Start(outputFile)
             End If
+            TxtStatus.Text = Nothing
         End If
     End Sub
 End Class

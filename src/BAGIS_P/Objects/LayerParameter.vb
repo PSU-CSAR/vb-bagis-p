@@ -26,4 +26,15 @@ Public Class LayerParameter
         Me.DateUpdated = DateTime.Now
     End Sub
 
+    Public Property DateCalculatedText As String
+        Get
+            Dim zone As System.TimeZoneInfo = System.TimeZoneInfo.Local
+            Dim strDate As String = DateUpdated.ToString("d-MMM-yyyy h:mm tt ")
+            Return strDate & zone.DisplayName
+        End Get
+        Set(ByVal value As String)
+            'Do nothing; This is only for XML serialization
+        End Set
+    End Property
+
 End Class
