@@ -347,7 +347,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Objects\AoiParameter.vb" />
-    <Compile Include="Objects\LayerParameterTable.vb" />
+    <Compile Include="Objects\LayerParameterLog.vb" />
     <Compile Include="Objects\LayerParameter.vb" />
     <Compile Include="Objects\ExportProfile.vb" />
     <Compile Include="Objects\HruProfileStatus.vb" />
@@ -584,6 +584,9 @@
     <AddInContent Include="Images\BtnParameterDescription.png" />
     <AddInContent Include="Images\BtnPEandSRObs.png" />
     <AddInContent Include="Images\BtnParametersFromLayers.png" />
+    <Content Include="LayerParametersLog.xsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BAGIS_ClassLibrary\BAGIS_ClassLibrary.vbproj">

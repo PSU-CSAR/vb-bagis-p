@@ -1,11 +1,14 @@
 ﻿Imports BAGIS_ClassLibrary
 Imports System.Xml.Serialization
 
-Public Class LayerParameterTable
+Public Class LayerParametersLog
     Inherits SerializableData
 
     Dim m_layerParameterList As List(Of LayerParameter)
     Public Version As String
+    Public AoiName As String
+    Public AoiPath As String
+    Public HruName As String
 
     ' List of layer parameters
     Public Property LayerParameters() As List(Of LayerParameter)

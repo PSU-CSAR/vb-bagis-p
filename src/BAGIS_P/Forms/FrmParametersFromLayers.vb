@@ -494,8 +494,13 @@ Public Class FrmParametersFromLayers
     Private Function SaveLog(ByVal hruName As String) As BA_ReturnCode
         Try
             Dim bExt As BagisPExtension = BagisPExtension.GetExtension
-            Dim layerParameterTable As LayerParameterTable = New LayerParameterTable()
-            layerParameterTable.Version = bExt.version
+            Dim layerParameterLog As LayerParametersLog = New LayerParametersLog()
+            With layerParameterLog
+                .Version = bExt.version
+                .AoiName = m_aoi.Name
+                .AoiPath = m_aoi.FilePath
+                .HruName = hruName
+            End With
             Dim paramList As List(Of LayerParameter) = New List(Of LayerParameter)
             For Each pName As String In m_layerParameters.Keys
                 Dim nextParam As LayerParameter = m_layerParameters(pName)
@@ -503,10 +508,10 @@ Public Class FrmParametersFromLayers
                     paramList.Add(nextParam)
                 End If
             Next
-            layerParameterTable.LayerParameters = paramList
+            layerParameterLog.LayerParameters = paramList
             Dim hruPath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, hruName)
             Dim logPath As String = hruPath & BA_EnumDescription(PublicPath.LayerParametersLogXml)
-            layerParameterTable.Save(logPath)
+            layerParameterLog.Save(logPath)
             Return BA_ReturnCode.Success
         Catch ex As Exception
             Debug.Print("SaveLog Exception: " & ex.Message)
@@ -543,6 +548,11 @@ Public Class FrmParametersFromLayers
                     m_layerParameters.Remove(mName)
                 Next
             End If
+            If GrdCalcParameters.Rows.Count > 0 Then
+                BtnViewLog.Enabled = True
+            Else
+                BtnViewLog.Enabled = False
+            End If
         Catch ex As Exception
             Debug.Print("LoadLayerParameters Exception: " & ex.Message)
         End Try
@@ -573,6 +583,21 @@ Public Class FrmParametersFromLayers
             BtnDeleteSelected.Enabled = True
         Else
             BtnDeleteSelected.Enabled = False
+        End If
+    End Sub
+
+    Private Sub BtnViewLog_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnViewLog.Click
+        Dim xslTemplate As String = BA_GetAddInDirectory() & BA_EnumDescription(PublicPath.LayerParametersLogXsl)
+        Dim xslFileExists As Boolean = BA_File_ExistsWindowsIO(xslTemplate)
+        If xslFileExists Then
+            Dim selItem As LayerListItem = LstHruLayers.SelectedItem
+            Dim hruPath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name)
+            Dim inputFile As String = hruPath & BA_EnumDescription(PublicPath.LayerParametersLogXml)
+            Dim outputFile As String = hruPath & BA_EnumDescription(PublicPath.LayerParametersLogHtml)
+            Dim success As BA_ReturnCode = BA_XSLTransformToHtml(inputFile, xslTemplate, outputFile)
+            If success = BA_ReturnCode.Success Then
+                Process.Start(outputFile)
+            End If
         End If
     End Sub
 End Class

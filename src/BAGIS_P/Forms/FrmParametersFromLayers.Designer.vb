@@ -54,6 +54,7 @@ Partial Class FrmParametersFromLayers
         Me.LayerValues = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.ParameterValues = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
+        Me.BtnViewLog = New System.Windows.Forms.Button()
         CType(Me.GrdCalcParameters, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GrpLayerType.SuspendLayout()
         Me.GrpReclass.SuspendLayout()
@@ -187,11 +188,11 @@ Partial Class FrmParametersFromLayers
         '
         Me.BtnDeleteSelected.Enabled = False
         Me.BtnDeleteSelected.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnDeleteSelected.Location = New System.Drawing.Point(40, 326)
+        Me.BtnDeleteSelected.Location = New System.Drawing.Point(4, 326)
         Me.BtnDeleteSelected.Name = "BtnDeleteSelected"
-        Me.BtnDeleteSelected.Size = New System.Drawing.Size(219, 25)
+        Me.BtnDeleteSelected.Size = New System.Drawing.Size(150, 25)
         Me.BtnDeleteSelected.TabIndex = 98
-        Me.BtnDeleteSelected.Text = "Delete Selected Parameters"
+        Me.BtnDeleteSelected.Text = "Delete Selected"
         Me.BtnDeleteSelected.UseVisualStyleBackColor = True
         '
         'BtnViewBagisParams
@@ -361,11 +362,23 @@ Partial Class FrmParametersFromLayers
         Me.TextBox1.Text = "Note: Single cell HRUs will be assigned the NoData value because the MAJORITY too" & _
             "l does not support single-cell evaluation"
         '
+        'BtnViewLog
+        '
+        Me.BtnViewLog.Enabled = False
+        Me.BtnViewLog.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnViewLog.Location = New System.Drawing.Point(167, 326)
+        Me.BtnViewLog.Name = "BtnViewLog"
+        Me.BtnViewLog.Size = New System.Drawing.Size(150, 25)
+        Me.BtnViewLog.TabIndex = 145
+        Me.BtnViewLog.Text = "View Log"
+        Me.BtnViewLog.UseVisualStyleBackColor = True
+        '
         'FrmParametersFromLayers
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(719, 554)
+        Me.Controls.Add(Me.BtnViewLog)
         Me.Controls.Add(Me.TextBox1)
         Me.Controls.Add(Me.GrpReclass)
         Me.Controls.Add(Me.LstAoiRasterLayers)
@@ -423,4 +436,5 @@ Partial Class FrmParametersFromLayers
     Friend WithEvents ParameterValues As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents TxtStatus As System.Windows.Forms.TextBox
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
+    Friend WithEvents BtnViewLog As System.Windows.Forms.Button
 End Class

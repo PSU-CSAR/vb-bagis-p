@@ -65,5 +65,6 @@ Public Enum PublicPath
     <Description("\jh_coef_aoi")> JhCoefAoiTable
     <Description("\LayerParametersLog.xsl")> LayerParametersLogXsl
     <Description("\LayerParametersLog.xml")> LayerParametersLogXml
+    <Description("\LayerParametersLog.html")> LayerParametersLogHtml
 
 End Enum
