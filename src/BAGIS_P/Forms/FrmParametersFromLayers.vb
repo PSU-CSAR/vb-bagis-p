@@ -543,7 +543,7 @@ Public Class FrmParametersFromLayers
                     End If
                 Next
                 GrdCalcParameters.CurrentCell.Selected = False
-                GrdCalcParameters.Sort(0, System.ComponentModel.ListSortDirection.Ascending)
+                GrdCalcParameters.Sort(GrdCalcParameters.Columns(0), System.ComponentModel.ListSortDirection.Ascending)
                 'Remove any missing parameters from the dictionary
                 'It will be saved the next time a parameter is calculated
                 For Each mName As String In missingNames
