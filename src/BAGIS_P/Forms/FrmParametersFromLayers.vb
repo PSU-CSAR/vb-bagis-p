@@ -177,6 +177,7 @@ Public Class FrmParametersFromLayers
                     If validVAT = False Then
                         Dim errMsg As String = "The selected raster does not have an attribute table. Please use ArcMap to create an attribute table for the raster."
                         MessageBox.Show(errMsg, "Missing attribute table", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Exit Sub
                     End If
                     CopyUniqueValuesToReclass()
                 Else
@@ -542,6 +543,7 @@ Public Class FrmParametersFromLayers
                     End If
                 Next
                 GrdCalcParameters.CurrentCell.Selected = False
+                GrdCalcParameters.Sort(0, System.ComponentModel.ListSortDirection.Ascending)
                 'Remove any missing parameters from the dictionary
                 'It will be saved the next time a parameter is calculated
                 For Each mName As String In missingNames
@@ -601,5 +603,48 @@ Public Class FrmParametersFromLayers
             End If
             TxtStatus.Text = Nothing
         End If
+    End Sub
+
+    Private Sub BtnDeleteSelected_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnDeleteSelected.Click
+        Dim sRow As DataGridViewRow = GrdCalcParameters.SelectedRows(0)
+        Dim paramName As String = Convert.ToString(sRow.Cells(0).Value)
+        Dim fc As IFeatureClass = Nothing
+        Dim deleteFields As IFields = Nothing
+        Try
+            Dim hruItem As LayerListItem = LstHruLayers.SelectedItem
+            Dim hruGdbPath As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, hruItem.Name)
+            Dim v_name As String = BA_GetBareName(BA_EnumDescription(PublicPath.HruZonesVector))
+            fc = BA_OpenFeatureClassFromGDB(hruGdbPath, v_name)
+            If fc IsNot Nothing Then
+                Dim idxDelete = fc.FindField(paramName)
+                If idxDelete > -1 Then
+                    deleteFields = fc.Fields
+                    fc.DeleteField(deleteFields.Field(idxDelete))
+                    If m_layerParameters.Contains(paramName) Then
+                        m_layerParameters.Remove(paramName)
+                        SaveLog(hruItem.Name)
+                        GrdCalcParameters.Rows.Remove(sRow)
+                        GrdCalcParameters.CurrentCell.Selected = False
+                    End If
+                End If
+            End If
+        Catch ex As Exception
+            Debug.Print("BtnDeleteSelected_Click Exception: " & ex.Message)
+        Finally
+            fc = Nothing
+            deleteFields = Nothing
+        End Try
+    End Sub
+
+    Private Sub BtnViewBagisParams_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnViewBagisParams.Click
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        Dim settingsPath As String = bExt.SettingsPath
+        Dim parameterFilePath As String = BA_GetPublicMethodsPath(settingsPath) & BA_EnumDescription(PublicPath.BagisParameters)
+        If BA_File_ExistsWindowsIO(parameterFilePath) Then
+            Process.Start("iexplore.exe", parameterFilePath)
+        Else
+            MessageBox.Show("Missing BAGIS configuration file at: " & parameterFilePath, "Missing file", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        End If
+
     End Sub
 End Class

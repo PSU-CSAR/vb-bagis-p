@@ -163,7 +163,7 @@ Partial Class FrmParametersFromLayers
         Me.GrdCalcParameters.Name = "GrdCalcParameters"
         Me.GrdCalcParameters.ReadOnly = True
         Me.GrdCalcParameters.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.GrdCalcParameters.Size = New System.Drawing.Size(315, 123)
+        Me.GrdCalcParameters.Size = New System.Drawing.Size(315, 163)
         Me.GrdCalcParameters.TabIndex = 97
         '
         'DataGridViewTextBoxColumn1
@@ -188,7 +188,7 @@ Partial Class FrmParametersFromLayers
         '
         Me.BtnDeleteSelected.Enabled = False
         Me.BtnDeleteSelected.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnDeleteSelected.Location = New System.Drawing.Point(4, 326)
+        Me.BtnDeleteSelected.Location = New System.Drawing.Point(6, 366)
         Me.BtnDeleteSelected.Name = "BtnDeleteSelected"
         Me.BtnDeleteSelected.Size = New System.Drawing.Size(150, 25)
         Me.BtnDeleteSelected.TabIndex = 98
@@ -366,7 +366,7 @@ Partial Class FrmParametersFromLayers
         '
         Me.BtnViewLog.Enabled = False
         Me.BtnViewLog.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnViewLog.Location = New System.Drawing.Point(167, 326)
+        Me.BtnViewLog.Location = New System.Drawing.Point(169, 366)
         Me.BtnViewLog.Name = "BtnViewLog"
         Me.BtnViewLog.Size = New System.Drawing.Size(150, 25)
         Me.BtnViewLog.TabIndex = 145
