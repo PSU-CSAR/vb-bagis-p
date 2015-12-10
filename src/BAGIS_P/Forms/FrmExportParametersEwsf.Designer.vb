@@ -626,7 +626,6 @@ Partial Class FrmExportParametersEwsf
         Me.LblPreCalculated.Name = "LblPreCalculated"
         Me.LblPreCalculated.Size = New System.Drawing.Size(491, 19)
         Me.LblPreCalculated.TabIndex = 138
-        Me.LblPreCalculated.Text = "There are 2 pre-calculated parameters in the selected HRU layer"
         '
         'CkUsePreCalculated
         '
@@ -635,10 +634,10 @@ Partial Class FrmExportParametersEwsf
         Me.CkUsePreCalculated.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CkUsePreCalculated.Location = New System.Drawing.Point(172, 189)
         Me.CkUsePreCalculated.Name = "CkUsePreCalculated"
-        Me.CkUsePreCalculated.Size = New System.Drawing.Size(674, 20)
+        Me.CkUsePreCalculated.Size = New System.Drawing.Size(689, 20)
         Me.CkUsePreCalculated.TabIndex = 139
-        Me.CkUsePreCalculated.Text = "Overwrite BAGIS-P parameters using pre-calculated parameters when duplicates are " & _
-            "detected"
+        Me.CkUsePreCalculated.Text = "Export pre-calculated nhru parameters (duplicate BAGIS-P output parameters will b" & _
+            "e overwritten)"
         Me.CkUsePreCalculated.UseVisualStyleBackColor = True
         '
         'Label3

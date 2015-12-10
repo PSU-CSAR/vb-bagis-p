@@ -27,6 +27,7 @@ Public Class FrmExportParametersEwsf
     Dim m_hasPeObs As Boolean = False
     Private Const METER As String = "Meter"
     Private Const FOOT As String = "Foot"
+    Dim m_layerParamsDict As IDictionary(Of String, LayerParameter)
 
     Public Sub New()
 
@@ -187,6 +188,8 @@ Public Class FrmExportParametersEwsf
             LoadProfileList(selItem.Name)
             SetMinPolySize(hruGdbName)
             SetHruResolution()
+            m_layerParamsDict = BA_LoadLayerParametersFromXml(hruInputPath)
+            ManageLayerParameterControls()
         End If
     End Sub
 
@@ -551,8 +554,15 @@ Public Class FrmExportParametersEwsf
             End If
             m_exportMessage = "Generating parameter export file  .........."
             LblStatus.Text = m_exportMessage
+            'Create a dictionary for the parameters from layer and populate it according to the checkbox
+            Dim exportLayerParams As IDictionary(Of String, LayerParameter) = New Dictionary(Of String, LayerParameter)
+            If CkUsePreCalculated.Checked Then
+                If m_layerParamsDict IsNot Nothing Then
+                    exportLayerParams = New Dictionary(Of String, LayerParameter)(m_layerParamsDict)
+                End If
+            End If
             BA_ExportParameterFile(TxtOutputFolder.Text, TxtDescription.Text, TxtVersion.Text, m_paramsTable, m_tablesTable, hruParamPath, _
-                                   tableName, CInt(TxtNHru.Text), m_spatialParamsTable, missingData, m_radplSpatialParameters)
+                                   tableName, CInt(TxtNHru.Text), m_spatialParamsTable, missingData, m_radplSpatialParameters, exportLayerParams)
             Dim zipFolder As String = Nothing
             If CkParametersOnly.Checked = False Then
                 'Export Geodatabase file to shapefile
@@ -1037,6 +1047,24 @@ Public Class FrmExportParametersEwsf
                 sb.Append(vbCrLf & "Please use the BAGIS-P 'PE_Obs and SR_Obs Tool' to manage these parameters." & vbCrLf)
                 MessageBox.Show(sb.ToString, "Observed Potential Evaporation and Solar Radiation", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
+        End If
+    End Sub
+
+    Private Sub ManageLayerParameterControls()
+        Dim prefix As String = "There are "
+        Dim suffix As String = " sets of pre-calculated parameters in the selected HRU layer"
+        If m_layerParamsDict Is Nothing Then
+            LblPreCalculated.Text = Nothing
+            CkUsePreCalculated.Checked = False
+            CkUsePreCalculated.Enabled = False
+        ElseIf m_layerParamsDict.Count = 0 Then
+            LblPreCalculated.Text = prefix & m_layerParamsDict.Count & suffix
+            CkUsePreCalculated.Checked = False
+            CkUsePreCalculated.Enabled = False
+        Else
+            LblPreCalculated.Text = prefix & m_layerParamsDict.Count & suffix
+            CkUsePreCalculated.Checked = True
+            CkUsePreCalculated.Enabled = True
         End If
     End Sub
 End Class

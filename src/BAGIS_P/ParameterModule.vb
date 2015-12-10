@@ -354,7 +354,8 @@ Module ParameterModule
     Public Function BA_ExportParameterFile(ByVal outputFile As String, ByVal description As String, ByVal pVersion As String, _
                                            ByVal parameterMap As Hashtable, ByVal tableMap As Hashtable, ByVal hruParamFolder As String, _
                                            ByVal hruParamFile As String, ByVal polygonCount As Integer, ByVal spatialTable As Hashtable, _
-                                           ByVal missingValue As String, ByVal radplSpatialParameters As IList(Of String)) As BA_ReturnCode
+                                           ByVal missingValue As String, ByVal radplSpatialParameters As IList(Of String), _
+                                           ByVal layerSpatialParameters As IDictionary(Of String, LayerParameter)) As BA_ReturnCode
         Dim sw As StreamWriter = Nothing
         Dim sb As StringBuilder = New StringBuilder
         Dim pTable As ITable = Nothing
@@ -363,6 +364,10 @@ Module ParameterModule
         Dim radplCursor As ICursor = Nothing
         Dim pRow As IRow = Nothing
         Dim pFields As IFields = Nothing
+        Dim layerFeatClass As IFeatureClass = Nothing
+        Dim layerCursor As IFeatureCursor = Nothing
+        Dim layerFeature As IFeature = Nothing
+        Dim layerQuery As IQueryFilter = New QueryFilter
         Try
             sw = New StreamWriter(outputFile)
             'Write section header
@@ -537,19 +542,26 @@ Module ParameterModule
                     sb.Append(",")
                     For i As Integer = 0 To pFields.FieldCount - 1
                         Dim pField As Field = pFields.Field(i)
-                        If IncludeField(pField, radplSpatialParameters) = True Then
+                        If IncludeField(pField, radplSpatialParameters, layerSpatialParameters) = True Then
                             sb.Append(pField.Name)
                             sb.Append(",")
                         End If
+                    Next
+                    'Append parameters from layer column headers
+                    For Each key As String In layerSpatialParameters.Keys
+                        sb.Append(key)
+                        sb.Append(",")
                     Next
                     'Append user-specified spatial param column headers
                     Dim spatialColumns As IList(Of String) = New List(Of String)
                     For Each key As String In spatialTable.Keys
                         If Not radplSpatialParameters.Contains(key) Then
-                            sb.Append(key)
-                            sb.Append(",")
-                            'Also store key value in a reference array because order in Hashtable is not guaranteed
-                            spatialColumns.Add(key)
+                            If Not layerSpatialParameters.ContainsKey(key) Then
+                                sb.Append(key)
+                                sb.Append(",")
+                                'Also store key value in a reference array because order in Hashtable is not guaranteed
+                                spatialColumns.Add(key)
+                            End If
                         End If
                     Next
                     'Trim trailing comma
@@ -563,24 +575,56 @@ Module ParameterModule
                         'Empty cell so the table lines up
                         sb.Append(",")
                         'Dim idxERamsId As Integer = pTable.FindField(BA_FIELD_ERAMS_ID)
+                        Dim nextHruId As String = "-1"
                         Dim idxHruId As Integer = pTable.FindField(BA_FIELD_HRU_ID)
                         If idxHruId > 0 Then
                             sb.Append(pRow.Value(idxHruId))
+                            nextHruId = Convert.ToString(pRow.Value(idxHruId))
                         End If
                         sb.Append(",")
                         For j As Integer = 0 To pFields.FieldCount - 1
                             Dim nextField As IField = pRow.Fields.Field(j)
-                            If IncludeField(nextField, radplSpatialParameters) Then
+                            If IncludeField(nextField, radplSpatialParameters, layerSpatialParameters) Then
                                 sb.Append(pRow.Value(j))
                                 sb.Append(",")
                             End If
                         Next
+
+                        'Append parameters from layers if we have any
+                        If layerSpatialParameters.Keys.Count > 0 Then
+                            'Extract the path to the hru gdb from the hruParamFolder so we don't have to add another variable
+                            Dim hruFolder As String = "PleaseReturn"
+                            Dim strTemp As String = BA_GetBareName(hruParamFolder, hruFolder)
+                            Dim hruName As String = BA_GetBareName(hruFolder)
+                            Dim hruGdbFolder As String = hruFolder & hruName & ".gdb"
+                            layerFeatClass = BA_OpenFeatureClassFromGDB(hruGdbFolder, BA_GetBareName(BA_EnumDescription(PublicPath.HruZonesVector)))
+                            If layerFeatClass IsNot Nothing Then
+                                layerQuery.WhereClause = BA_FIELD_HRU_ID & " = " & nextHruId
+                                layerCursor = layerFeatClass.Search(layerQuery, False)
+                                If layerCursor IsNot Nothing Then
+                                    'We assume there is only one feature with an id
+                                    layerFeature = layerCursor.NextFeature
+                                    If layerFeature IsNot Nothing Then
+                                        For Each key As String In layerSpatialParameters.Keys
+                                            Dim idxParam As String = layerFeatClass.FindField(key)
+                                            If idxParam > -1 Then
+                                                sb.Append(layerFeature.Value(idxParam))
+                                                sb.Append(",")
+                                            End If
+                                        Next
+                                    End If
+                                End If
+                            End If
+                        End If
+
                         'Append user-specified spatial param column values
                         For Each spHeader As String In spatialColumns
                             If Not radplSpatialParameters.Contains(spHeader) Then
-                                Dim spColumn As IList(Of String) = spatialTable(spHeader)
-                                sb.Append(spColumn.Item(rowCount))
-                                sb.Append(",")
+                                If Not layerSpatialParameters.ContainsKey(spHeader) Then
+                                    Dim spColumn As IList(Of String) = spatialTable(spHeader)
+                                    sb.Append(spColumn.Item(rowCount))
+                                    sb.Append(",")
+                                End If
                             End If
                         Next
                         'Trim trailing comma
@@ -698,6 +742,10 @@ Module ParameterModule
             radplCursor = Nothing
             pRow = Nothing
             pFields = Nothing
+            layerFeatClass = Nothing
+            layerCursor = Nothing
+            layerFeature = Nothing
+            layerQuery = Nothing
         End Try
     End Function
 
@@ -1498,6 +1546,8 @@ Module ParameterModule
                                 If reqSpatialParameters.Contains(pName) Then
                                     pTable.Remove(pName)
                                 End If
+                                'Don't duplicate HRU_ID if it's in the template
+                                If pName.Equals(BA_FIELD_HRU_ID) Then pTable.Remove(pName)
                             Next
                         End If
                         If missingSpatialParameters IsNot Nothing Then
@@ -1564,13 +1614,18 @@ Module ParameterModule
         End Try
     End Function
 
-    Private Function IncludeField(ByVal pField As IField, ByVal radplSpatialParameters As IList(Of String)) As Boolean
+    Private Function IncludeField(ByVal pField As IField, ByVal radplSpatialParameters As IList(Of String), _
+                                  ByVal layerSpatialParameters As IDictionary(Of String, LayerParameter)) As Boolean
         If pField.Type <> esriFieldType.esriFieldTypeOID Then
             If pField.Name <> BA_FIELD_HRU_ID Then
                 If radplSpatialParameters.Contains(pField.Name) Then
                     Return False
                 Else
-                    Return True
+                    If layerSpatialParameters.ContainsKey(pField.Name) Then
+                        Return False
+                    Else
+                        Return True
+                    End If
                 End If
             Else
                 Return False
