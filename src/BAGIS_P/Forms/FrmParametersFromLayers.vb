@@ -5,6 +5,9 @@ Imports ESRI.ArcGIS.Geodatabase
 Imports ESRI.ArcGIS.CatalogUI
 Imports ESRI.ArcGIS.Catalog
 Imports ESRI.ArcGIS.DataSourcesRaster
+Imports ESRI.ArcGIS.Carto
+Imports ESRI.ArcGIS.Display
+Imports ESRI.ArcGIS.esriSystem
 
 Public Class FrmParametersFromLayers
 
@@ -583,8 +586,10 @@ Public Class FrmParametersFromLayers
     Private Sub GrdCalcParameters_SelectionChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles GrdCalcParameters.SelectionChanged
         If GrdCalcParameters.SelectedRows.Count > 0 Then
             BtnDeleteSelected.Enabled = True
+            BtnView.Enabled = True
         Else
             BtnDeleteSelected.Enabled = False
+            BtnView.Enabled = False
         End If
     End Sub
 
@@ -646,5 +651,59 @@ Public Class FrmParametersFromLayers
             MessageBox.Show("Missing BAGIS configuration file at: " & parameterFilePath, "Missing file", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
 
+    End Sub
+
+    Private Sub BtnView_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnView.Click
+        Dim selItem As LayerListItem = TryCast(LstHruLayers.SelectedItem, LayerListItem)
+        Dim hruPath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name)
+        Dim pfLayer As IFeatureLayer = Nothing
+        Dim pColorRamp As IColorRamp = Nothing
+        Dim pGFLayer As IGeoFeatureLayer = Nothing
+
+        Try
+            ' Extract the param name from the grid
+            Dim sRow As DataGridViewRow = GrdCalcParameters.SelectedRows(0)
+            Dim paramName As String = Convert.ToString(sRow.Cells(0).Value)
+            'Derive the file path for the HRU vector to be displayed
+            Dim hruGdbName As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name)
+            Dim vName As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.HruZonesVector), False)
+            'Add the vector to the map but don't refresh yet; It won't show on the display
+            Dim buffer_factor As Double = 1.25
+            Dim displayName As String = selItem.Name & " " & paramName
+            Dim success As BA_ReturnCode = BA_DisplayVectorNoRefresh(My.Document, hruGdbName, vName, displayName, 0, buffer_factor)
+
+            If success = BA_ReturnCode.Success Then
+                'Get a handle to the newly added vector
+                Dim pMap As IMap = My.Document.FocusMap
+                For i As Integer = 0 To pMap.LayerCount - 1
+                    Dim nextLayer As ILayer2 = pMap.Layer(i)
+                    If TypeOf nextLayer Is IFeatureLayer Then
+                        Dim fLayer As IFeatureLayer = CType(nextLayer, IFeatureLayer)
+                        If fLayer.Name = displayName Then
+                            pfLayer = fLayer
+                            Exit For
+                        End If
+                    End If
+                Next
+
+                'Access the displayTable through the IGeoFeatureLayer
+                pGFLayer = CType(pfLayer, IGeoFeatureLayer) 'Explicit cast
+
+                pColorRamp = BA_FindColorRamp(My.Document, "Color Ramps", "ESRI.style", "Default Schemes", "Basic Random")
+                BA_DefineUniqueValueRenderer(pGFLayer, pColorRamp, paramName)
+
+                'refresh the activated view
+                My.Document.ActivatedView.PartialRefresh(esriViewDrawPhase.esriViewGeography, Nothing, Nothing)
+                My.Document.UpdateContents()
+            End If
+        Catch ex As Exception
+            Debug.Print("BtnView_Click Exception: " & ex.Message)
+        Finally
+            pfLayer = Nothing
+            pColorRamp = Nothing
+            pGFLayer = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
     End Sub
 End Class
