@@ -25,8 +25,8 @@ Public Class BtnTimberlineTool
         dockWindow.Show(aboutToShow)
         ' Set dimensions of dockable window
         Dim windowPos As ESRI.ArcGIS.Framework.IWindowPosition = CType(dockWindow, ESRI.ArcGIS.Framework.IWindowPosition)
-        windowPos.Height = 485
-        windowPos.Width = 735
+        windowPos.Height = 590
+        windowPos.Width = 890
     End Sub
 
     Protected Overrides Sub OnUpdate()
