@@ -128,17 +128,18 @@ Partial Class FrmExportParametersEwsf
         '
         Me.LstHruLayers.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LstHruLayers.FormattingEnabled = True
+        Me.LstHruLayers.HorizontalScrollbar = True
         Me.LstHruLayers.ItemHeight = 16
         Me.LstHruLayers.Location = New System.Drawing.Point(4, 67)
         Me.LstHruLayers.Name = "LstHruLayers"
-        Me.LstHruLayers.Size = New System.Drawing.Size(150, 100)
+        Me.LstHruLayers.Size = New System.Drawing.Size(150, 116)
         Me.LstHruLayers.TabIndex = 63
         '
         'Label1
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(1, 177)
+        Me.Label1.Location = New System.Drawing.Point(1, 195)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(37, 16)
         Me.Label1.TabIndex = 65
@@ -147,7 +148,7 @@ Partial Class FrmExportParametersEwsf
         'TxtNHru
         '
         Me.TxtNHru.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtNHru.Location = New System.Drawing.Point(38, 175)
+        Me.TxtNHru.Location = New System.Drawing.Point(38, 193)
         Me.TxtNHru.Name = "TxtNHru"
         Me.TxtNHru.ReadOnly = True
         Me.TxtNHru.Size = New System.Drawing.Size(60, 22)
@@ -298,7 +299,7 @@ Partial Class FrmExportParametersEwsf
         Me.LstProfiles.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LstProfiles.FormattingEnabled = True
         Me.LstProfiles.ItemHeight = 16
-        Me.LstProfiles.Location = New System.Drawing.Point(4, 223)
+        Me.LstProfiles.Location = New System.Drawing.Point(4, 241)
         Me.LstProfiles.Name = "LstProfiles"
         Me.LstProfiles.Size = New System.Drawing.Size(150, 100)
         Me.LstProfiles.Sorted = True
@@ -308,7 +309,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.Label8.AutoSize = True
         Me.Label8.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label8.Location = New System.Drawing.Point(1, 204)
+        Me.Label8.Location = New System.Drawing.Point(1, 222)
         Me.Label8.Name = "Label8"
         Me.Label8.Size = New System.Drawing.Size(61, 16)
         Me.Label8.TabIndex = 93

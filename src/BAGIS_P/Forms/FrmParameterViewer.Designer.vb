@@ -23,8 +23,8 @@ Partial Class FrmParameterViewer
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.TxtAoiPath = New System.Windows.Forms.TextBox()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.BtnSelectAoi = New System.Windows.Forms.Button()
@@ -33,6 +33,7 @@ Partial Class FrmParameterViewer
         Me.Label1 = New System.Windows.Forms.Label()
         Me.LstProfiles = New System.Windows.Forms.ListBox()
         Me.GrdParam = New System.Windows.Forms.DataGridView()
+        Me.HRU_ID = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.BtnClose = New System.Windows.Forms.Button()
         Me.BtnEditModel = New System.Windows.Forms.Button()
         Me.BtnViewValues = New System.Windows.Forms.Button()
@@ -40,7 +41,6 @@ Partial Class FrmParameterViewer
         Me.ImgListColors = New System.Windows.Forms.ImageList(Me.components)
         Me.CboColors = New System.Windows.Forms.ComboBox()
         Me.LblError = New System.Windows.Forms.LinkLabel()
-        Me.HRU_ID = New System.Windows.Forms.DataGridViewTextBoxColumn()
         CType(Me.GrdParam, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -79,10 +79,11 @@ Partial Class FrmParameterViewer
         '
         Me.LstHruLayers.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LstHruLayers.FormattingEnabled = True
+        Me.LstHruLayers.HorizontalScrollbar = True
         Me.LstHruLayers.ItemHeight = 16
         Me.LstHruLayers.Location = New System.Drawing.Point(3, 65)
         Me.LstHruLayers.Name = "LstHruLayers"
-        Me.LstHruLayers.Size = New System.Drawing.Size(150, 100)
+        Me.LstHruLayers.Size = New System.Drawing.Size(150, 116)
         Me.LstHruLayers.TabIndex = 60
         '
         'LblHruLayers
@@ -99,7 +100,7 @@ Partial Class FrmParameterViewer
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(0, 170)
+        Me.Label1.Location = New System.Drawing.Point(0, 192)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(61, 16)
         Me.Label1.TabIndex = 62
@@ -110,7 +111,7 @@ Partial Class FrmParameterViewer
         Me.LstProfiles.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LstProfiles.FormattingEnabled = True
         Me.LstProfiles.ItemHeight = 16
-        Me.LstProfiles.Location = New System.Drawing.Point(3, 189)
+        Me.LstProfiles.Location = New System.Drawing.Point(3, 211)
         Me.LstProfiles.Name = "LstProfiles"
         Me.LstProfiles.Size = New System.Drawing.Size(150, 100)
         Me.LstProfiles.Sorted = True
@@ -120,14 +121,14 @@ Partial Class FrmParameterViewer
         '
         Me.GrdParam.AllowUserToAddRows = False
         Me.GrdParam.AllowUserToDeleteRows = False
-        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.GrdParam.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.GrdParam.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle3
         Me.GrdParam.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.GrdParam.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.HRU_ID})
         Me.GrdParam.Location = New System.Drawing.Point(168, 45)
@@ -138,6 +139,17 @@ Partial Class FrmParameterViewer
         Me.GrdParam.Size = New System.Drawing.Size(618, 244)
         Me.GrdParam.TabIndex = 64
         Me.GrdParam.Visible = False
+        '
+        'HRU_ID
+        '
+        Me.HRU_ID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.HRU_ID.DefaultCellStyle = DataGridViewCellStyle4
+        Me.HRU_ID.HeaderText = "HRU ID"
+        Me.HRU_ID.Name = "HRU_ID"
+        Me.HRU_ID.ReadOnly = True
+        Me.HRU_ID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic
+        Me.HRU_ID.Width = 85
         '
         'BtnClose
         '
@@ -209,17 +221,6 @@ Partial Class FrmParameterViewer
         Me.LblError.Size = New System.Drawing.Size(0, 19)
         Me.LblError.TabIndex = 86
         Me.LblError.UseCompatibleTextRendering = True
-        '
-        'HRU_ID
-        '
-        Me.HRU_ID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.HRU_ID.DefaultCellStyle = DataGridViewCellStyle2
-        Me.HRU_ID.HeaderText = "HRU ID"
-        Me.HRU_ID.Name = "HRU_ID"
-        Me.HRU_ID.ReadOnly = True
-        Me.HRU_ID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic
-        Me.HRU_ID.Width = 85
         '
         'FrmParameterViewer
         '

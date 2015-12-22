@@ -22,11 +22,11 @@ Partial Class FrmParametersFromLayers
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle11 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle12 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle13 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle14 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle15 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.TxtAoiPath = New System.Windows.Forms.TextBox()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.BtnSelectAoi = New System.Windows.Forms.Button()
@@ -131,14 +131,14 @@ Partial Class FrmParametersFromLayers
         Me.LstHruLayers.ItemHeight = 16
         Me.LstHruLayers.Location = New System.Drawing.Point(4, 63)
         Me.LstHruLayers.Name = "LstHruLayers"
-        Me.LstHruLayers.Size = New System.Drawing.Size(150, 100)
+        Me.LstHruLayers.Size = New System.Drawing.Size(150, 116)
         Me.LstHruLayers.TabIndex = 94
         '
         'Label1
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(1, 176)
+        Me.Label1.Location = New System.Drawing.Point(1, 198)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(218, 16)
         Me.Label1.TabIndex = 96
@@ -148,17 +148,17 @@ Partial Class FrmParametersFromLayers
         '
         Me.GrdCalcParameters.AllowUserToAddRows = False
         Me.GrdCalcParameters.AllowUserToDeleteRows = False
-        DataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle11.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.GrdCalcParameters.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle11
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.GrdCalcParameters.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.GrdCalcParameters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.GrdCalcParameters.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.DataGridViewTextBoxColumn1, Me.DataGridViewTextBoxColumn2})
-        Me.GrdCalcParameters.Location = New System.Drawing.Point(4, 196)
+        Me.GrdCalcParameters.Location = New System.Drawing.Point(4, 218)
         Me.GrdCalcParameters.Margin = New System.Windows.Forms.Padding(4)
         Me.GrdCalcParameters.MultiSelect = False
         Me.GrdCalcParameters.Name = "GrdCalcParameters"
@@ -169,8 +169,8 @@ Partial Class FrmParametersFromLayers
         '
         'DataGridViewTextBoxColumn1
         '
-        DataGridViewCellStyle12.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.DataGridViewTextBoxColumn1.DefaultCellStyle = DataGridViewCellStyle12
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.DataGridViewTextBoxColumn1.DefaultCellStyle = DataGridViewCellStyle2
         Me.DataGridViewTextBoxColumn1.HeaderText = "Parameter"
         Me.DataGridViewTextBoxColumn1.Name = "DataGridViewTextBoxColumn1"
         Me.DataGridViewTextBoxColumn1.ReadOnly = True
@@ -178,8 +178,8 @@ Partial Class FrmParametersFromLayers
         '
         'DataGridViewTextBoxColumn2
         '
-        DataGridViewCellStyle13.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.DataGridViewTextBoxColumn2.DefaultCellStyle = DataGridViewCellStyle13
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.DataGridViewTextBoxColumn2.DefaultCellStyle = DataGridViewCellStyle3
         Me.DataGridViewTextBoxColumn2.HeaderText = "Date Calculated"
         Me.DataGridViewTextBoxColumn2.Name = "DataGridViewTextBoxColumn2"
         Me.DataGridViewTextBoxColumn2.ReadOnly = True
@@ -189,7 +189,7 @@ Partial Class FrmParametersFromLayers
         '
         Me.BtnDeleteSelected.Enabled = False
         Me.BtnDeleteSelected.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnDeleteSelected.Location = New System.Drawing.Point(6, 366)
+        Me.BtnDeleteSelected.Location = New System.Drawing.Point(6, 388)
         Me.BtnDeleteSelected.Name = "BtnDeleteSelected"
         Me.BtnDeleteSelected.Size = New System.Drawing.Size(150, 25)
         Me.BtnDeleteSelected.TabIndex = 98
@@ -331,10 +331,10 @@ Partial Class FrmParametersFromLayers
         '
         'LayerValues
         '
-        DataGridViewCellStyle14.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle14.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle14.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.LayerValues.DefaultCellStyle = DataGridViewCellStyle14
+        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.LayerValues.DefaultCellStyle = DataGridViewCellStyle4
         Me.LayerValues.HeaderText = "Layer Values"
         Me.LayerValues.Name = "LayerValues"
         Me.LayerValues.ReadOnly = True
@@ -342,8 +342,8 @@ Partial Class FrmParametersFromLayers
         '
         'ParameterValues
         '
-        DataGridViewCellStyle15.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ParameterValues.DefaultCellStyle = DataGridViewCellStyle15
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ParameterValues.DefaultCellStyle = DataGridViewCellStyle5
         Me.ParameterValues.HeaderText = "Parameter Values"
         Me.ParameterValues.Name = "ParameterValues"
         Me.ParameterValues.Width = 145
@@ -367,7 +367,7 @@ Partial Class FrmParametersFromLayers
         '
         Me.BtnViewLog.Enabled = False
         Me.BtnViewLog.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnViewLog.Location = New System.Drawing.Point(169, 366)
+        Me.BtnViewLog.Location = New System.Drawing.Point(169, 388)
         Me.BtnViewLog.Name = "BtnViewLog"
         Me.BtnViewLog.Size = New System.Drawing.Size(150, 25)
         Me.BtnViewLog.TabIndex = 145
@@ -378,7 +378,7 @@ Partial Class FrmParametersFromLayers
         '
         Me.BtnView.Enabled = False
         Me.BtnView.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnView.Location = New System.Drawing.Point(6, 397)
+        Me.BtnView.Location = New System.Drawing.Point(6, 419)
         Me.BtnView.Name = "BtnView"
         Me.BtnView.Size = New System.Drawing.Size(170, 25)
         Me.BtnView.TabIndex = 146
