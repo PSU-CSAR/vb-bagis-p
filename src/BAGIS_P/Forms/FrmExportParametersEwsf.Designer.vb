@@ -158,7 +158,7 @@ Partial Class FrmExportParametersEwsf
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(1, 352)
+        Me.Label2.Location = New System.Drawing.Point(1, 360)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(162, 16)
         Me.Label2.TabIndex = 67
@@ -167,7 +167,7 @@ Partial Class FrmExportParametersEwsf
         'TxtNumParameters
         '
         Me.TxtNumParameters.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtNumParameters.Location = New System.Drawing.Point(6, 370)
+        Me.TxtNumParameters.Location = New System.Drawing.Point(6, 378)
         Me.TxtNumParameters.Name = "TxtNumParameters"
         Me.TxtNumParameters.ReadOnly = True
         Me.TxtNumParameters.Size = New System.Drawing.Size(60, 22)
@@ -298,10 +298,11 @@ Partial Class FrmExportParametersEwsf
         '
         Me.LstProfiles.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LstProfiles.FormattingEnabled = True
+        Me.LstProfiles.HorizontalScrollbar = True
         Me.LstProfiles.ItemHeight = 16
         Me.LstProfiles.Location = New System.Drawing.Point(4, 241)
         Me.LstProfiles.Name = "LstProfiles"
-        Me.LstProfiles.Size = New System.Drawing.Size(150, 100)
+        Me.LstProfiles.Size = New System.Drawing.Size(150, 116)
         Me.LstProfiles.Sorted = True
         Me.LstProfiles.TabIndex = 94
         '
@@ -588,7 +589,7 @@ Partial Class FrmExportParametersEwsf
         'BtnViewBagisParams
         '
         Me.BtnViewBagisParams.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnViewBagisParams.Location = New System.Drawing.Point(3, 396)
+        Me.BtnViewBagisParams.Location = New System.Drawing.Point(3, 404)
         Me.BtnViewBagisParams.Name = "BtnViewBagisParams"
         Me.BtnViewBagisParams.Size = New System.Drawing.Size(135, 25)
         Me.BtnViewBagisParams.TabIndex = 135
