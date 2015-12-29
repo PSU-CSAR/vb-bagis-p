@@ -103,15 +103,23 @@ Module ParameterModule
                 pCursor = fClass.Search(Nothing, False)
                 pFeature = pCursor.NextFeature
                 pArea = CType(pFeature.Shape, IArea)
+                Dim totalArea As Double = pArea.Area
                 geoDataSet = CType(fClass, IGeoDataset)
                 pSpatialRef = geoDataSet.SpatialReference
                 projCoordSys = TryCast(pSpatialRef, IProjectedCoordinateSystem)
+                'Total AOI area if > 1 polygon
+                pFeature = pCursor.NextFeature
+                Do While pFeature IsNot Nothing
+                    pArea = CType(pFeature.Shape, IArea)
+                    totalArea += pArea.Area
+                    pFeature = pCursor.NextFeature
+                Loop
                 If projCoordSys IsNot Nothing Then
                     Dim pLinearUnit As ILinearUnit = projCoordSys.CoordinateUnit
                     Dim MetersPerUnit As Double = pLinearUnit.MetersPerUnit
                     updateParam = hTable(BASIN_AREA)
                     If updateParam IsNot Nothing Then
-                        updateParam.value(0) = pArea.Area * (MetersPerUnit ^ 2) / BA_SQ_METERS_PER_ACRE
+                        updateParam.value(0) = totalArea * (MetersPerUnit ^ 2) / BA_SQ_METERS_PER_ACRE
                         hTable(BASIN_AREA) = updateParam
                     End If
                 End If
