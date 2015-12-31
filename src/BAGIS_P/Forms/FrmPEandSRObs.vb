@@ -4,6 +4,8 @@ Imports ESRI.ArcGIS.CatalogUI
 Imports ESRI.ArcGIS.Catalog
 Imports ESRI.ArcGIS.Geodatabase
 Imports ESRI.ArcGIS.Geometry
+Imports ESRI.ArcGIS.Carto
+Imports ESRI.ArcGIS.esriSystem
 
 Public Class FrmPEandSRObs
 
@@ -223,38 +225,24 @@ Public Class FrmPEandSRObs
     End Sub
 
     Private Function CalculateSRObs() As BA_ReturnCode
-        Dim aoiFeatures As IFeatureClass = Nothing
-        Dim srGDS As IGeoDataset = Nothing
-        Dim fCursor As IFeatureCursor = Nothing
-        Dim pFeature As IFeature = Nothing
-        Dim pArea As IArea = Nothing
         Dim pCentroid As IPoint = Nothing
         Try
             Dim aoiGDB As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi)
             Dim aoiFile As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
-            aoiFeatures = BA_OpenFeatureClassFromGDB(aoiGDB, aoiFile)
-            If aoiFeatures IsNot Nothing Then
-                fCursor = aoiFeatures.Search(Nothing, False)
-                If fCursor IsNot Nothing Then
-                    ' There is only one feature in AOI vector, always take the first one
-                    pFeature = fCursor.NextFeature
-                    If pFeature IsNot Nothing Then
-                        pArea = pFeature.Shape
-                        pCentroid = pArea.Centroid
+            pCentroid = FindCentroid(aoiGDB, aoiFile)
+            If pCentroid IsNot Nothing Then
+                Dim oid As Integer = BA_FindClosestFeatureOID(pCentroid, TxtSrPath.Text)
+                If oid > -1 Then
+                    Dim missingValuesCount As Short = 0
+                    Dim newParameter As AoiParameter = ExtractSrValues(oid, missingValuesCount)
+                    If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Obs) Then
+                        m_aoiParamTable(BA_Aoi_Parameter_SR_Obs) = newParameter
+                    Else
+                        m_aoiParamTable.Add(BA_Aoi_Parameter_SR_Obs, newParameter)
                     End If
-                    Dim oid As Integer = BA_FindClosestFeatureOID(pCentroid, TxtSrPath.Text)
-                    If oid > -1 Then
-                        Dim missingValuesCount As Short = 0
-                        Dim newParameter As AoiParameter = ExtractSrValues(oid, missingValuesCount)
-                        If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Obs) Then
-                            m_aoiParamTable(BA_Aoi_Parameter_SR_Obs) = newParameter
-                        Else
-                            m_aoiParamTable.Add(BA_Aoi_Parameter_SR_Obs, newParameter)
-                        End If
-                        TxtSrDate.Text = newParameter.DateUpdated.ToString("MM/dd/yyyy")
-                        If newParameter.ValuesList IsNot Nothing Then
-                            TxtSrValue.Text = newParameter.ValuesList(0)
-                        End If
+                    TxtSrDate.Text = newParameter.DateUpdated.ToString("MM/dd/yyyy")
+                    If newParameter.ValuesList IsNot Nothing Then
+                        TxtSrValue.Text = newParameter.ValuesList(0)
                     End If
                 End If
             End If
@@ -262,11 +250,6 @@ Public Class FrmPEandSRObs
             Debug.Print("CalculateSRObs Exception: " & ex.Message)
             Return BA_ReturnCode.UnknownError
         Finally
-            aoiFeatures = Nothing
-            srGDS = Nothing
-            fCursor = Nothing
-            pFeature = Nothing
-            pArea = Nothing
             pCentroid = Nothing
         End Try
     End Function
@@ -390,7 +373,7 @@ Public Class FrmPEandSRObs
     End Sub
 
     Private Function CalculatePEObs() As BA_ReturnCode
-
+        Dim pCentroid As IPoint = Nothing
         Dim pTable As ITable = Nothing
         Dim pCursor As ICursor = Nothing
         Dim pRow As IRow = Nothing
@@ -404,12 +387,15 @@ Public Class FrmPEandSRObs
         Dim valuesList As IList(Of String) = New List(Of String)
 
         Try
+            '@ToDo: check aoi area vs cell size to determine if we use centroid or zonal stats
+            pCentroid = FindCentroid(zoneFilePath, zoneFileName)
             For i As Short = 1 To NUM_MONTHS
                 Dim fileName As String = m_pe_prefix & i.ToString("D2") & m_pe_suffix
                 Dim valueFilePath As String = parentFolder & fileName
                 Dim peValue As String = BA_9999
                 If BA_File_Exists(valueFilePath, wType, esriDatasetType.esriDTRasterDataset) Then
                     LblStatus.Text = "Calculating potential evaporation for " & MonthName(i)
+                    peValue = ExtractValueAtCentroid(pCentroid, parentFolder, fileName)
                     Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_AOI_NAME, valueFilePath, _
                                                                              zoneFilePath, tableName, snapRasterPath, StatisticsTypeString.MEAN)
                     If success = BA_ReturnCode.Success Then
@@ -446,9 +432,131 @@ Public Class FrmPEandSRObs
             Debug.Print("CalculatePEObs() Exception: " & ex.Message)
             Return BA_ReturnCode.UnknownError
         Finally
-
+            pCentroid = Nothing
+            pTable = Nothing
+            pRow = Nothing
+            pCursor = Nothing
         End Try
+    End Function
 
+    Private Function ExtractValueAtCentroid(ByVal pCentroid As IPoint, ByVal folderName As String, ByVal fileName As String) As Double
+        Dim pIdentify As IIdentify = Nothing
+        Dim pRasterLy As IRasterLayer = New RasterLayer
+        Dim pRasterDS As IRasterDataset = Nothing
+        Dim pIDArray As IArray = Nothing
+        Dim pRasObj As IRasterIdentifyObj = Nothing
+        Dim returnVal As Double = BA_9999
+        Try
+            Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(folderName)
+            If wType = WorkspaceType.Raster Then
+                pRasterDS = BA_OpenRasterFromFile(folderName, fileName)
+            ElseIf wType = WorkspaceType.Geodatabase Then
+                pRasterDS = BA_OpenRasterFromGDB(folderName, fileName)
+            End If
+            If pRasterDS IsNot Nothing Then
+                pRasterLy.CreateFromDataset(pRasterDS)
+                pIdentify = CType(pRasterLy, IIdentify)
+                'Identify on the raster layer
+                pIDArray = pIdentify.Identify(pCentroid)
+                If pIDArray IsNot Nothing Then
+                    pRasObj = pIDArray.Element(0)
+                    Double.TryParse(pRasObj.Name, returnVal)
+                    'Set to default value if the parse didn't work
+                    If returnVal = 0 Then returnVal = BA_9999
+                End If
+            End If
+            Return returnVal
+        Catch ex As Exception
+            Debug.Print("FindCentroid() Exception: " & ex.Message)
+            Return BA_9999
+        Finally
+            pRasterDS = Nothing
+            pRasterLy = Nothing
+            pRasObj = Nothing
+            pIDArray = Nothing
+            pIdentify = Nothing
+        End Try
+    End Function
 
+    Private Function FindCentroid(ByVal folderName As String, ByVal fileName As String) As IPoint
+        Dim aoiFeatures As IFeatureClass = Nothing
+        Dim fCursor As IFeatureCursor = Nothing
+        Dim pFeature As IFeature = Nothing
+        Dim pArea As IArea = Nothing
+        Dim pCentroid As IPoint = Nothing
+        Try
+            aoiFeatures = BA_OpenFeatureClassFromGDB(folderName, fileName)
+            If aoiFeatures IsNot Nothing Then
+                fCursor = aoiFeatures.Search(Nothing, False)
+                If fCursor IsNot Nothing Then
+                    Dim largestArea As Double = 0
+                    ' There may be > one feature in AOI vector, use the biggest one
+                    pFeature = fCursor.NextFeature
+                    Do While pFeature IsNot Nothing
+                        pArea = pFeature.Shape
+                        If pArea.Area > largestArea Then
+                            largestArea = pArea.Area
+                            pCentroid = pArea.Centroid
+                        End If
+                        pFeature = fCursor.NextFeature
+                    Loop
+                End If
+            End If
+            Return pCentroid
+        Catch ex As Exception
+            Debug.Print("FindCentroid() Exception: " & ex.Message)
+            Return Nothing
+        Finally
+            aoiFeatures = Nothing
+            fCursor = Nothing
+            pFeature = Nothing
+            pArea = Nothing
+        End Try
+    End Function
+
+    Private Function UseZonalStats(ByVal aoiFolderName As String, ByVal aoiFileName As String, ByVal peFolderName As String, _
+                                   ByVal peFileName As String) As Boolean
+        Dim aoiFeatures As IFeatureClass = Nothing
+        Dim fCursor As IFeatureCursor = Nothing
+        Dim pFeature As IFeature = Nothing
+        Dim pArea As IArea = Nothing
+        Dim geoDataSet As IGeoDataset = Nothing
+        Dim pSpatialRef As ISpatialReference
+        Dim projCoordSys As IProjectedCoordinateSystem
+
+        Try
+            aoiFeatures = BA_OpenFeatureClassFromGDB(aoiFolderName, aoiFileName)
+            If aoiFeatures IsNot Nothing Then
+                geoDataSet = CType(aoiFeatures, IGeoDataset)
+                pSpatialRef = geoDataSet.SpatialReference
+                projCoordSys = TryCast(pSpatialRef, IProjectedCoordinateSystem)
+                Dim pLinearUnit As ILinearUnit = projCoordSys.CoordinateUnit
+                Dim largestArea As Double = 0
+                fCursor = aoiFeatures.Search(Nothing, False)
+                If fCursor IsNot Nothing Then
+                    ' There may be > one feature in AOI vector, use the biggest one
+                    pFeature = fCursor.NextFeature
+                    Do While pFeature IsNot Nothing
+                        pArea = pFeature.Shape
+                        If pArea.Area > largestArea Then
+                            largestArea = pArea.Area
+                        End If
+                        pFeature = fCursor.NextFeature
+                    Loop
+                End If
+                largestArea = largestArea * pLinearUnit.MetersPerUnit
+
+                Dim cellSize As Double = BA_CellSize(peFolderName, peFileName)
+                Dim linearUnit As ESRI.ArcGIS.Geometry.ILinearUnit = BA_GetLinearUnitOfProjectedRaster(peFolderName, peFileName)
+                Dim cellArea As Double = cellSize * 2 * linearUnit.MetersPerUnit
+                If largestArea < cellArea * 2 Then
+                    Return False
+                End If
+            End If
+            Return True
+        Catch ex As Exception
+            Debug.Print("UseZonalStats() Exception: " & ex.Message)
+            Return True
+        End Try
     End Function
 End Class

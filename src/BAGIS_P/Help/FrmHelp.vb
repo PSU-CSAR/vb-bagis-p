@@ -33,6 +33,7 @@ Public Class FrmHelp
                     sb.Append("The SR layer should be a point layer with a column for each month named SR01, SR02 ... SR12" & vbCrLf & vbCrLf)
                     sb.Append("It is only necessary to select the PE raster layer for January; ")
                     sb.Append("BAGIS-P will locate the remaining 11 months using January file name as reference (ie: the location of 01 in the name)" & vbCrLf & vbCrLf)
+                    sb.Append("If the AOI area is less than 200% of the PE cell area, the value of the PE cell at the centroid of the AOI will be used." & vbCrLf & vbCrLf)
                     description = sb.ToString
             End Select
             LblDescription.Text = description
