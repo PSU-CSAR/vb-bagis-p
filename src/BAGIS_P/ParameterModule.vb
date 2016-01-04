@@ -1676,6 +1676,7 @@ Module ParameterModule
         Dim closestOID As Integer = -1
         Dim closestDistance As Double = -1
         Try
+            If searchGeo Is Nothing Then Return closestOID
             Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(targetFeatureClassPath)
             If wType = WorkspaceType.Geodatabase Then
                 featureClass = BA_OpenFeatureClassFromGDB(targetFolder, targetFile)

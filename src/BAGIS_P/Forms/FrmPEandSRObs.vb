@@ -230,21 +230,21 @@ Public Class FrmPEandSRObs
             Dim aoiGDB As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi)
             Dim aoiFile As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
             pCentroid = FindCentroid(aoiGDB, aoiFile)
-            If pCentroid IsNot Nothing Then
-                Dim oid As Integer = BA_FindClosestFeatureOID(pCentroid, TxtSrPath.Text)
-                If oid > -1 Then
-                    Dim missingValuesCount As Short = 0
-                    Dim newParameter As AoiParameter = ExtractSrValues(oid, missingValuesCount)
-                    If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Obs) Then
-                        m_aoiParamTable(BA_Aoi_Parameter_SR_Obs) = newParameter
-                    Else
-                        m_aoiParamTable.Add(BA_Aoi_Parameter_SR_Obs, newParameter)
-                    End If
-                    TxtSrDate.Text = newParameter.DateUpdated.ToString("MM/dd/yyyy")
-                    If newParameter.ValuesList IsNot Nothing Then
-                        TxtSrValue.Text = newParameter.ValuesList(0)
-                    End If
-                End If
+            Dim oid As Integer = BA_FindClosestFeatureOID(pCentroid, TxtSrPath.Text)
+            Dim missingValuesCount As Short = 0
+            Dim newParameter As AoiParameter = ExtractSrValues(oid, missingValuesCount)
+            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Obs) Then
+                m_aoiParamTable(BA_Aoi_Parameter_SR_Obs) = newParameter
+            Else
+                m_aoiParamTable.Add(BA_Aoi_Parameter_SR_Obs, newParameter)
+            End If
+            TxtSrDate.Text = newParameter.DateUpdated.ToString("MM/dd/yyyy")
+            If newParameter.ValuesList IsNot Nothing Then
+                TxtSrValue.Text = newParameter.ValuesList(0)
+            End If
+            If missingValuesCount > 0 Then
+                MessageBox.Show("One or more solar radiation values could not be determined.", "Warning", _
+                                 MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
         Catch ex As Exception
             Debug.Print("CalculateSRObs Exception: " & ex.Message)
@@ -296,6 +296,10 @@ Public Class FrmPEandSRObs
                 txtPeValue.Text = Nothing
             End If
         End If
+        'Reset SR and PE data sources in case user selected an AOI with different projection
+        'We check the projections when the data source is set
+        TxtSrPath.Text = Nothing
+        TxtPEPath.Text = Nothing
     End Sub
 
     Private Function ExtractSrValues(ByVal oid As Integer, ByRef missingValues As Short) As AoiParameter
@@ -304,32 +308,34 @@ Public Class FrmPEandSRObs
         Dim fCursor As IFeatureCursor = Nothing
         Dim pFeature As IFeature = Nothing
         Try
-            Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(TxtSrPath.Text)
-            Dim parentPath As String = "PleaseReturn"
-            Dim fileName As String = BA_GetBareName(TxtSrPath.Text, parentPath)
-            If wType = WorkspaceType.Geodatabase Then
-                fClass = BA_OpenFeatureClassFromGDB(parentPath, fileName)
-            Else
-                fClass = BA_OpenFeatureClassFromFile(parentPath, fileName)
-            End If
             Dim srValues As List(Of String) = New List(Of String)
-            If fClass IsNot Nothing Then
-                pQF.WhereClause = BA_FIELD_OBJECT_ID & " = " & oid
-                fCursor = fClass.Search(pQF, False)
-                pFeature = fCursor.NextFeature
-                If pFeature IsNot Nothing Then
-                    Dim srFields As IFields = pFeature.Fields
-                    Dim idxSR As Integer
-                    For i As Short = 1 To NUM_MONTHS
-                        Dim fieldName As String = SR_COLUMN_PREFIX & i.ToString("D2")
-                        idxSR = srFields.FindField(fieldName)
-                        If idxSR > -1 Then
-                            srValues.Add(Convert.ToString(pFeature.Value(idxSR)))
-                        Else
-                            srValues.Add(BA_9999)
-                            missingValues += 1
-                        End If
-                    Next
+            If oid > -1 Then
+                Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(TxtSrPath.Text)
+                Dim parentPath As String = "PleaseReturn"
+                Dim fileName As String = BA_GetBareName(TxtSrPath.Text, parentPath)
+                If wType = WorkspaceType.Geodatabase Then
+                    fClass = BA_OpenFeatureClassFromGDB(parentPath, fileName)
+                Else
+                    fClass = BA_OpenFeatureClassFromFile(parentPath, fileName)
+                End If
+                If fClass IsNot Nothing Then
+                    pQF.WhereClause = BA_FIELD_OBJECT_ID & " = " & oid
+                    fCursor = fClass.Search(pQF, False)
+                    pFeature = fCursor.NextFeature
+                    If pFeature IsNot Nothing Then
+                        Dim srFields As IFields = pFeature.Fields
+                        Dim idxSR As Integer
+                        For i As Short = 1 To NUM_MONTHS
+                            Dim fieldName As String = SR_COLUMN_PREFIX & i.ToString("D2")
+                            idxSR = srFields.FindField(fieldName)
+                            If idxSR > -1 Then
+                                srValues.Add(Convert.ToString(pFeature.Value(idxSR)))
+                            Else
+                                srValues.Add(BA_9999)
+                                missingValues += 1
+                            End If
+                        Next
+                    End If
                 End If
             End If
             Dim returnObj As AoiParameter = New AoiParameter(BA_Aoi_Parameter_SR_Obs)
@@ -381,39 +387,42 @@ Public Class FrmPEandSRObs
         Dim zoneFilePath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi)
         Dim zoneFileName As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
         Dim snapRasterPath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi, True) & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
-        Dim parentFolder As String = "PleaseReturn"
-        Dim tempName As String = BA_GetBareName(TxtPEPath.Text, parentFolder)
-        Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(parentFolder)
+        Dim peFolder As String = "PleaseReturn"
+        Dim peFileName As String = BA_GetBareName(TxtPEPath.Text, peFolder)
+        Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(peFolder)
         Dim valuesList As IList(Of String) = New List(Of String)
 
         Try
-            '@ToDo: check aoi area vs cell size to determine if we use centroid or zonal stats
-            pCentroid = FindCentroid(zoneFilePath, zoneFileName)
+            Dim useZonalStatistics As Boolean = UseZonalStats(zoneFilePath, zoneFileName, peFolder, peFileName)
+            If useZonalStatistics = False Then pCentroid = FindCentroid(zoneFilePath, zoneFileName)
             For i As Short = 1 To NUM_MONTHS
                 Dim fileName As String = m_pe_prefix & i.ToString("D2") & m_pe_suffix
-                Dim valueFilePath As String = parentFolder & fileName
-                Dim peValue As String = BA_9999
+                Dim valueFilePath As String = peFolder & fileName
+                Dim mmValue As Double = CDbl(BA_9999)
                 If BA_File_Exists(valueFilePath, wType, esriDatasetType.esriDTRasterDataset) Then
                     LblStatus.Text = "Calculating potential evaporation for " & MonthName(i)
-                    peValue = ExtractValueAtCentroid(pCentroid, parentFolder, fileName)
-                    Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_AOI_NAME, valueFilePath, _
-                                                                             zoneFilePath, tableName, snapRasterPath, StatisticsTypeString.MEAN)
-                    If success = BA_ReturnCode.Success Then
-                        pTable = BA_OpenTableFromGDB(zoneFilePath, tableName)
-                        If pTable IsNot Nothing Then
-                            Dim idxMean As Integer = pTable.FindField(StatisticsFieldName.MEAN.ToString)
-                            If idxMean > -1 Then
-                                pCursor = pTable.Search(Nothing, False)
-                                pRow = pCursor.NextRow
-                                If pRow IsNot Nothing Then
-                                    'Convert millimeters to inches
-                                    Dim inchesValue As Double = Convert.ToDouble(pRow.Value(idxMean)) / BA_Inches_To_Millimeters
-                                    peValue = Convert.ToString(inchesValue / DateTime.DaysInMonth(m_january.Year, i))
+                    If useZonalStatistics = False Then
+                        mmValue = ExtractValueAtCentroid(pCentroid, peFolder, fileName)
+                    Else
+                        Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_AOI_NAME, valueFilePath, _
+                                                                                 zoneFilePath, tableName, snapRasterPath, StatisticsTypeString.MEAN)
+                        If success = BA_ReturnCode.Success Then
+                            pTable = BA_OpenTableFromGDB(zoneFilePath, tableName)
+                            If pTable IsNot Nothing Then
+                                Dim idxMean As Integer = pTable.FindField(StatisticsFieldName.MEAN.ToString)
+                                If idxMean > -1 Then
+                                    pCursor = pTable.Search(Nothing, False)
+                                    pRow = pCursor.NextRow
+                                    If pRow IsNot Nothing Then mmValue = Convert.ToDouble(pRow.Value(idxMean))
                                 End If
                             End If
                         End If
                     End If
                 End If
+                'Convert millimeters to inches
+                Dim inchesValue As Double = mmValue / BA_Inches_To_Millimeters
+                'Divide by # of days in month to get inches per day
+                Dim peValue As String = Convert.ToString(inchesValue / DateTime.DaysInMonth(m_january.Year, i))
                 valuesList.Add(peValue)
             Next
             'Create the new parameter and add to table
@@ -514,6 +523,9 @@ Public Class FrmPEandSRObs
         End Try
     End Function
 
+    'Zonal statistics doesn't work if the aoi (zones layer) is too small relative to the statistics (raster) layer;
+    'This method returns false if the AOI area is < 200% of the cell area
+    'Assuming both layers are projected and have a linear unit
     Private Function UseZonalStats(ByVal aoiFolderName As String, ByVal aoiFileName As String, ByVal peFolderName As String, _
                                    ByVal peFileName As String) As Boolean
         Dim aoiFeatures As IFeatureClass = Nothing
@@ -548,7 +560,7 @@ Public Class FrmPEandSRObs
 
                 Dim cellSize As Double = BA_CellSize(peFolderName, peFileName)
                 Dim linearUnit As ESRI.ArcGIS.Geometry.ILinearUnit = BA_GetLinearUnitOfProjectedRaster(peFolderName, peFileName)
-                Dim cellArea As Double = cellSize * 2 * linearUnit.MetersPerUnit
+                Dim cellArea As Double = cellSize * cellSize * linearUnit.MetersPerUnit
                 If largestArea < cellArea * 2 Then
                     Return False
                 End If
