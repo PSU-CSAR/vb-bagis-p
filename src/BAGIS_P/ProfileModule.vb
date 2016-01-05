@@ -185,7 +185,8 @@ Module ProfileModule
                 response = BA_RemoveRasterFromGDB(dataBinPath, outputFileName)
             End If
             If response > 0 Then
-                Dim clipKey As AOIClipFile = 1
+                Dim demPath As String = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Surfaces, True) & BA_EnumDescription(MapsFileName.filled_dem_gdb)
+                Dim clipKey As AOIClipFile = BA_SelectRasterClipFile(demPath, dataSource.Source)
                 response = BA_ClipAOIRaster(aoiPath, dataSource.Source, outputFileName, dataBinPath, clipKey)
                 If response <= 0 Then
                     MessageBox.Show(msg.ToString, "Clipping error", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -200,6 +201,20 @@ Module ProfileModule
                                                    dataSource.AoiLayer, dataSource.LayerType)
         Dim success As BA_ReturnCode = BA_SaveNewDataSource(localDS, BA_GetLocalSettingsPath(aoiPath))
         Return success
+    End Function
+
+    Public Function BA_SelectRasterClipFile(ByVal aoiRasterPath As String, ByVal clipRasterPath As String) As AOIClipFile
+        Dim aoiFolder As String = "PleaseReturn"
+        Dim aoiFile As String = BA_GetBareName(aoiRasterPath, aoiFolder)
+        Dim aoiCellSize As Double = BA_CellSize(aoiFolder, aoiFile)
+        Dim clipFolder As String = "PleaseReturn"
+        Dim clipFile As String = BA_GetBareName(clipRasterPath, clipFolder)
+        Dim clipCellSize As Double = BA_CellSize(clipFolder, clipFile)
+        Dim retVal As AOIClipFile = AOIClipFile.BufferedAOIExtentCoverage
+        If clipCellSize > (aoiCellSize * 10) Then
+            retVal = AOIClipFile.PrismClipAOIExtentCoverage
+        End If
+        Return retVal
     End Function
 
     Public Function BA_GetDataBinPath(ByVal aoiPath As String) As String

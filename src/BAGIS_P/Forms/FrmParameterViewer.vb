@@ -608,12 +608,14 @@ Public Class FrmParameterViewer
                     Dim arrMethods As Method() = logProfile.HruMethods
                     For i As Integer = 0 To arrMethods.GetUpperBound(0)
                         Dim nextMethod As Method = arrMethods(i)
-                        If nextMethod.Status = MethodStatus.Complete Or _
-                            nextMethod.Status = MethodStatus.Pending Or _
-                            nextMethod.Status = MethodStatus.Verified Then
-                            'Do nothing
-                        Else
-                            errorCount += 1
+                        If nextMethod IsNot Nothing Then
+                            If nextMethod.Status = MethodStatus.Complete Or _
+                                nextMethod.Status = MethodStatus.Pending Or _
+                                nextMethod.Status = MethodStatus.Verified Then
+                                'Do nothing
+                            Else
+                                errorCount += 1
+                            End If
                         End If
                     Next
                     If errorCount > 0 Then
