@@ -218,6 +218,7 @@ Public Class FrmParameterViewer
                             GrdParam.Rows.Add(item)
                             pRow = pCursor.NextRow
                         End While
+
                         GrdParam.Sort(GrdParam.Columns(0), ListSortDirection.Ascending)
                         GrdParam.ClearSelection()
                         GrdParam.Visible = True
@@ -662,6 +663,16 @@ Public Class FrmParameterViewer
         Else
             MessageBox.Show("An error occurred while trying to read the selected log file. It cannot be displayed.", "Unknown error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End If
+    End Sub
+
+    Private Sub GrdParam_SortCompare(ByVal sender As Object, ByVal e As DataGridViewSortCompareEventArgs) _
+        Handles GrdParam.SortCompare
+
+        Dim a As Double = Double.Parse(e.CellValue1.ToString)
+        Dim b As Double = Double.Parse(e.CellValue2.ToString)
+
+        e.SortResult = a.CompareTo(b)
+        e.Handled = True
     End Sub
 
 End Class
