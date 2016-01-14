@@ -197,7 +197,7 @@
     Public Const BA_Aoi_Parameter_PE_Obs As String = "PE_Obs"
 
     'Constant prefix for BAGIS warning messages from GP
-    Public Const BA_Warning_Message_Prefix As String = "BAGIS Message"
+    Public Const BA_Warning_Message_Prefix As String = "BAGIS"
 
 End Module
 

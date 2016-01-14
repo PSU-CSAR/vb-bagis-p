@@ -178,7 +178,8 @@ Module ToolboxModule
                 'bagis_p_soil_methods.tbx\Soil_Moist_Recharge_Parameters
                 If nextMsg.Type = esriGPMessageType.esriGPMessageTypeWarning _
                     AndAlso nextMsg.Description.IndexOf(BA_Warning_Message_Prefix, StringComparison.OrdinalIgnoreCase) = 0 Then
-                    warningMessage = nextMsg.Description
+                    Dim newWarning As String = nextMsg.Description.Substring(BA_Warning_Message_Prefix.Length + 2)
+                    warningMessage += newWarning & "<br />"
                 Else
                     'Uncomment below to print all message types
                     'Debug.Print("GP message: " & nextMsg.Description)

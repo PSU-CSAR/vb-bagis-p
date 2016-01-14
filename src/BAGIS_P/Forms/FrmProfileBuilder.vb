@@ -963,9 +963,9 @@ Public Class FrmProfileBuilder
                                 Dim scratchDir As String = m_aoi.FilePath & BA_EnumDescription(PublicPath.BagisPDefaultWorkspace)
                                 success = BA_RunModelFromMethodFilledParameters(pMethod, scratchDir, errorMessage, warningMessage)
                                 'Display any warning messages to the user in a MessageBox
-                                If Not String.IsNullOrEmpty(warningMessage) Then
-                                    MessageBox.Show(warningMessage & vbCrLf, "Warning message", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                                End If
+                                'If Not String.IsNullOrEmpty(warningMessage) Then
+                                '    MessageBox.Show(warningMessage & vbCrLf, "Warning message", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                'End If
                                 'Create and populate a new method for this profile/hru combination
                                 With hruMethod
                                     .Name = pMethod.Name

@@ -627,9 +627,9 @@ Module MethodModule
                 MessageBox.Show("An error occurred while executing the model. " & errorMessage & vbCrLf, "Error message", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Return BA_ReturnCode.UnknownError
             End If
-            If Not String.IsNullOrEmpty(warningMessage) Then
-                MessageBox.Show(warningMessage & vbCrLf, "Warning message", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            End If
+            'If Not String.IsNullOrEmpty(warningMessage) Then
+            '    MessageBox.Show(warningMessage & vbCrLf, "Warning message", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            'End If
             Return success
         Catch ex As Exception
             Debug.Print("BA_ExecuteJHModel Exception: " & ex.Message)
