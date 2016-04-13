@@ -67,4 +67,7 @@ Public Enum PublicPath
     <Description("\LayerParametersLog.xml")> LayerParametersLogXml
     <Description("\LayerParametersLog.html")> LayerParametersLogHtml
     <Description("\obs_monthly_pe_sr.csv")> PeAndObsExportCsv
+    <Description("\map_parameters.txt")> MapParameters
+    <Description("\task_log.xml")> EBagisTaskLog
+    <Description("/FeatureServer/0")> FeatureServiceUrl
 End Enum
