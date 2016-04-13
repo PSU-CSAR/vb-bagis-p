@@ -532,10 +532,10 @@ Public Class FrmExportParametersEwsf
         If nmonthsTable IsNot Nothing Then
             Dim paramNamesToUpdate As IList(Of String) = New List(Of String)
             paramNamesToUpdate.Add(BA_Aoi_Parameter_jh_coef)
-            If CkPeAndSrObs.Checked Then
-                paramNamesToUpdate.Add(BA_Aoi_Parameter_PE_Obs)
-                paramNamesToUpdate.Add(BA_Aoi_Parameter_SR_Obs)
-            End If
+            'If CkPeAndSrObs.Checked Then
+            '    paramNamesToUpdate.Add(BA_Aoi_Parameter_PE_Obs)
+            '    paramNamesToUpdate.Add(BA_Aoi_Parameter_SR_Obs)
+            'End If
             nmonthsTable = BA_UpdateParametersInNmonthsTable(nmonthsTable, m_aoiParamTable, paramNamesToUpdate)
             m_tablesTable(NMONTHS) = nmonthsTable
         End If
@@ -586,6 +586,18 @@ Public Class FrmExportParametersEwsf
                 retVal = BA_ConvertGDBToShapefile(hruGdbName, vName, zipFolder, targetFile)
                 'Copy the parameter file into the tempBagisFolder
                 File.Copy(TxtOutputFolder.Text, zipFolder & "\" & BA_GetBareName(TxtOutputFolder.Text), True)
+                'Create the pe and Obs file into the zipfolder (If desired)
+                Dim peAndObsExportPath As String = zipFolder & BA_EnumDescription(PublicPath.PeAndObsExportCsv)
+                If File.Exists(peAndObsExportPath) Then File.Delete(peAndObsExportPath)
+                If CkPeAndSrObs.Checked Then
+                    Dim peParam As AoiParameter = Nothing
+                    Dim srParam As AoiParameter = Nothing
+                    If m_hasPeObs Then peParam = m_aoiParamTable(BA_Aoi_Parameter_PE_Obs)
+                    If m_hasSrObs Then srParam = m_aoiParamTable(BA_Aoi_Parameter_SR_Obs)
+                    retVal = BA_ExportPeAndSrFile(peAndObsExportPath, m_aoi.Name, peParam, srParam, _
+                                                   missingData)
+                End If
+
                 m_exportMessage = "Converting HRU zones to ASCII .........."
                 LblStatus.Text = m_exportMessage
                 Dim hruClipPath As String = AddZonesToZipFolder(zipFolder, hruGdbName, targetFile)
@@ -620,14 +632,18 @@ Public Class FrmExportParametersEwsf
                 retVal = BA_ZipFolder(zipFolder, zipFileName)
             End If
 
-            If success = True And retVal = BA_ReturnCode.Success Then
+            If retVal = BA_ReturnCode.Success Then
                 BA_Remove_Folder(zipFolder)
-                TimerStatus.Enabled = False
-                m_exportMessage = ""
-                LblStatus.Text = m_exportMessage
                 MessageBox.Show("Parameter file export complete !", _
                                 "File export", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Else
+                MessageBox.Show("An error occurred while trying to export the parameter file !", _
+                 "File export", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
+            'Do this if we are successful or not
+            TimerStatus.Enabled = False
+            m_exportMessage = ""
+            LblStatus.Text = m_exportMessage
         Else
             TimerStatus.Enabled = False
             m_exportMessage = ""

@@ -1766,7 +1766,8 @@ Module ParameterModule
     End Function
 
     Public Function BA_ExportPeAndSrFile(ByVal outputFile As String, ByVal aoiName As String, _
-                                         ByVal pe_param As AoiParameter, ByVal sr_param As AoiParameter) As BA_ReturnCode
+                                         ByVal pe_param As AoiParameter, ByVal sr_param As AoiParameter, _
+                                         ByVal missingValue As String) As BA_ReturnCode
         Dim sb As StringBuilder = New StringBuilder
         Try
             Using sw = New StreamWriter(outputFile)
@@ -1778,7 +1779,7 @@ Module ParameterModule
                 sb.Remove(0, sb.Length)
                 sb.Append(LEN_KEY)
                 sb.Append(",")
-                sb.Append(pe_param.ValuesList.Count)
+                sb.Append(NUM_MONTHS)
                 sw.WriteLine(sb.ToString)
                 sb.Remove(0, sb.Length)
                 sb.Append(CREATED_AT)
@@ -1807,7 +1808,66 @@ Module ParameterModule
                 sb.Append(aoiName)
                 sw.WriteLine(sb.ToString)
                 sb.Remove(0, sb.Length)
-
+                sb.Append("unit_for_PE")
+                sb.Append(",")
+                sb.Append("inch/day")
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+                sb.Append("unit_for_SR")
+                sb.Append(",")
+                sb.Append("langleys/day or calories/sq cm/day")
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+                sb.Append(HEADER_FLAG)
+                sb.Append(",")
+                sb.Append("date")
+                sb.Append(",")
+                sb.Append(BA_Aoi_Parameter_PE_Obs)
+                sb.Append(",")
+                sb.Append(BA_Aoi_Parameter_SR_Obs)
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+                sb.Append("Type")
+                sb.Append(",")
+                sb.Append("Date")
+                sb.Append(",")
+                sb.Append("Real")
+                sb.Append(",")
+                sb.Append("Real")
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+                'Prepare to write table of values
+                Dim peValues As IList(Of String) = New List(Of String)
+                Dim srValues As IList(Of String) = New List(Of String)
+                If pe_param IsNot Nothing Then
+                    peValues = pe_param.ValuesList
+                End If
+                If sr_param IsNot Nothing Then
+                    srValues = sr_param.ValuesList
+                End If
+                'Write out table
+                For i As Short = 1 To NUM_MONTHS
+                    sb.Append(",")
+                    sb.Append(i)
+                    sb.Append(",")
+                    Dim nextPe As String = missingValue
+                    If peValues.Count >= i - 1 Then
+                        If peValues.Item(i - 1) IsNot Nothing Then
+                            nextPe = peValues.Item(i - 1)
+                        End If
+                    End If
+                    sb.Append(nextPe)
+                    sb.Append(",")
+                    Dim nextSr As String = missingValue
+                    If srValues.Count >= i - 1 Then
+                        If srValues.Item(i - 1) IsNot Nothing Then
+                            nextSr = srValues.Item(i - 1)
+                        End If
+                    End If
+                    sb.Append(nextSr)
+                    sw.WriteLine(sb.ToString)
+                    sb.Remove(0, sb.Length)
+                Next
             End Using
             Return BA_ReturnCode.Success
         Catch ex As Exception

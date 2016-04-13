@@ -70,4 +70,5 @@ Public Enum PublicPath
     <Description("\map_parameters.txt")> MapParameters
     <Description("\task_log.xml")> EBagisTaskLog
     <Description("/FeatureServer/0")> FeatureServiceUrl
+    <Description("\BAGIS\bagis-h-settings.json")> BagisHSettings
 End Enum
