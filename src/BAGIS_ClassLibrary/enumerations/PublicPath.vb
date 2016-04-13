@@ -66,5 +66,5 @@ Public Enum PublicPath
     <Description("\LayerParametersLog.xsl")> LayerParametersLogXsl
     <Description("\LayerParametersLog.xml")> LayerParametersLogXml
     <Description("\LayerParametersLog.html")> LayerParametersLogHtml
-
+    <Description("\obs_monthly_pe_sr.csv")> PeAndObsExportCsv
 End Enum
