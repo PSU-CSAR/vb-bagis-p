@@ -26,7 +26,11 @@ Module ParameterModule
     Public DESCR As String = "Descr"
     Public MODIFIED_AT As String = "modifed_at"
     Public VERSION As String = "Version"
-    Public CREATED_AT As String = "CreatedAt"
+    Public CREATED_AT As String = "created_at"
+    Public CREATED_BY As String = "created_by"
+    Public BAGIS_P As String = "BAGIS-P"
+    Public CONVERTED_FROM As String = "converted_from"
+    Public DATE_FORMAT As String = "date_format"
     Public NHRU As String = "nhru"
     Public NRADPL As String = "nradpl"
     Public NMONTHS As String = "nmonths"
@@ -1759,6 +1763,57 @@ Module ParameterModule
         Else
             Return Nothing
         End If
+    End Function
+
+    Public Function BA_ExportPeAndSrFile(ByVal outputFile As String, ByVal aoiName As String, _
+                                         ByVal pe_param As AoiParameter, ByVal sr_param As AoiParameter) As BA_ReturnCode
+        Dim sb As StringBuilder = New StringBuilder
+        Try
+            Using sw = New StreamWriter(outputFile)
+                'Write section header
+                sb.Append(TABLE_FLAG)
+                sb.Append(",")
+                sb.Append("obs_monthly")
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+                sb.Append(LEN_KEY)
+                sb.Append(",")
+                sb.Append(pe_param.ValuesList.Count)
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+                sb.Append(CREATED_AT)
+                sb.Append(",")
+                Dim rightNow As Date = DateTime.Now
+                sb.Append(rightNow.ToString("0:MM/dd/yy"))
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+                sb.Append(CREATED_BY)
+                sb.Append(",")
+                sb.Append(BAGIS_P)
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+                sb.Append(CONVERTED_FROM)
+                sb.Append(",")
+                sb.Append(BAGIS_P)
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+                sb.Append(DATE_FORMAT)
+                sb.Append(",")
+                sb.Append("MM")
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+                sb.Append("aoi")
+                sb.Append(",")
+                sb.Append(aoiName)
+                sw.WriteLine(sb.ToString)
+                sb.Remove(0, sb.Length)
+
+            End Using
+            Return BA_ReturnCode.Success
+        Catch ex As Exception
+            Debug.Print("BA_ExportPeAndSrFile Exception: " & ex.Message)
+            Return BA_ReturnCode.WriteError
+        End Try
     End Function
 
 End Module
