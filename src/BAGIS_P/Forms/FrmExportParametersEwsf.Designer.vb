@@ -292,7 +292,7 @@ Partial Class FrmExportParametersEwsf
         Me.Label7.Size = New System.Drawing.Size(549, 16)
         Me.Label7.TabIndex = 92
         Me.Label7.Text = "The output file is saved as a plain text ASCII file in eWSF parameter file format" & _
-            "."
+    "."
         '
         'LstProfiles
         '
@@ -409,7 +409,7 @@ Partial Class FrmExportParametersEwsf
         Me.TextBox1.Size = New System.Drawing.Size(650, 15)
         Me.TextBox1.TabIndex = 105
         Me.TextBox1.Text = "HRU parameter values not calculated by BAGIS-P will be copied from the parameter " & _
-            "template"
+    "template"
         '
         'BtnDefaultTemplate
         '
@@ -560,7 +560,7 @@ Partial Class FrmExportParametersEwsf
         Me.TextBox5.Size = New System.Drawing.Size(600, 17)
         Me.TextBox5.TabIndex = 132
         Me.TextBox5.Text = "If no resampling resolution is provided, the data layers will be exported using t" & _
-            "heir original resolution"
+    "heir original resolution"
         '
         'CkParametersOnly
         '
@@ -639,7 +639,7 @@ Partial Class FrmExportParametersEwsf
         Me.CkUsePreCalculated.Size = New System.Drawing.Size(689, 20)
         Me.CkUsePreCalculated.TabIndex = 139
         Me.CkUsePreCalculated.Text = "Export pre-calculated nhru parameters (duplicate BAGIS-P output parameters will b" & _
-            "e overwritten)"
+    "e overwritten)"
         Me.CkUsePreCalculated.UseVisualStyleBackColor = True
         '
         'Label3
@@ -651,7 +651,7 @@ Partial Class FrmExportParametersEwsf
         Me.Label3.Size = New System.Drawing.Size(680, 18)
         Me.Label3.TabIndex = 140
         Me.Label3.Text = "Please use the BAGIS-P 'Parameters from Layers Tool' to manage pre-calculated HRU" & _
-            " parameters"
+    " parameters"
         '
         'CkPeAndSrObs
         '
@@ -659,9 +659,9 @@ Partial Class FrmExportParametersEwsf
         Me.CkPeAndSrObs.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CkPeAndSrObs.Location = New System.Drawing.Point(172, 231)
         Me.CkPeAndSrObs.Name = "CkPeAndSrObs"
-        Me.CkPeAndSrObs.Size = New System.Drawing.Size(582, 20)
+        Me.CkPeAndSrObs.Size = New System.Drawing.Size(568, 20)
         Me.CkPeAndSrObs.TabIndex = 141
-        Me.CkPeAndSrObs.Text = "Export observed Potential Evaporation and Solar Radiation  to the nmonths table"
+        Me.CkPeAndSrObs.Text = "Include observed Potential Evaporation and Solar Radiation in with export files"
         Me.CkPeAndSrObs.UseVisualStyleBackColor = True
         '
         'Label12
