@@ -230,7 +230,16 @@ Public Class FrmPEandSRObs
             Dim aoiGDB As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi)
             Dim aoiFile As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
             pCentroid = FindCentroid(aoiGDB, aoiFile)
-            Dim oid As Integer = BA_FindClosestFeatureOID(pCentroid, TxtSrPath.Text)
+            Dim zValueClosestFeature As String = Nothing
+            Dim oid As Integer = BA_FindClosestFeatureOID(pCentroid, TxtSrPath.Text, zValueClosestFeature)
+            'Create AOI Parameter for zValue so we can persist it
+            Dim elevParameter As AoiParameter = New AoiParameter(BA_Aoi_Parameter_SR_Elevation, zValueClosestFeature)
+            elevParameter.DateUpdated = DateTime.Now
+            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Obs) Then
+                m_aoiParamTable(BA_Aoi_Parameter_SR_Elevation) = elevParameter
+            Else
+                m_aoiParamTable.Add(BA_Aoi_Parameter_SR_Elevation, elevParameter)
+            End If
             Dim missingValuesCount As Short = 0
             Dim newParameter As AoiParameter = ExtractSrValues(oid, missingValuesCount)
             If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Obs) Then

@@ -194,6 +194,7 @@
     'Constant parameter names for parameters calculated at the AOI-level
     Public Const BA_Aoi_Parameter_jh_coef As String = "jh_coef"
     Public Const BA_Aoi_Parameter_SR_Obs As String = "SR"
+    Public Const BA_Aoi_Parameter_SR_Elevation As String = "SR_ELEVATION"
     Public Const BA_Aoi_Parameter_PE_Obs As String = "PET"
 
     'Constant prefix for BAGIS warning messages from GP

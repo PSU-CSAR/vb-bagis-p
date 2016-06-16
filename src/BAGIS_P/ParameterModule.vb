@@ -1669,7 +1669,7 @@ Module ParameterModule
         Return keysA
     End Function
 
-    Public Function BA_FindClosestFeatureOID(ByVal searchGeo As IGeometry, ByVal targetFeatureClassPath As String) As Integer
+    Public Function BA_FindClosestFeatureOID(ByVal searchGeo As IGeometry, ByVal targetFeatureClassPath As String, ByRef closestFeatureZValue As String) As Integer
         Dim targetFolder As String = "PleaseReturn"
         Dim targetFile As String = BA_GetBareName(targetFeatureClassPath, targetFolder)
         Dim featureClass As IFeatureClass = Nothing
@@ -1679,6 +1679,7 @@ Module ParameterModule
         Dim proxOperator As IProximityOperator = Nothing
         Dim closestOID As Integer = -1
         Dim closestDistance As Double = -1
+        closestFeatureZValue = -1
         Try
             If searchGeo Is Nothing Then Return closestOID
             Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(targetFeatureClassPath)
@@ -1690,6 +1691,7 @@ Module ParameterModule
             If featureClass IsNot Nothing Then
                 fCursor = featureClass.Search(Nothing, False)
                 If fCursor IsNot Nothing Then
+                    Dim idxZValue As Integer = fCursor.FindField("Z")
                     queryFeature = fCursor.NextFeature
                     Do While queryFeature IsNot Nothing
                         queryGeometry = queryFeature.Shape
@@ -1698,9 +1700,11 @@ Module ParameterModule
                         If closestDistance < 0 Then
                             closestDistance = distance
                             closestOID = queryFeature.OID
+                            closestFeatureZValue = Convert.ToString(queryFeature.Value(idxZValue))
                         ElseIf distance < closestDistance Then
                             closestDistance = distance
                             closestOID = queryFeature.OID
+                            closestFeatureZValue = Convert.ToString(queryFeature.Value(idxZValue))
                         End If
                         queryFeature = fCursor.NextFeature
                     Loop
