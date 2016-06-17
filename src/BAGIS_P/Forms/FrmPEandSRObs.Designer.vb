@@ -44,6 +44,12 @@ Partial Class FrmPEandSRObs
         Me.Label8 = New System.Windows.Forms.Label()
         Me.BtnAbout = New System.Windows.Forms.Button()
         Me.LblStatus = New System.Windows.Forms.Label()
+        Me.TxtStationId = New System.Windows.Forms.TextBox()
+        Me.Label9 = New System.Windows.Forms.Label()
+        Me.TxtStationElev = New System.Windows.Forms.TextBox()
+        Me.Label10 = New System.Windows.Forms.Label()
+        Me.Label11 = New System.Windows.Forms.Label()
+        Me.Label12 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'TxtAoiPath
@@ -102,7 +108,7 @@ Partial Class FrmPEandSRObs
         '
         Me.BtnCalculate.Enabled = False
         Me.BtnCalculate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnCalculate.Location = New System.Drawing.Point(528, 173)
+        Me.BtnCalculate.Location = New System.Drawing.Point(527, 258)
         Me.BtnCalculate.Name = "BtnCalculate"
         Me.BtnCalculate.Size = New System.Drawing.Size(75, 25)
         Me.BtnCalculate.TabIndex = 93
@@ -112,7 +118,7 @@ Partial Class FrmPEandSRObs
         'BtnClose
         '
         Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnClose.Location = New System.Drawing.Point(609, 173)
+        Me.BtnClose.Location = New System.Drawing.Point(608, 258)
         Me.BtnClose.Name = "BtnClose"
         Me.BtnClose.Size = New System.Drawing.Size(75, 25)
         Me.BtnClose.TabIndex = 92
@@ -134,7 +140,7 @@ Partial Class FrmPEandSRObs
         '
         Me.BtnSetPE.Enabled = False
         Me.BtnSetPE.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnSetPE.Location = New System.Drawing.Point(624, 114)
+        Me.BtnSetPE.Location = New System.Drawing.Point(623, 190)
         Me.BtnSetPE.Name = "BtnSetPE"
         Me.BtnSetPE.Size = New System.Drawing.Size(60, 25)
         Me.BtnSetPE.TabIndex = 98
@@ -146,17 +152,17 @@ Partial Class FrmPEandSRObs
         Me.TxtPEPath.BackColor = System.Drawing.SystemColors.ButtonFace
         Me.TxtPEPath.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtPEPath.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.TxtPEPath.Location = New System.Drawing.Point(129, 117)
+        Me.TxtPEPath.Location = New System.Drawing.Point(138, 193)
         Me.TxtPEPath.Name = "TxtPEPath"
         Me.TxtPEPath.ReadOnly = True
-        Me.TxtPEPath.Size = New System.Drawing.Size(489, 22)
+        Me.TxtPEPath.Size = New System.Drawing.Size(480, 22)
         Me.TxtPEPath.TabIndex = 97
         '
         'Label2
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(2, 120)
+        Me.Label2.Location = New System.Drawing.Point(1, 196)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(130, 16)
         Me.Label2.TabIndex = 96
@@ -166,7 +172,7 @@ Partial Class FrmPEandSRObs
         '
         Me.Label3.AutoSize = True
         Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label3.Location = New System.Drawing.Point(2, 94)
+        Me.Label3.Location = New System.Drawing.Point(2, 97)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(129, 16)
         Me.Label3.TabIndex = 99
@@ -176,7 +182,7 @@ Partial Class FrmPEandSRObs
         '
         Me.Label4.AutoSize = True
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(232, 94)
+        Me.Label4.Location = New System.Drawing.Point(251, 96)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(95, 16)
         Me.Label4.TabIndex = 100
@@ -187,7 +193,7 @@ Partial Class FrmPEandSRObs
         Me.TxtSrDate.BackColor = System.Drawing.SystemColors.ButtonFace
         Me.TxtSrDate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtSrDate.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.TxtSrDate.Location = New System.Drawing.Point(129, 92)
+        Me.TxtSrDate.Location = New System.Drawing.Point(136, 94)
         Me.TxtSrDate.Name = "TxtSrDate"
         Me.TxtSrDate.ReadOnly = True
         Me.TxtSrDate.Size = New System.Drawing.Size(94, 22)
@@ -198,29 +204,31 @@ Partial Class FrmPEandSRObs
         Me.TxtSrValue.BackColor = System.Drawing.SystemColors.ButtonFace
         Me.TxtSrValue.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtSrValue.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.TxtSrValue.Location = New System.Drawing.Point(326, 92)
+        Me.TxtSrValue.Location = New System.Drawing.Point(360, 94)
         Me.TxtSrValue.Name = "TxtSrValue"
         Me.TxtSrValue.ReadOnly = True
         Me.TxtSrValue.Size = New System.Drawing.Size(94, 22)
         Me.TxtSrValue.TabIndex = 102
+        Me.TxtSrValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'txtPeValue
         '
         Me.txtPeValue.BackColor = System.Drawing.SystemColors.ButtonFace
         Me.txtPeValue.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtPeValue.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.txtPeValue.Location = New System.Drawing.Point(326, 140)
+        Me.txtPeValue.Location = New System.Drawing.Point(360, 221)
         Me.txtPeValue.Name = "txtPeValue"
         Me.txtPeValue.ReadOnly = True
         Me.txtPeValue.Size = New System.Drawing.Size(94, 22)
         Me.txtPeValue.TabIndex = 106
+        Me.txtPeValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'txtPEDate
         '
         Me.txtPEDate.BackColor = System.Drawing.SystemColors.ButtonFace
         Me.txtPEDate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.txtPEDate.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.txtPEDate.Location = New System.Drawing.Point(129, 140)
+        Me.txtPEDate.Location = New System.Drawing.Point(136, 221)
         Me.txtPEDate.Name = "txtPEDate"
         Me.txtPEDate.ReadOnly = True
         Me.txtPEDate.Size = New System.Drawing.Size(94, 22)
@@ -230,7 +238,7 @@ Partial Class FrmPEandSRObs
         '
         Me.Label6.AutoSize = True
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label6.Location = New System.Drawing.Point(232, 142)
+        Me.Label6.Location = New System.Drawing.Point(251, 224)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(95, 16)
         Me.Label6.TabIndex = 104
@@ -240,7 +248,7 @@ Partial Class FrmPEandSRObs
         '
         Me.Label7.AutoSize = True
         Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label7.Location = New System.Drawing.Point(2, 142)
+        Me.Label7.Location = New System.Drawing.Point(1, 224)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(129, 16)
         Me.Label7.TabIndex = 103
@@ -271,17 +279,87 @@ Partial Class FrmPEandSRObs
         Me.LblStatus.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
         Me.LblStatus.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblStatus.ForeColor = System.Drawing.Color.Red
-        Me.LblStatus.Location = New System.Drawing.Point(6, 166)
+        Me.LblStatus.Location = New System.Drawing.Point(5, 251)
         Me.LblStatus.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.LblStatus.Name = "LblStatus"
         Me.LblStatus.Size = New System.Drawing.Size(364, 20)
         Me.LblStatus.TabIndex = 117
         '
+        'TxtStationId
+        '
+        Me.TxtStationId.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.TxtStationId.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtStationId.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.TxtStationId.Location = New System.Drawing.Point(136, 123)
+        Me.TxtStationId.Name = "TxtStationId"
+        Me.TxtStationId.ReadOnly = True
+        Me.TxtStationId.Size = New System.Drawing.Size(94, 22)
+        Me.TxtStationId.TabIndex = 119
+        '
+        'Label9
+        '
+        Me.Label9.AutoSize = True
+        Me.Label9.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label9.Location = New System.Drawing.Point(2, 126)
+        Me.Label9.Name = "Label9"
+        Me.Label9.Size = New System.Drawing.Size(68, 16)
+        Me.Label9.TabIndex = 118
+        Me.Label9.Text = "Station ID:"
+        '
+        'TxtStationElev
+        '
+        Me.TxtStationElev.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.TxtStationElev.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtStationElev.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.TxtStationElev.Location = New System.Drawing.Point(360, 123)
+        Me.TxtStationElev.Name = "TxtStationElev"
+        Me.TxtStationElev.ReadOnly = True
+        Me.TxtStationElev.Size = New System.Drawing.Size(94, 22)
+        Me.TxtStationElev.TabIndex = 121
+        Me.TxtStationElev.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label10
+        '
+        Me.Label10.AutoSize = True
+        Me.Label10.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label10.Location = New System.Drawing.Point(251, 127)
+        Me.Label10.Name = "Label10"
+        Me.Label10.Size = New System.Drawing.Size(110, 16)
+        Me.Label10.TabIndex = 120
+        Me.Label10.Text = "Station elevation:"
+        '
+        'Label11
+        '
+        Me.Label11.AutoSize = True
+        Me.Label11.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label11.Location = New System.Drawing.Point(459, 127)
+        Me.Label11.Name = "Label11"
+        Me.Label11.Size = New System.Drawing.Size(49, 16)
+        Me.Label11.TabIndex = 122
+        Me.Label11.Text = "meters"
+        '
+        'Label12
+        '
+        Me.Label12.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label12.ForeColor = System.Drawing.SystemColors.HotTrack
+        Me.Label12.Location = New System.Drawing.Point(2, 151)
+        Me.Label12.Name = "Label12"
+        Me.Label12.Size = New System.Drawing.Size(693, 37)
+        Me.Label12.TabIndex = 123
+        Me.Label12.Text = "Note: The station elevation is used to calculate the tsta_hru parameter. This cal" & _
+    "culation requires the hru_elev parameter to also be calculated in meters"
+        '
         'FrmPEandSRObs
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(696, 218)
+        Me.ClientSize = New System.Drawing.Size(696, 295)
+        Me.Controls.Add(Me.Label12)
+        Me.Controls.Add(Me.Label11)
+        Me.Controls.Add(Me.TxtStationElev)
+        Me.Controls.Add(Me.Label10)
+        Me.Controls.Add(Me.TxtStationId)
+        Me.Controls.Add(Me.Label9)
         Me.Controls.Add(Me.LblStatus)
         Me.Controls.Add(Me.BtnAbout)
         Me.Controls.Add(Me.txtPeValue)
@@ -333,4 +411,10 @@ Partial Class FrmPEandSRObs
     Friend WithEvents Label8 As System.Windows.Forms.Label
     Friend WithEvents BtnAbout As System.Windows.Forms.Button
     Friend WithEvents LblStatus As System.Windows.Forms.Label
+    Friend WithEvents TxtStationId As System.Windows.Forms.TextBox
+    Friend WithEvents Label9 As System.Windows.Forms.Label
+    Friend WithEvents TxtStationElev As System.Windows.Forms.TextBox
+    Friend WithEvents Label10 As System.Windows.Forms.Label
+    Friend WithEvents Label11 As System.Windows.Forms.Label
+    Friend WithEvents Label12 As System.Windows.Forms.Label
 End Class

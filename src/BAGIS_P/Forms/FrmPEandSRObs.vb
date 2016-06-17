@@ -10,6 +10,8 @@ Imports ESRI.ArcGIS.esriSystem
 Public Class FrmPEandSRObs
 
     Private Const SR_COLUMN_PREFIX As String = "SR"
+    Public Const IDX_STATION_ID As Short = 0
+    Public Const IDX_STATION_ELEV As Short = 1
     Dim m_january As DateTime = New DateTime(2015, 1, 1)
     Dim m_pe_prefix As String = Nothing
     Dim m_pe_suffix As String = Nothing
@@ -230,15 +232,13 @@ Public Class FrmPEandSRObs
             Dim aoiGDB As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi)
             Dim aoiFile As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
             pCentroid = FindCentroid(aoiGDB, aoiFile)
-            Dim zValueClosestFeature As String = Nothing
-            Dim oid As Integer = BA_FindClosestFeatureOID(pCentroid, TxtSrPath.Text, zValueClosestFeature)
-            'Create AOI Parameter for zValue so we can persist it
-            Dim elevParameter As AoiParameter = New AoiParameter(BA_Aoi_Parameter_SR_Elevation, zValueClosestFeature)
-            elevParameter.DateUpdated = DateTime.Now
-            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Obs) Then
-                m_aoiParamTable(BA_Aoi_Parameter_SR_Elevation) = elevParameter
+            'Create AOI Parameter for solar station information so we can persist it
+            Dim stationInfoParam As AoiParameter = New AoiParameter(BA_Aoi_Parameter_SR_Station_Info)
+            Dim oid As Integer = BA_FindClosestFeatureOID(pCentroid, TxtSrPath.Text, stationInfoParam)
+            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Station_Info) Then
+                m_aoiParamTable(BA_Aoi_Parameter_SR_Station_Info) = stationInfoParam
             Else
-                m_aoiParamTable.Add(BA_Aoi_Parameter_SR_Elevation, elevParameter)
+                m_aoiParamTable.Add(BA_Aoi_Parameter_SR_Station_Info, stationInfoParam)
             End If
             Dim missingValuesCount As Short = 0
             Dim newParameter As AoiParameter = ExtractSrValues(oid, missingValuesCount)
@@ -251,6 +251,13 @@ Public Class FrmPEandSRObs
             If newParameter.ValuesList IsNot Nothing Then
                 TxtSrValue.Text = newParameter.ValuesList(0)
             End If
+            If stationInfoParam.ValuesList IsNot Nothing Then
+                TxtStationId.Text = stationInfoParam.ValuesList(IDX_STATION_ID)
+                Dim dblElev As Double = -1
+                Double.TryParse(stationInfoParam.ValuesList(IDX_STATION_ELEV), dblElev)
+                TxtStationElev.Text = Math.Round(dblElev)
+            End If
+
             If missingValuesCount > 0 Then
                 MessageBox.Show("One or more solar radiation values could not be determined.", "Warning", _
                                  MessageBoxButtons.OK, MessageBoxIcon.Warning)
@@ -303,6 +310,17 @@ Public Class FrmPEandSRObs
             Else
                 txtPEDate.Text = Nothing
                 txtPeValue.Text = Nothing
+            End If
+            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Station_Info) Then
+                Dim stationParam As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_SR_Station_Info)
+                Dim values As IList(Of String) = stationParam.ValuesList
+                TxtStationId.Text = values(IDX_STATION_ID)
+                Dim dblElev As Double = -1
+                Double.TryParse(values(IDX_STATION_ELEV), dblElev)
+                TxtStationElev.Text = Math.Round(dblElev)
+            Else
+                TxtStationId.Text = Nothing
+                TxtStationElev.Text = Nothing
             End If
         End If
         'Reset SR and PE data sources in case user selected an AOI with different projection
