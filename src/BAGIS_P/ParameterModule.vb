@@ -39,6 +39,8 @@ Module ParameterModule
     Public HEADER_KEY As String = "header_key"
     Public MISSING_VALUE As String = "missing_value"
     Public NUM_MONTHS As Short = 12
+    Public HRU_ELEV As String = "hru_elev"
+    Public BASIN_TSTA_HRU = "basin_tsta_hru"
 
     'Retrieves the single dimension parameters from the parameter file and populates selected parameters from
     'the hru dataset

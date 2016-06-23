@@ -455,6 +455,7 @@ Public Class FrmExportParametersEwsf
         Dim selItem As LayerListItem = CType(LstHruLayers.SelectedItem, LayerListItem)
         Dim hruPath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name)
         Dim hruParamPath As String = hruPath & BA_EnumDescription(PublicPath.BagisParamGdb)
+        Dim tableName As String = CStr(LstProfiles.SelectedItem) & BA_PARAM_TABLE_SUFFIX
         Dim missingData As String = Nothing
         Dim logProfile As LogProfile = BA_LoadLogProfileFromXml(hruPath & "\" & TryCast(LstProfiles.SelectedItem, String) & "_params_log.xml")
         If logProfile IsNot Nothing Then
@@ -526,6 +527,31 @@ Public Class FrmExportParametersEwsf
                 End If
             End If
         End If
+        If CkPeAndSrObs.Checked Then
+            'Calculate basin_tsta_hru
+            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Station_Info) Then
+                Dim srElevParam As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_SR_Station_Info)
+                If srElevParam IsNot Nothing Then
+                    Dim valueList As IList(Of String) = srElevParam.ValuesList
+                    Dim closestHruId As String = GetBasinTstaHru(hruParamPath, tableName, valueList(1))
+                    If Not String.IsNullOrEmpty(closestHruId) Then
+                        'Replace basin_tsta_hru parameter with correct value
+                        Dim tstaParam As Parameter = m_paramsTable(BASIN_TSTA_HRU)
+                        If tstaParam Is Nothing Then
+                            tstaParam = New Parameter(BASIN_TSTA_HRU, {closestHruId}, True)
+                        Else
+                            tstaParam.value = {closestHruId}
+                        End If
+                        m_paramsTable(NRADPL) = tstaParam
+
+                    End If
+                Else
+                    MessageBox.Show("The elevation for the closest SR station is not available. " + _
+                        "basin_tsta_hru cannot be calculated. Run the SR and PE tool to determine the elevation.", _
+                        "Missing elevation", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End If
+        End If
 
         ' 7. find AOI-level in nmonths table and overwrite them with calculated values
         Dim nmonthsTable As ParameterTable = m_tablesTable(NMONTHS)
@@ -542,7 +568,6 @@ Public Class FrmExportParametersEwsf
 
         m_exportMessage = "Reading spatial parameters calculated by BAGIS-P .........."
         LblStatus.Text = m_exportMessage
-        Dim tableName As String = CStr(LstProfiles.SelectedItem) & BA_PARAM_TABLE_SUFFIX
         Dim success As Boolean = VerifyParameterValuesInTable(hruParamPath, tableName, True)
         Dim retVal As BA_ReturnCode = BA_ReturnCode.Success
 
@@ -552,6 +577,7 @@ Public Class FrmExportParametersEwsf
                 m_spatialParamsTable = BA_ReadNhruParams(TxtParameterTemplate.Text, ",", TxtNHru.Text, m_reqSpatialParameters, _
                                                          m_missingSpatialParameters, missingData)
             End If
+
             m_exportMessage = "Generating parameter export file  .........."
             LblStatus.Text = m_exportMessage
             'Create a dictionary for the parameters from layer and populate it according to the checkbox
@@ -1083,4 +1109,64 @@ Public Class FrmExportParametersEwsf
             CkUsePreCalculated.Enabled = True
         End If
     End Sub
+
+    'Queries the hru parameter file to locate the hru that is closest in elevation to the
+    'select SR_OBS station. Returns the id of the closest hru
+    Private Function GetBasinTstaHru(ByVal hruParamFolder As String, ByVal hruParamFile As String, _
+                                     ByVal srElev As String) As String
+
+        Dim pTable As ITable = Nothing
+        Dim pCursor As ICursor = Nothing
+        Dim pRow As IRow = Nothing
+        Try
+            pTable = BA_OpenTableFromGDB(hruParamFolder, hruParamFile)
+            If pTable IsNot Nothing Then
+                Dim idxHruElev As Int16 = pTable.FindField(HRU_ELEV)
+                If idxHruElev < 1 Then
+                    MessageBox.Show("The hru_elev field is missing from the BAGIS parameter file at " + _
+                                    hruParamFolder + hruParamFile + ". basin_tsta_hru cannot be calculated.", _
+                                    "Missing parameter", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Return Nothing
+                End If
+                Dim idxHruId As Int16 = pTable.FindField(BA_FIELD_HRU_ID)
+                If idxHruElev < 1 Then
+                    MessageBox.Show("The hru_id field is missing from the BAGIS parameter file at " + _
+                                    hruParamFolder + hruParamFile + ". basin_tsta_hru cannot be calculated.", _
+                                    "Missing parameter", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Return Nothing
+                End If
+                pCursor = pTable.Search(Nothing, False)
+                pRow = pCursor.NextRow
+                Dim dblElev As Double = -1
+                Dim blnIsNumber As Boolean = Double.TryParse(srElev, dblElev)
+                If Not blnIsNumber Then
+                    MessageBox.Show("The elevation for the closest SR station is not a valid number. " + _
+                                    "basin_tsta_hru cannot be calculated.", "Invalid elevation", _
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Return Nothing
+                End If
+                Dim dblSmallestDiff As Double = 999999
+                Dim strHruId As String = Nothing
+                While pRow IsNot Nothing
+                    Dim dblHruElev As Double = Convert.ToDouble(pRow.Value(idxHruElev))
+                    Dim tempDiff As Double = Math.Abs(dblHruElev - dblElev)
+                    If tempDiff < dblSmallestDiff Then
+                        dblSmallestDiff = tempDiff
+                        strHruId = Convert.ToString(pRow.Value(idxHruId))
+                    End If
+                    pRow = pCursor.NextRow
+                End While
+                Return strHruId
+            Else
+                Return Nothing
+            End If
+        Catch ex As Exception
+            Debug.Print("GetBasinTstaHru Exception: " & ex.Message)
+            Return Nothing
+        Finally
+            pTable = Nothing
+            pCursor = Nothing
+            pRow = Nothing
+        End Try
+    End Function
 End Class
