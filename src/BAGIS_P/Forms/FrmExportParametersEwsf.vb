@@ -527,31 +527,35 @@ Public Class FrmExportParametersEwsf
                 End If
             End If
         End If
-        If CkPeAndSrObs.Checked Then
-            'Calculate basin_tsta_hru
-            If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Station_Info) Then
-                Dim srElevParam As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_SR_Station_Info)
-                If srElevParam IsNot Nothing Then
-                    Dim valueList As IList(Of String) = srElevParam.ValuesList
-                    Dim closestHruId As String = GetBasinTstaHru(hruParamPath, tableName, valueList(1))
-                    If Not String.IsNullOrEmpty(closestHruId) Then
-                        'Replace basin_tsta_hru parameter with correct value
-                        Dim tstaParam As Parameter = m_paramsTable(BASIN_TSTA_HRU)
-                        If tstaParam Is Nothing Then
-                            tstaParam = New Parameter(BASIN_TSTA_HRU, {closestHruId}, True)
-                        Else
-                            tstaParam.value = {closestHruId}
-                        End If
-                        m_paramsTable(NRADPL) = tstaParam
 
-                    End If
-                Else
-                    MessageBox.Show("The elevation for the closest SR station is not available. " + _
-                        "basin_tsta_hru cannot be calculated. Run the SR and PE tool to determine the elevation.", _
-                        "Missing elevation", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                End If
+        'Calculate basin_tsta_hru; start by getting the parameter out of memory
+        'If elevation for closest SR station hasn't been calculated, populate with
+        'default value
+        Dim tstaParam As Parameter = m_paramsTable(BASIN_TSTA_HRU)
+        If tstaParam Is Nothing Then
+            tstaParam = New Parameter(BASIN_TSTA_HRU, {missingData}, True)
+        End If
+        Dim closestHruId As String = Nothing
+        If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Station_Info) Then
+            Dim srElevParam As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_SR_Station_Info)
+            If srElevParam IsNot Nothing Then
+                Dim valueList As IList(Of String) = srElevParam.ValuesList
+                closestHruId = GetBasinTstaHru(hruParamPath, tableName, valueList(1))
+            Else
+                MessageBox.Show("The elevation for the closest SR station is not available. " + _
+                    "basin_tsta_hru cannot be calculated. Run the SR and PE tool to determine the elevation.", _
+                    "Missing elevation", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                'missingData
             End If
         End If
+        If Not String.IsNullOrEmpty(closestHruId) Then
+            'Replace basin_tsta_hru parameter with correct value
+            tstaParam.value = {closestHruId}
+        Else
+            'Set the value to the user-configured missing value for this AOI
+            tstaParam.value = {missingData}
+        End If
+
 
         ' 7. find AOI-level in nmonths table and overwrite them with calculated values
         Dim nmonthsTable As ParameterTable = m_tablesTable(NMONTHS)
