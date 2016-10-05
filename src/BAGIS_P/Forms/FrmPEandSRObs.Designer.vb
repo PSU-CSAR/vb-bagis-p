@@ -346,8 +346,8 @@ Partial Class FrmPEandSRObs
         Me.Label12.Name = "Label12"
         Me.Label12.Size = New System.Drawing.Size(693, 37)
         Me.Label12.TabIndex = 123
-        Me.Label12.Text = "Note: The station elevation is used to calculate the tsta_hru parameter. This cal" & _
-    "culation requires the hru_elev parameter to also be calculated in meters"
+        Me.Label12.Text = "Note: The station elevation is used to calculate the basin_tsta_hru parameter. Th" & _
+    "is calculation requires the hru_elev parameter to also be calculated in meters"
         '
         'FrmPEandSRObs
         '
