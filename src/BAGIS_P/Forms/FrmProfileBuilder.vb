@@ -538,7 +538,9 @@ Public Class FrmProfileBuilder
             Dim profileList As List(Of Profile) = BA_LoadProfilesFromXml(profilesFolder)
             If profileList IsNot Nothing Then
                 For Each nextProfile In profileList
-                    m_profileTable.Add(nextProfile.Name, nextProfile)
+                    If Not m_profileTable.ContainsKey(nextProfile.Name) Then
+                        m_profileTable.Add(nextProfile.Name, nextProfile)
+                    End If
                 Next
             End If
         End If
@@ -563,7 +565,10 @@ Public Class FrmProfileBuilder
                         'Set method status for local profile builder
                         nextMethod.Status = MethodStatus.Pending
                     End If
-                    m_methodTable.Add(nextMethod.Name, nextMethod)
+                    'Avoid errors if we get > 1 method with same name
+                    If Not m_methodTable.ContainsKey(nextMethod.Name) Then
+                        m_methodTable.Add(nextMethod.Name, nextMethod)
+                    End If
                 Next
             End If
         End If
