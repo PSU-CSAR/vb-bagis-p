@@ -112,7 +112,7 @@ Public Class FrmExportParameters
             Dim selItem As LayerListItem = TryCast(LstHruLayers.SelectedItem, LayerListItem)
             Dim hruGdbName As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, selItem.Name)
             Dim vName As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.HruZonesVector), False)
-                Dim hruCount As Integer = BA_CountPolygons(hruGdbName, vName)
+            Dim hruCount As Integer = BA_CountPolygons(hruGdbName, vName, BA_FIELD_HRU_ID)
                 If hruCount > 0 Then
                     TxtNHru.Text = CStr(hruCount)
                 Else

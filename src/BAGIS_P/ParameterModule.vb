@@ -859,7 +859,7 @@ Module ParameterModule
         End Try
     End Function
 
-    Public Function BA_CountPolygons(ByVal pFolder As String, ByVal pFile As String) As Integer
+    Public Function BA_CountPolygons(ByVal pFolder As String, ByVal pFile As String, ByVal keyField As String) As Integer
         Dim pGeoDataSet As IGeoDataset = Nothing
         Dim pFeatureClass As IFeatureClass = Nothing
         Dim pFeatureCursor As IFeatureCursor = Nothing
@@ -871,7 +871,8 @@ Module ParameterModule
                 pFeatureClass = CType(pGeoDataSet, IFeatureClass)
                 pFeatureCursor = pFeatureClass.Search(Nothing, False)
                 'initialize properties for the dataStatistics interface
-                pDataStatistics.Field = BA_FIELD_HRU_ID
+                'pDataStatistics.Field = BA_FIELD_HRU_ID
+                pDataStatistics.Field = keyField
                 pDataStatistics.Cursor = pFeatureCursor
                 'Get the result statistics
                 statisticsResults = pDataStatistics.Statistics

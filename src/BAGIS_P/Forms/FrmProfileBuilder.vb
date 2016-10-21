@@ -1504,7 +1504,15 @@ Public Class FrmProfileBuilder
                         Dim hruGdbPath As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, selHruName)
                         If Not BA_File_Exists(hruGdbPath & BA_EnumDescription(PublicPath.HruZonesVector), WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
                             success = BA_Create_grid_zones_v(hruGdbPath)
+                        Else
+                            Dim grid_v_count As Integer = BA_CountPolygons(hruGdbPath, BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.HruVector), False), BA_FIELD_HRUID_NC)
+                            Dim grid_zones_v_count As Integer = BA_CountPolygons(hruGdbPath, BA_GetBareName(BA_EnumDescription(PublicPath.HruZonesVector)), BA_FIELD_HRU_ID)
+                            If grid_v_count <> grid_zones_v_count Then
+                                BA_Remove_ShapefileFromGDB(hruGdbPath, BA_GetBareName(BA_EnumDescription(PublicPath.HruZonesVector)))
+                                success = BA_Create_grid_zones_v(hruGdbPath)
+                            End If
                         End If
+
                         ''Check to see if params table exists for selected profile
                         'If it does drop and recreate so we only have columns from this run
                         'progressDialog2.Description = "Verifying output parameter table"
