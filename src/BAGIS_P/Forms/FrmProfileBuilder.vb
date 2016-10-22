@@ -555,11 +555,11 @@ Public Class FrmProfileBuilder
     'Loads the method data from disk
     Private Sub RefreshMethodData()
         Dim methodsFolder As String = Nothing
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        Dim settingsPath As String = bExt.SettingsPath
         If m_aoi IsNot Nothing Then
             methodsFolder = BA_GetLocalMethodsDir(m_aoi.FilePath)
         ElseIf m_mode = BA_BAGISP_MODE_PUBLIC Then
-            Dim bExt As BagisPExtension = BagisPExtension.GetExtension
-            Dim settingsPath As String = bExt.SettingsPath
             methodsFolder = BA_GetPublicMethodsPath(settingsPath)
         End If
         If Not String.IsNullOrEmpty(methodsFolder) Then
@@ -577,6 +577,12 @@ Public Class FrmProfileBuilder
                     End If
                 Next
             End If
+        Else
+            Dim sb As StringBuilder = New StringBuilder()
+            sb.Append("Cannot locate BAGIS-P method folders! ")
+            sb.Append("Error occurred when creating the method folder ")
+            sb.Append(settingsPath & BA_EnumDescription(PublicPath.BagisPMethods) + ".")
+            MessageBox.Show(sb.ToString, "Unable to locate methods", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End If
     End Sub
 
