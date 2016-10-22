@@ -525,12 +525,12 @@ Public Class FrmProfileBuilder
     'Loads the profile data from disk
     Private Sub RefreshProfileData()
         Dim profilesFolder As String = Nothing
+        Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+        Dim settingsPath As String = bExt.SettingsPath
         m_profileTable = New Hashtable
         If m_aoi IsNot Nothing Then
             profilesFolder = BA_GetLocalProfilesDir(m_aoi.FilePath)
         ElseIf m_mode = BA_BAGISP_MODE_PUBLIC Then
-            Dim bExt As BagisPExtension = BagisPExtension.GetExtension
-            Dim settingsPath As String = bExt.SettingsPath
             profilesFolder = BA_GetPublicProfilesPath(settingsPath)
         End If
         If Not String.IsNullOrEmpty(profilesFolder) Then
@@ -543,6 +543,12 @@ Public Class FrmProfileBuilder
                     End If
                 Next
             End If
+        Else
+            Dim sb As StringBuilder = New StringBuilder()
+            sb.Append("Cannot locate BAGIS-P profile folders! ")
+            sb.Append("Error occurred when creating the profile folder ")
+            sb.Append(settingsPath & BA_EnumDescription(PublicPath.BagisPProfiles) + ".")
+            MessageBox.Show(sb.ToString, "Unable to locate profiles", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End If
     End Sub
 

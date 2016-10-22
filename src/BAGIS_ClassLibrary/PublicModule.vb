@@ -1917,7 +1917,7 @@ Optional ByVal hasPaddingBackSlach As Boolean = False) As String
     ' Creates a new folder when provided with root path and name using ArcObjects Workspace API
     Public Function BA_CreateFolder(ByRef existingFolder As String, ByVal newFolder As String) As String
         Dim pWksFactory As IWorkspaceFactory
-        Dim pWorkspaceName As IWorkspaceName
+        Dim pWorkspaceName As IWorkspaceName = Nothing
         Try
             pWksFactory = New ShapefileWorkspaceFactory
             Dim dirInfo As DirectoryInfo = New DirectoryInfo(existingFolder & newFolder)
@@ -1925,7 +1925,11 @@ Optional ByVal hasPaddingBackSlach As Boolean = False) As String
             If Not dirInfo.Exists Then
                 pWorkspaceName = pWksFactory.Create(existingFolder, newFolder, Nothing, 0)
             End If
-            Return existingFolder & "\" & newFolder
+            If pWorkspaceName IsNot Nothing Then
+                Return pWorkspaceName.PathName
+            Else
+                Return Nothing
+            End If
 
         Catch ex As Exception
             MessageBox.Show("BA_CreateFolder Exception: " + ex.Message)
