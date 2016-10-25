@@ -673,7 +673,9 @@ Public Class FrmProfileBuilder
         'Update the useMethod value in the cached method/hru collection
         Dim colInclude As DataGridViewColumn = GrdMethods.Columns("IncludeMethod")
         Dim colMethod As DataGridViewColumn = GrdMethods.Columns("Methods")
-        If e.ColumnIndex = colInclude.Index Then
+        'Don't do anything if the column is read-only; Means verify or recalculate process is underway
+        Dim dCell As DataGridViewCell = GrdMethods.Rows(e.RowIndex).Cells(e.ColumnIndex)
+        If e.ColumnIndex = colInclude.Index AndAlso dCell.ReadOnly = False Then
             'If an aoi and hru are selected
             If m_aoi IsNot Nothing And GrdHruLayers.SelectedRows.Count > 0 Then
                 'Check to see if there is a cached method status table from an earlier run
@@ -915,15 +917,9 @@ Public Class FrmProfileBuilder
     Private Sub ManageIncludeColumn()
         Dim colIncludeMethod As DataGridViewCheckBoxColumn = CType(GrdMethods.Columns("IncludeMethod"), DataGridViewCheckBoxColumn)
         If GrdProfiles.SelectedCells.Count > 0 AndAlso GrdHruLayers.SelectedRows.Count > 0 Then
-            colIncludeMethod.ReadOnly = False
-            colIncludeMethod.FlatStyle = FlatStyle.Standard
-            colIncludeMethod.DefaultCellStyle.ForeColor = GrdMethods.Columns("Methods").DefaultCellStyle.ForeColor
-            BtnToggleUse.Enabled = True
+            EnableUseColumn(True)
         Else
-            colIncludeMethod.ReadOnly = True
-            colIncludeMethod.FlatStyle = FlatStyle.Flat
-            colIncludeMethod.DefaultCellStyle.ForeColor = Color.Silver
-            BtnToggleUse.Enabled = False
+            EnableUseColumn(False)
         End If
     End Sub
 
@@ -939,7 +935,7 @@ Public Class FrmProfileBuilder
     Private Sub BtnCalculate_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCalculate.Click
         BtnCalculate.Enabled = False
         BtnVerify.Enabled = False
-        BtnToggleUse.Enabled = False
+        EnableUseColumn(False)
         Try
             If GrdHruLayers.SelectedRows.Count > 0 And m_selProfile IsNot Nothing Then
                 If m_selProfile.MethodNames IsNot Nothing And m_selProfile.MethodNames.Count > 0 Then
@@ -1028,7 +1024,7 @@ Public Class FrmProfileBuilder
                     success = BA_SaveProfileLog(hruPath, m_selProfile, TxtNoData.Text, m_methodTable, saveTable)
                     ManageVerifyButton()
                     ManageRecalculateButton()
-                    BtnToggleUse.Enabled = True
+                    EnableUseColumn(True)
                     LblStatus.Text = "Parameter calculations complete"
                 End If
             End If
@@ -1288,7 +1284,7 @@ Public Class FrmProfileBuilder
         Try
             If m_selProfile IsNot Nothing Then
                 BtnVerify.Enabled = False
-                BtnToggleUse.Enabled = False
+                EnableUseColumn(False)
                 'pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, m_selProfile.MethodNames.Count + 4)
                 'progressDialog2 = BA_GetProgressDialog(pStepProg, "Checking target geodatabase...", "Verifying profile " & m_selProfile.Name)
                 'pStepProg.Show()
@@ -1536,6 +1532,7 @@ Public Class FrmProfileBuilder
                                 MessageBox.Show("Unable to create parameter output table for profile: " & m_selProfile.Name & ", for HRU: " & selHruName, "Write error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                                 ManageVerifyButton()
                                 ManageRecalculateButton()
+                                EnableUseColumn(True)
                                 Exit Sub
                             End If
                         End If
@@ -1546,7 +1543,7 @@ Public Class FrmProfileBuilder
                     End If
                     ManageVerifyButton()
                     ManageRecalculateButton()
-                    BtnToggleUse.Enabled = True
+                    EnableUseColumn(True)
                     LblStatus.Text = "Verification complete"
                     Dim errorMsg As String = CheckForDuplicateFieldNames(validMethodsTable)
                     'We have duplicate field names; Pop a warning message
@@ -1914,4 +1911,20 @@ Public Class FrmProfileBuilder
             aRow.Cells(idxUse).Value = Not oldVal
         Next
     End Sub
+
+    Private Sub EnableUseColumn(ByVal blnEnable As Boolean)
+        Dim colIncludeMethod As DataGridViewCheckBoxColumn = CType(GrdMethods.Columns("IncludeMethod"), DataGridViewCheckBoxColumn)
+        If blnEnable = True Then
+            colIncludeMethod.ReadOnly = False
+            colIncludeMethod.FlatStyle = FlatStyle.Standard
+            colIncludeMethod.DefaultCellStyle.ForeColor = GrdMethods.Columns("Methods").DefaultCellStyle.ForeColor
+            BtnToggleUse.Enabled = True
+        Else
+            colIncludeMethod.ReadOnly = True
+            colIncludeMethod.FlatStyle = FlatStyle.Flat
+            colIncludeMethod.DefaultCellStyle.ForeColor = Color.Silver
+            BtnToggleUse.Enabled = False
+        End If
+    End Sub
+
 End Class

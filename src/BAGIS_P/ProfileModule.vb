@@ -129,14 +129,14 @@ Module ProfileModule
     End Function
 
     Public Function BA_GetLocalSettingsPath(ByVal aoiPath As String) As String
-        Dim settingsPath As String = aoiPath & BA_EnumDescription(PublicPath.BagisLocalSettings)
+        Dim settingsPath As String = aoiPath & BA_EnumDescription(PublicPath.BagisParamFolder)
         If Not BA_Folder_ExistsWindowsIO(settingsPath) Then
             Dim newPath As String = BA_CreateFolder(aoiPath, BA_EnumDescription(PublicPath.BagisParamFolder))
             If newPath IsNot Nothing Then
-                Return settingsPath
+                Return aoiPath & BA_EnumDescription(PublicPath.BagisLocalSettings)
             End If
         Else
-            Return settingsPath
+            Return aoiPath & BA_EnumDescription(PublicPath.BagisLocalSettings)
         End If
         Return Nothing
     End Function
