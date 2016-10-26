@@ -1280,7 +1280,6 @@ Public Class FrmProfileBuilder
         ' Create/configure a step progressor
         'Dim pStepProg As IStepProgressor = Nothing
         'Dim progressDialog2 As IProgressDialog2 = Nothing
-        Dim pModel As IGPTool
         Try
             If m_selProfile IsNot Nothing Then
                 BtnVerify.Enabled = False
@@ -1367,8 +1366,8 @@ Public Class FrmProfileBuilder
                             '************************************************
                             If hruMethod.UseMethod = True Then
                                 'Validate existence of model on disk
-                                pModel = BA_OpenModel(pMethod.ToolBoxPath, pMethod.ToolboxName, pMethod.ModelName)
-                                If pModel IsNot Nothing Then
+                                Dim pModel As IGPTool = BA_OpenModel(pMethod.ToolBoxPath, pMethod.ToolboxName, pMethod.ModelName)
+                                If BA_ModelExists(pMethod.ToolBoxPath, pMethod.ToolboxName, pMethod.ModelName) Then
                                     hruMethod.Status = MethodStatus.Verified
                                 Else
                                     hruMethod.Status = MethodStatus.Invalid
@@ -1555,16 +1554,6 @@ Public Class FrmProfileBuilder
         Catch ex As Exception
             Debug.Print("VerifyLocalProfile: " & ex.Message)
             LblStatus.Text = "Verification failed"
-        Finally
-            'The step progressor will be undefined if the cancel button was clicked
-            'If pStepProg IsNot Nothing Then
-            '    pStepProg.Hide()
-            '    pStepProg = Nothing
-            '    progressDialog2.HideDialog()
-            '    progressDialog2 = Nothing
-            'End If
-            GC.Collect()
-            GC.WaitForPendingFinalizers()
         End Try
     End Sub
 

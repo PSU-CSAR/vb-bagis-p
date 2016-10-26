@@ -237,6 +237,7 @@ Module ToolboxModule
         Dim pGPEnvironmentManager As IGPEnvironmentManager
         Dim pGPmessages As IGPMessages = New GPMessages
         Dim mcancel As ITrackCancel = New CancelTracker
+        mcancel.CancelOnClick = False
 
         Try
             pGPEnvironmentManager = New GPEnvironmentManager
