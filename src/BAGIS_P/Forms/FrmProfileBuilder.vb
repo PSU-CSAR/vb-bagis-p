@@ -1283,6 +1283,7 @@ Public Class FrmProfileBuilder
         Try
             If m_selProfile IsNot Nothing Then
                 BtnVerify.Enabled = False
+                LblVerifyMethods.Visible = True
                 EnableUseColumn(False)
                 'pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, m_selProfile.MethodNames.Count + 4)
                 'progressDialog2 = BA_GetProgressDialog(pStepProg, "Checking target geodatabase...", "Verifying profile " & m_selProfile.Name)
@@ -1530,6 +1531,7 @@ Public Class FrmProfileBuilder
                             If success <> BA_ReturnCode.Success Then
                                 MessageBox.Show("Unable to create parameter output table for profile: " & m_selProfile.Name & ", for HRU: " & selHruName, "Write error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                                 ManageVerifyButton()
+                                LblVerifyMethods.Visible = False
                                 ManageRecalculateButton()
                                 EnableUseColumn(True)
                                 Exit Sub
@@ -1541,6 +1543,7 @@ Public Class FrmProfileBuilder
                         Exit Sub
                     End If
                     ManageVerifyButton()
+                    LblVerifyMethods.Visible = False
                     ManageRecalculateButton()
                     EnableUseColumn(True)
                     LblStatus.Text = "Verification complete"

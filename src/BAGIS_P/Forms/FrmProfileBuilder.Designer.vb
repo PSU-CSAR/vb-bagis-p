@@ -23,13 +23,13 @@ Partial Class FrmProfileBuilder
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim DataGridViewCellStyle8 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle9 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle10 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle11 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle12 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle13 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle14 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle22 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle23 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle24 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle25 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle26 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle27 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle28 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.TxtAoiPath = New System.Windows.Forms.TextBox()
         Me.BtnSelectAoi = New System.Windows.Forms.Button()
         Me.LblHruLayers = New System.Windows.Forms.Label()
@@ -87,6 +87,7 @@ Partial Class FrmProfileBuilder
         Me.TxtNoData = New System.Windows.Forms.TextBox()
         Me.LblNoData = New System.Windows.Forms.Label()
         Me.BtnViewLog = New System.Windows.Forms.Button()
+        Me.LblVerifyMethods = New System.Windows.Forms.Label()
         CType(Me.GrdProfiles, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.GrdMethods, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PnlProfile.SuspendLayout()
@@ -141,8 +142,8 @@ Partial Class FrmProfileBuilder
         '
         'Profiles
         '
-        DataGridViewCellStyle8.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Profiles.DefaultCellStyle = DataGridViewCellStyle8
+        DataGridViewCellStyle22.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Profiles.DefaultCellStyle = DataGridViewCellStyle22
         Me.Profiles.HeaderText = "Profiles"
         Me.Profiles.Name = "Profiles"
         Me.Profiles.ReadOnly = True
@@ -356,8 +357,8 @@ Partial Class FrmProfileBuilder
         '
         'Methods
         '
-        DataGridViewCellStyle9.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Methods.DefaultCellStyle = DataGridViewCellStyle9
+        DataGridViewCellStyle23.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Methods.DefaultCellStyle = DataGridViewCellStyle23
         Me.Methods.HeaderText = "Methods"
         Me.Methods.Name = "Methods"
         Me.Methods.ReadOnly = True
@@ -365,8 +366,8 @@ Partial Class FrmProfileBuilder
         '
         'ColStatus
         '
-        DataGridViewCellStyle10.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ColStatus.DefaultCellStyle = DataGridViewCellStyle10
+        DataGridViewCellStyle24.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ColStatus.DefaultCellStyle = DataGridViewCellStyle24
         Me.ColStatus.HeaderText = "Status"
         Me.ColStatus.Name = "ColStatus"
         Me.ColStatus.ReadOnly = True
@@ -374,10 +375,10 @@ Partial Class FrmProfileBuilder
         '
         'IncludeMethod
         '
-        DataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle11.ForeColor = System.Drawing.Color.Silver
-        DataGridViewCellStyle11.NullValue = False
-        Me.IncludeMethod.DefaultCellStyle = DataGridViewCellStyle11
+        DataGridViewCellStyle25.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle25.ForeColor = System.Drawing.Color.Silver
+        DataGridViewCellStyle25.NullValue = False
+        Me.IncludeMethod.DefaultCellStyle = DataGridViewCellStyle25
         Me.IncludeMethod.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.IncludeMethod.HeaderText = "Use"
         Me.IncludeMethod.Name = "IncludeMethod"
@@ -444,6 +445,7 @@ Partial Class FrmProfileBuilder
         '
         'PnlProfile
         '
+        Me.PnlProfile.Controls.Add(Me.LblVerifyMethods)
         Me.PnlProfile.Controls.Add(Me.BtnToggleUse)
         Me.PnlProfile.Controls.Add(Me.LblStatus)
         Me.PnlProfile.Controls.Add(Me.BtnExportProfile)
@@ -535,8 +537,8 @@ Partial Class FrmProfileBuilder
         '
         'HruName
         '
-        DataGridViewCellStyle12.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.HruName.DefaultCellStyle = DataGridViewCellStyle12
+        DataGridViewCellStyle26.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.HruName.DefaultCellStyle = DataGridViewCellStyle26
         Me.HruName.HeaderText = "HRU Name"
         Me.HruName.Name = "HruName"
         Me.HruName.ReadOnly = True
@@ -544,8 +546,8 @@ Partial Class FrmProfileBuilder
         '
         'Completed
         '
-        DataGridViewCellStyle13.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Completed.DefaultCellStyle = DataGridViewCellStyle13
+        DataGridViewCellStyle27.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Completed.DefaultCellStyle = DataGridViewCellStyle27
         Me.Completed.HeaderText = "# Complete"
         Me.Completed.Name = "Completed"
         Me.Completed.ReadOnly = True
@@ -567,8 +569,8 @@ Partial Class FrmProfileBuilder
         '
         'DataGridViewTextBoxColumn1
         '
-        DataGridViewCellStyle14.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.DataGridViewTextBoxColumn1.DefaultCellStyle = DataGridViewCellStyle14
+        DataGridViewCellStyle28.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.DataGridViewTextBoxColumn1.DefaultCellStyle = DataGridViewCellStyle28
         Me.DataGridViewTextBoxColumn1.HeaderText = "Profile Name"
         Me.DataGridViewTextBoxColumn1.Name = "DataGridViewTextBoxColumn1"
         Me.DataGridViewTextBoxColumn1.ReadOnly = True
@@ -600,7 +602,7 @@ Partial Class FrmProfileBuilder
         Me.PnlSubAoi.Controls.Add(Me.Label9)
         Me.PnlSubAoi.Controls.Add(Me.CkAppendSubAoi)
         Me.PnlSubAoi.Location = New System.Drawing.Point(489, 304)
-        Me.PnlSubAoi.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.PnlSubAoi.Margin = New System.Windows.Forms.Padding(2)
         Me.PnlSubAoi.Name = "PnlSubAoi"
         Me.PnlSubAoi.Size = New System.Drawing.Size(220, 129)
         Me.PnlSubAoi.TabIndex = 94
@@ -610,7 +612,7 @@ Partial Class FrmProfileBuilder
         Me.RichTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.RichTextBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.RichTextBox1.Location = New System.Drawing.Point(3, 78)
-        Me.RichTextBox1.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.RichTextBox1.Margin = New System.Windows.Forms.Padding(2)
         Me.RichTextBox1.Name = "RichTextBox1"
         Me.RichTextBox1.ReadOnly = True
         Me.RichTextBox1.Size = New System.Drawing.Size(217, 53)
@@ -642,7 +644,7 @@ Partial Class FrmProfileBuilder
         Me.CboSubAoiId.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.CboSubAoiId.FormattingEnabled = True
         Me.CboSubAoiId.Location = New System.Drawing.Point(8, 42)
-        Me.CboSubAoiId.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.CboSubAoiId.Margin = New System.Windows.Forms.Padding(2)
         Me.CboSubAoiId.Name = "CboSubAoiId"
         Me.CboSubAoiId.Size = New System.Drawing.Size(125, 24)
         Me.CboSubAoiId.Sorted = True
@@ -708,6 +710,18 @@ Partial Class FrmProfileBuilder
         Me.BtnViewLog.TabIndex = 102
         Me.BtnViewLog.Text = "View Log"
         Me.BtnViewLog.UseVisualStyleBackColor = True
+        '
+        'LblVerifyMethods
+        '
+        Me.LblVerifyMethods.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.LblVerifyMethods.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblVerifyMethods.ForeColor = System.Drawing.Color.Red
+        Me.LblVerifyMethods.Location = New System.Drawing.Point(225, 180)
+        Me.LblVerifyMethods.Name = "LblVerifyMethods"
+        Me.LblVerifyMethods.Size = New System.Drawing.Size(262, 94)
+        Me.LblVerifyMethods.TabIndex = 91
+        Me.LblVerifyMethods.Text = "" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "    " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "    Verifying methods. Please wait!"
+        Me.LblVerifyMethods.Visible = False
         '
         'FrmProfileBuilder
         '
@@ -804,4 +818,5 @@ Partial Class FrmProfileBuilder
     Friend WithEvents Completed As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents DataGridViewTextBoxColumn1 As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents DataGridViewTextBoxColumn2 As System.Windows.Forms.DataGridViewTextBoxColumn
+    Friend WithEvents LblVerifyMethods As System.Windows.Forms.Label
 End Class
