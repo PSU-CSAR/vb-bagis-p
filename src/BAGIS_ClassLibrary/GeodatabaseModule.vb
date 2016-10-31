@@ -1785,4 +1785,36 @@ Public Module GeodatabaseModule
         End Try
     End Function
 
+    Public Function BA_CountPolygons(ByVal pFolder As String, ByVal pFile As String, ByVal keyField As String) As Integer
+        Dim pGeoDataSet As IGeoDataset = Nothing
+        Dim pFeatureClass As IFeatureClass = Nothing
+        Dim pFeatureCursor As IFeatureCursor = Nothing
+        Dim pDataStatistics As IDataStatistics = New DataStatistics
+        Dim statisticsResults As ESRI.ArcGIS.esriSystem.IStatisticsResults = Nothing
+        Try
+            pGeoDataSet = BA_OpenFeatureClassFromGDB(pFolder, pFile)
+            If pGeoDataSet IsNot Nothing Then
+                pFeatureClass = CType(pGeoDataSet, IFeatureClass)
+                pFeatureCursor = pFeatureClass.Search(Nothing, False)
+                'initialize properties for the dataStatistics interface
+                'pDataStatistics.Field = BA_FIELD_HRU_ID
+                pDataStatistics.Field = keyField
+                pDataStatistics.Cursor = pFeatureCursor
+                'Get the result statistics
+                statisticsResults = pDataStatistics.Statistics
+                Return statisticsResults.Count
+            End If
+            Return -1
+        Catch ex As Exception
+            Debug.Print("BA_CountPolygons Exception: " & ex.Message)
+            Return -1
+        Finally
+            pGeoDataSet = Nothing
+            pFeatureClass = Nothing
+            pFeatureCursor = Nothing
+            pDataStatistics = Nothing
+            statisticsResults = Nothing
+        End Try
+    End Function
+
 End Module
