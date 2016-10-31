@@ -155,6 +155,10 @@ Public Module GeodatabaseModule
             Finally
                 ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pWS)
             End Try
+        ElseIf wksType = WorkspaceType.ImageServer Then
+            Return BA_File_ExistsImageServer(fullPath)
+        ElseIf wksType = WorkspaceType.FeatureServer Then
+            Return BA_File_ExistsFeatureServer(fullPath)
         End If
         Return False
     End Function
@@ -305,7 +309,7 @@ Public Module GeodatabaseModule
                 Dim snapName As String = BA_GetBareName(snapRasterPath, snapPath)
 
                 Dim workspaceType As WorkspaceType = BA_GetWorkspaceTypeFromPath(snapPath)
-                If WorkspaceType = WorkspaceType.Geodatabase Then
+                If workspaceType = workspaceType.Geodatabase Then
                     snapGDS = BA_OpenRasterFromGDB(snapPath, snapName)
                 ElseIf workspaceType = workspaceType.Raster Then 'input is a GRID
                     snapGDS = BA_OpenRasterFromFile(snapPath, snapName)
@@ -514,7 +518,7 @@ Public Module GeodatabaseModule
 
             Return BA_ReturnCode.Success
         Catch ex As Exception
-            MsgBox("BA_RemoveTemporaryRasters & Exception: " & ex.Message)
+            MsgBox("BA_RemoveFilesByPrefix & Exception: " & ex.Message)
             Return BA_ReturnCode.OtherError
         Finally
             ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pDataset)
@@ -601,6 +605,13 @@ Public Module GeodatabaseModule
     Public Function BA_GetWorkspaceTypeFromPath(ByVal inputPath As String) As WorkspaceType
         If inputPath.IndexOf(".gdb") > -1 Then
             Return WorkspaceType.Geodatabase
+        ElseIf inputPath.IndexOf("http") = 0 Then
+            'We have a web service
+            If inputPath.IndexOf(BA_Url_FeatureServer) > -1 Then
+                Return WorkspaceType.FeatureServer
+            Else
+                Return WorkspaceType.ImageServer
+            End If
         Else
             Return WorkspaceType.Raster
         End If
@@ -621,6 +632,10 @@ Public Module GeodatabaseModule
             MessageBox.Show("BA_RenameRasterInGDB() Exception: " & ex.Message)
             Return BA_ReturnCode.UnknownError
         Finally
+            pInputDataset = Nothing
+            pDataset = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
             ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pInputDataset)
             ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pDataset)
         End Try
@@ -1649,6 +1664,79 @@ Public Module GeodatabaseModule
         Return return_value
     End Function
 
+    Public Sub BA_ShapeFile2RasterGDB(ByVal featClass As IFeatureClass, ByVal gdbPath As String, _
+                               ByVal FileName As String, ByVal Cellsize As Object, _
+                               ByVal valueField As String, ByVal snapRasterPath As String)
+        Dim pWS As IWorkspace = Nothing
+        Dim pWSFactory As IWorkspaceFactory = New RasterWorkspaceFactory
+        Dim pConversionOp As IConversionOp = New RasterConversionOp
+        Dim pEnv As IRasterAnalysisEnvironment = Nothing
+        Dim pRDS As IRasterDataset = Nothing
+        Dim snapRaster As IRasterDataset = Nothing
+        Dim envelope As IEnvelope = Nothing
+        Dim pFDesc As IFeatureClassDescriptor = New FeatureClassDescriptor
+        pFDesc.Create(featClass, Nothing, valueField)
+        Dim pGeoDataset As IGeoDataset = CType(featClass, IGeoDataset)
+        Dim imageLayer As IImageServerLayer = New ImageServerLayerClass
+        Dim imageRaster As IRaster = Nothing
+        Dim snapLayer As IRasterLayer = New RasterLayer()
+
+        Try
+            'Commenting out check for integer values since we may also convert text values; Field values should be checked
+            'before this is called from either BA_Feature2RasterInteger or BA_Feature2RasterDouble
+            'If BA_IsIntegerField(featClassDescr, valueField) Then
+            Dim hruPath As String = ""
+            Dim tmpName As String = BA_GetBareName(gdbPath, hruPath)
+            pWS = pWSFactory.OpenFromFile(hruPath, 0)
+            pEnv = CType(pConversionOp, IRasterAnalysisEnvironment)
+            pEnv.SetCellSize(esriRasterEnvSettingEnum.esriRasterEnvValue, Cellsize)
+            envelope = pGeoDataset.Extent
+            Dim object_Envelope As System.Object = CType(envelope, System.Object) ' Explicit Cast
+            If Not String.IsNullOrEmpty(snapRasterPath) Then
+                Dim snapPath As String = "PleaseReturn"
+                Dim workspaceType As WorkspaceType = BA_GetWorkspaceTypeFromPath(snapRasterPath)
+                If workspaceType = workspaceType.Geodatabase Then
+                    Dim snapName As String = BA_GetBareName(snapRasterPath, snapPath)
+                    snapRaster = BA_OpenRasterFromGDB(snapPath, snapName)
+                    pEnv.SetExtent(esriRasterEnvSettingEnum.esriRasterEnvValue, object_Envelope, snapRaster)
+                ElseIf workspaceType = workspaceType.Raster Then 'input is a GRID
+                    Dim snapName As String = BA_GetBareName(snapRasterPath, snapPath)
+                    snapRaster = BA_OpenRasterFromFile(snapPath, snapName)
+                    pEnv.SetExtent(esriRasterEnvSettingEnum.esriRasterEnvValue, object_Envelope, snapRaster)
+                ElseIf workspaceType = BAGIS_ClassLibrary.WorkspaceType.ImageServer Then
+                    'Create an image server layer by passing a URL.
+                    imageLayer.Initialize(snapRasterPath)
+                    'Get the raster from the image server layer.
+                    imageRaster = imageLayer.Raster
+                    snapLayer.CreateFromRaster(imageRaster)
+                    pEnv.SetExtent(esriRasterEnvSettingEnum.esriRasterEnvValue, object_Envelope, snapLayer)
+                End If
+            End If
+            pRDS = pConversionOp.ToRasterDataset(pFDesc, "GRID", pWS, FileName)
+            Dim success As Integer = BA_SaveRasterDatasetGDB(pRDS, gdbPath, BA_RASTER_FORMAT, FileName)
+            If success = 1 Then
+                BA_Remove_Raster(hruPath, FileName)
+            End If
+            'Else
+            'Throw New Exception("Invalid values found in value field. Values must be whole numbers.")
+            'End If
+        Catch ex As Exception
+            MessageBox.Show("BA_ShapeFile2RasterGDB Exception: " + ex.Message)
+        Finally
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pWS)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pFDesc)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pConversionOp)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(snapRaster)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(envelope)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pEnv)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pRDS)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pGeoDataset)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(imageLayer)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(imageRaster)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(snapLayer)
+        End Try
+    End Sub
+
     'Returns the ILinearUnit of a raster in a file gdb if the spatial reference is projected
     Public Function BA_GetLinearUnitOfProjectedRaster(ByVal filePath As String, ByVal fileName As String) As ILinearUnit
         Dim pGeoDataset As IGeoDataset
@@ -1747,10 +1835,10 @@ Public Module GeodatabaseModule
     End Function
 
     Public Function BA_AddUserFieldToVector(ByVal folderName As String, ByVal fileName As String, ByVal fieldName As String, _
-                                            ByVal fieldType As esriFieldType, ByVal fieldLength As Integer) As Integer
+                                        ByVal fieldType As esriFieldType, ByVal fieldLength As Integer) As BA_ReturnCode
         Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(folderName)
         Dim targetFC As IFeatureClass = Nothing
-        Dim schemaLock As ISchemaLock = Nothing
+        Dim tFields As IFieldsEdit = Nothing
         Try
             If wType = WorkspaceType.Geodatabase Then
                 targetFC = BA_OpenFeatureClassFromGDB(folderName, fileName)
@@ -1758,30 +1846,21 @@ Public Module GeodatabaseModule
                 targetFC = BA_OpenFeatureClassFromFile(folderName, fileName)
             End If
             If targetFC IsNot Nothing Then
-                schemaLock = CType(targetFC, ISchemaLock)
-                'A try block is necessary, as an exclusive lock might not be available.
-                schemaLock.ChangeSchemaLock(esriSchemaLock.esriExclusiveSchemaLock)
+                tFields = CType(targetFC.Fields, IFieldsEdit)
 
                 ' Create the new field.
-                Dim newFieldEdit As IFieldEdit = New Field()
-                If fieldLength > 0 Then newFieldEdit.Length_2 = fieldLength ' Only string fields require that you set the length.
-                newFieldEdit.Name_2 = fieldName
+                Dim newField As IField = New FieldClass()
+                Dim newFieldEdit As IFieldEdit = CType(newField, IFieldEdit)
+                If fieldLength > -1 Then newField.Length_2 = fieldLength ' Only string fields require that you set the length.
+                newField.Name_2 = fieldName
                 newFieldEdit.Type_2 = fieldType
-                'Must add field to FC instead of iFields because it's an existing table
-                targetFC.AddField(newFieldEdit)
-                Dim idxField As Integer = targetFC.FindField(fieldName)
-                Return idxField
+                tFields.AddField(newField)
+                Return BA_ReturnCode.Success
             End If
-            Return BA_ReturnCode.ReadError
+            Return BA_ReturnCode.UnknownError
         Catch ex As Exception
             Debug.Print("BA_AddUserFieldToVector Exception: " & ex.Message)
-            Return -1
-        Finally
-            ' Set the lock to shared, whether or not an error occurred.
-            schemaLock.ChangeSchemaLock(esriSchemaLock.esriSharedSchemaLock)
-            targetFC = Nothing
-            GC.WaitForPendingFinalizers()
-            GC.Collect()
+            Return BA_ReturnCode.UnknownError
         End Try
     End Function
 

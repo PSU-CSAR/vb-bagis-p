@@ -154,6 +154,9 @@
     <Reference Include="ESRI.ArcGIS.Geoprocessor, Version=10.2.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="ESRI.ArcGIS.GISClient, Version=10.2.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="ESRI.ArcGIS.SpatialAnalyst, Version=10.2.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -171,6 +174,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -248,18 +252,24 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Objects\Aoi.vb" />
+    <Compile Include="Objects\AOISearchFilter.vb" />
+    <Compile Include="Objects\AoiTask.vb" />
     <Compile Include="Objects\ContributingAreasRule.vb" />
     <Compile Include="Objects\CookieCutProcess.vb" />
     <Compile Include="Objects\DAFlowTypeZonesRule.vb" />
     <Compile Include="Objects\DataDescriptor.vb" />
     <Compile Include="Objects\EliminateProcess.vb" />
+    <Compile Include="Objects\FeatureService.vb" />
+    <Compile Include="Objects\FeatureServiceField.vb" />
     <Compile Include="Objects\GxFilterXml.vb" />
     <Compile Include="Objects\Hru.vb" />
     <Compile Include="Objects\IRule.vb" />
+    <Compile Include="Objects\JsonQueryResult.vb" />
     <Compile Include="Objects\LayerListItem.vb" />
     <Compile Include="Objects\LogProfile.vb" />
     <Compile Include="Objects\Method.vb" />
     <Compile Include="Objects\ModelParameter.vb" />
+    <Compile Include="Objects\MultipartFormHelper.vb" />
     <Compile Include="Objects\PrismPrecipRule.vb" />
     <Compile Include="Objects\Profile.vb" />
     <Compile Include="Objects\RasterReclassRule.vb" />
@@ -268,6 +278,8 @@
     <Compile Include="Objects\ReclassItem.vb" />
     <Compile Include="Objects\ReclassTextItem.vb" />
     <Compile Include="Objects\SerializableData.vb" />
+    <Compile Include="Objects\StoredAoi.vb" />
+    <Compile Include="Objects\StoredAoiArray.vb" />
     <Compile Include="Objects\TemplateAction.vb" />
     <Compile Include="Objects\TemplateRule.vb" />
     <Compile Include="Objects\Zone.vb" />
@@ -276,6 +288,7 @@
     <Compile Include="PublicModule.vb" />
     <Compile Include="StructuresModule.vb" />
     <Compile Include="ToolsModule.vb" />
+    <Compile Include="WebservicesModule.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">

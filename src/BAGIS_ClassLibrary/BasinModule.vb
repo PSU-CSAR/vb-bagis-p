@@ -721,4 +721,31 @@ Public Module BasinModule
         Return folderList
     End Function
 
+    Public Sub BA_GetColumnRowCountFromVector(ByVal vectorPath As String, ByVal xCellSize As Double, ByVal yCellSize As Double, _
+                                              ByRef extent As IEnvelope, ByRef xColumns As Long, ByRef yRows As Long)
+        Dim features As IGeoDataset = Nothing
+        Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(vectorPath)
+        Dim parentPath As String = "PleaseReturn"
+        Dim fileName As String = BA_GetBareName(vectorPath, parentPath)
+        Try
+            If wType = WorkspaceType.Geodatabase Then
+                features = BA_OpenFeatureClassFromGDB(parentPath, fileName)
+            Else
+                features = BA_OpenFeatureClassFromFile(parentPath, fileName)
+            End If
+            If features IsNot Nothing Then
+                extent = features.Extent
+                xColumns = CLng(Math.Ceiling(extent.Width / xCellSize))
+                yRows = CLng(Math.Ceiling(extent.Height / yCellSize))
+            End If
+        Catch ex As Exception
+            Debug.Print("BA_GetColumnRowCountFromVector exception: " & ex.Message)
+        Finally
+            features = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
+
+    End Sub
+
 End Module

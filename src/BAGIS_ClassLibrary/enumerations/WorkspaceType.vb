@@ -4,4 +4,6 @@
 Public Enum WorkspaceType
     Raster
     Geodatabase
+    ImageServer
+    FeatureServer
 End Enum
