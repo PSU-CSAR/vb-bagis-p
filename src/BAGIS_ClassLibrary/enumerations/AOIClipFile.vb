@@ -6,5 +6,5 @@ Public Enum AOIClipFile
     <Description("aoi_v")> AOIExtentCoverage
     <Description("aoib_v")> BufferedAOIExtentCoverage
     <Description("p_aoi_v")> PrismClipAOIExtentCoverage
-
+    <Description("missing")> Missing
 End Enum

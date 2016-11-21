@@ -742,12 +742,24 @@ Public Module PublicModule
         End Try
     End Function
 
-    'query the attribute table of a shapefile using the value of one field to return the value of another
-    Public Function BA_QueryAttributeTable(ByRef File_Path As String, ByRef File_Name As String, ByRef KeyField_Name As String, ByRef KeyField_Value As Object, ByRef KeyField_Type As String, ByRef ValueField_Name As String) As Object
+    'query the attribute table of a vector using the value of one field to return the value of another
+    Public Function BA_QueryAttributeTable(ByVal vectorPath As String, ByRef KeyField_Name As String, ByRef KeyField_Value As Object, ByRef KeyField_Type As String, ByRef ValueField_Name As String) As Object
         Dim TempKey_Value As String = Nothing
 
         ' Open the feature class
-        Dim pFClass As IFeatureClass = BA_OpenFeatureClassFromFile(File_Path, File_Name)
+        Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(vectorPath)
+        Dim pFClass As IFeatureClass = Nothing
+        If wType = WorkspaceType.Raster Then
+            Dim File_Path As String = "PleaseReturn"
+            Dim File_Name As String = BA_GetBareName(vectorPath, File_Path)
+            pFClass = BA_OpenFeatureClassFromFile(File_Path, File_Name)
+        ElseIf wType = WorkspaceType.Geodatabase Then
+            Dim File_Path As String = "PleaseReturn"
+            Dim File_Name As String = BA_GetBareName(vectorPath, File_Path)
+            pFClass = BA_OpenFeatureClassFromGDB(File_Path, File_Name)
+        ElseIf wType = WorkspaceType.FeatureServer Then
+            pFClass = BA_OpenFeatureClassFromService(vectorPath, 0)
+        End If
         Dim pFCursor As IFeatureCursor = Nothing
         Dim pFeature As IFeature = Nothing
         Dim pQFilter As IQueryFilter = New QueryFilter

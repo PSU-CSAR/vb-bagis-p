@@ -538,7 +538,7 @@ Public Class FrmExportParametersEwsf
         Dim closestHruId As String = Nothing
         If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Station_Info) Then
             Dim srElevParam As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_SR_Station_Info)
-            If srElevParam IsNot Nothing Then
+            If srElevParam IsNot Nothing AndAlso srElevParam.ValuesList IsNot Nothing AndAlso srElevParam.ValuesList.Count > 0 Then
                 Dim valueList As IList(Of String) = srElevParam.ValuesList
                 closestHruId = GetBasinTstaHru(hruParamPath, tableName, valueList(1))
             Else

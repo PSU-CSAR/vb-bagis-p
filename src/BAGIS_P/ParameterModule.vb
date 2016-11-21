@@ -1432,7 +1432,7 @@ Module ParameterModule
                 Dim hruParamGdbPath As String = BA_GetHruPath(aoiPath, PublicPath.HruDirectory, hruName) & BA_EnumDescription(PublicPath.BagisParamGdb)
                 Dim tableName As String = profileName & BA_PARAM_TABLE_SUFFIX
                 'Join the shapefile to the parameter table
-                success = BA_JoinField(outputFolder & "\" & outputFile, BA_FIELD_HRU_ID, hruParamGdbPath & "\" & tableName, BA_FIELD_HRU_ID)
+                success = BA_JoinField(outputFolder & "\" & outputFile, BA_FIELD_HRU_ID, hruParamGdbPath & "\" & tableName, BA_FIELD_HRU_ID, Nothing)
                 Return success
             End If
             Return BA_ReturnCode.UnknownError

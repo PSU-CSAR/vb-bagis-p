@@ -984,4 +984,38 @@ Public Module WebservicesModule
 
     End Function
 
+    Public Function BA_Delete_Aoi(ByVal url As String, ByVal strToken As String) As BA_ReturnCode
+        Dim reqT As HttpWebRequest
+        'The end point for getting a token for the web service
+        reqT = WebRequest.Create(url)
+        'This is a DELETE request
+        reqT.Method = "DELETE"
+        'Set the accept header to request a lower version of the api
+        reqT.Accept = "application/json; version=" + BA_EbagisApiVersion
+
+        'Retrieve the token and format it for the header; Token comes from caller
+        Dim cred As String = String.Format("{0} {1}", "Token", strToken)
+        'Put token in header
+        reqT.Headers(HttpRequestHeader.Authorization) = cred
+        Try
+            Using resT As HttpWebResponse = CType(reqT.GetResponse(), HttpWebResponse)
+                'Commenting out because the request returns an empty response
+                'Using stream As System.IO.Stream = resT.GetResponseStream
+                '    Using streamReader As System.IO.StreamReader = New System.IO.StreamReader(stream)
+                '        Debug.Print("JSON response -->" & streamReader.ReadToEnd)
+                '    End Using
+                'End Using
+            End Using
+
+            'If we didn't get an exception, the upload was successful
+            Return BA_ReturnCode.Success
+        Catch webEx As WebException
+            Debug.Print("BA_Delete_Aoi WebException: " & webEx.Message)
+            Return BA_ReturnCode.UnknownError
+        Catch ex As Exception
+            Debug.Print("BA_Delete_Aoi Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        End Try
+    End Function
+
 End Module

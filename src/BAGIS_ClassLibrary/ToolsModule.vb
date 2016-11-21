@@ -79,7 +79,8 @@ Public Module ToolsModule
             End If
 
             ' Configure and run ZonalStatistic tool
-            Dim srcField As String = BA_FIELD_ID 'set the default value
+            'Dim srcField As String = BA_FIELD_ID 'set the default value
+            Dim srcField As String = Nothing    'Should be using grid code instead of id
             If layerIsRaster Then
                 tool.in_zone_data = zoneLayerFilePath
                 tool.zone_field = BA_FIELD_VALUE
@@ -907,7 +908,11 @@ Public Module ToolsModule
                 GP.SetEnvironmentValue("snapRaster", snapRasterPath)
             End If
             pResult = GP.Execute(tool, Nothing)
-            Return BA_ReturnCode.Success
+
+            ' Build the raster attribute table; Don't overwrite if it already exists; Combine doesn't create attribute table if
+            ' large number of polygons
+            Dim success As BA_ReturnCode = BA_BuildRasterAttributeTable(outRasterPath, False)
+            Return success
         Catch ex As Exception
             For c As Integer = 0 To GP.MessageCount - 1
                 Debug.Print("GP error: " & GP.GetMessage(c))
@@ -925,7 +930,7 @@ Public Module ToolsModule
         End Try
     End Function
 
-    ' Calculate focal statistics with GP; Not used as of Nov 2, 2011
+    ' Calculate focal statistics with GP
     Public Function BA_FocalStatistics_GP(ByVal inRaster As String, ByVal outRasterDataset As String, _
                                           ByVal maskDataset As String, ByVal neighborhood As String, _
                                           ByVal statisticsType As String, ByVal snapRasterPath As String) As BA_ReturnCode
@@ -1117,36 +1122,6 @@ Public Module ToolsModule
 
     'The JoinField tool joins a table to a feature class and adds the table fields to the input feature class
     'If you don't want to alter the original feature class, you need to create a copy before using this
-    Public Function BA_JoinField(ByVal inputFeatureClassPath As String, ByVal inJoinField As String,
-                                                 ByVal joinTablePath As String, ByVal tableJoinField As String) As BA_ReturnCode
-        Dim tool As JoinField = New JoinField
-        Dim success As Short = -1
-        Try
-            'tool.in_data = outputFolder & "\" & outputFile
-            'tool.in_field = BA_FIELD_ERAMS_ID
-            'tool.join_table = tableFolder & "\" & TableName
-            'tool.join_field = BA_FIELD_ERAMS_ID
-            tool.in_data = inputFeatureClassPath
-            tool.in_field = inJoinField
-            tool.join_table = joinTablePath
-            tool.join_field = tableJoinField
-            'No snaprasterpath for this tool
-            success = Execute_Geoprocessing(tool, False, Nothing)
-            If success = 1 Then
-                Return BA_ReturnCode.Success
-            Else
-                Return BA_ReturnCode.UnknownError
-            End If
-        Catch ex As Exception
-            Debug.Print("BA_JoinFeatureClassToTable Exception: " & ex.Message)
-            Return BA_ReturnCode.UnknownError
-        Finally
-            tool = Nothing
-        End Try
-    End Function
-
-    'The JoinField tool joins a table to a feature class and adds the table fields to the input feature class
-    'If you don't want to alter the original feature class, you need to create a copy before using this
     Public Function BA_JoinField(ByVal inputFeatureClassPath As String, ByVal inJoinField As String, _
                                  ByVal joinTablePath As String, ByVal tableJoinField As String, ByVal fields As String) As BA_ReturnCode
         Dim tool As JoinField = New JoinField
@@ -1156,7 +1131,9 @@ Public Module ToolsModule
             tool.in_field = inJoinField
             tool.join_table = joinTablePath
             tool.join_field = tableJoinField
-            tool.fields = fields
+            If Not String.IsNullOrEmpty(fields) Then
+                tool.fields = fields
+            End If
             'No snaprasterpath for this tool
             success = Execute_Geoprocessing(tool, False, Nothing)
             If success = 1 Then
@@ -1171,6 +1148,7 @@ Public Module ToolsModule
             tool = Nothing
         End Try
     End Function
+
 
     Public Function BA_ExtractByMask(ByVal maskFilePath As String, ByVal inputRasterPath As String, _
                                      ByVal snapRasterPath As String, ByVal outputRasterPath As String) As BA_ReturnCode
@@ -1351,6 +1329,30 @@ Public Module ToolsModule
         Dim tool As BuildRasterAttributeTable = New BuildRasterAttributeTable
         tool.in_raster = inRaster
         tool.overwrite = overwrite
+        'No snapRasterPath because not a spatial analyst tool
+        If Execute_Geoprocessing(tool, False, Nothing) = 1 Then
+            Return BA_ReturnCode.Success
+        Else
+            Return BA_ReturnCode.UnknownError
+        End If
+    End Function
+
+    Public Function BA_MultipartToSinglepart(ByVal inFeatures As String, ByVal outFeatureClass As String) As BA_ReturnCode
+        Dim tool As MultipartToSinglepart = New MultipartToSinglepart()
+        tool.in_features = inFeatures
+        tool.out_feature_class = outFeatureClass
+        'No snapRasterPath because not a spatial analyst tool
+        If Execute_Geoprocessing(tool, False, Nothing) = 1 Then
+            Return BA_ReturnCode.Success
+        Else
+            Return BA_ReturnCode.UnknownError
+        End If
+    End Function
+
+    Public Function BA_Copy(ByVal inData As String, ByVal outData As String) As BA_ReturnCode
+        Dim tool As Copy = New Copy
+        tool.in_data = inData
+        tool.out_data = outData
         'No snapRasterPath because not a spatial analyst tool
         If Execute_Geoprocessing(tool, False, Nothing) = 1 Then
             Return BA_ReturnCode.Success
