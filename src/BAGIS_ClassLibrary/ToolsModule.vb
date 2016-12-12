@@ -1361,6 +1361,35 @@ Public Module ToolsModule
         End If
     End Function
 
+    Public Function BA_ExtractValuesToPoints(ByVal inPointFeatures As String, ByVal inRaster As String, ByVal outPointFeatures As String, _
+                                             ByVal snapRasterpath As String, ByVal addAttributes As Boolean) As BA_ReturnCode
+        Dim tool As ExtractValuesToPoints = New ExtractValuesToPoints
+        tool.in_point_features = inPointFeatures
+        tool.in_raster = inRaster
+        tool.out_point_features = outPointFeatures
+        tool.add_attributes = addAttributes.ToString
+        If Execute_Geoprocessing(tool, False, snapRasterpath) = 1 Then
+            Return BA_ReturnCode.Success
+        Else
+            Return BA_ReturnCode.UnknownError
+        End If
+    End Function
+
+    Public Function BA_CalculateField(ByVal inTable As String, ByVal calcField As String, _
+                                      ByVal expression As String, ByVal expressionType As String) As BA_ReturnCode
+        Dim tool As CalculateField = New CalculateField
+        tool.in_table = inTable
+        tool.field = calcField
+        tool.expression = expression
+        tool.expression_type = expressionType
+        'No snapRasterPath because not a spatial analyst tool
+        If Execute_Geoprocessing(tool, False, Nothing) = 1 Then
+            Return BA_ReturnCode.Success
+        Else
+            Return BA_ReturnCode.UnknownError
+        End If
+    End Function
+
 End Module
 
 
