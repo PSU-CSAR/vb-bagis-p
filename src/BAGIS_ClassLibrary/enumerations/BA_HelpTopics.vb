@@ -24,4 +24,5 @@ Public Enum BA_HelpTopics
     TimberlineTool
     SequentialId
     PeAndObsTool
+    ElevPrecipAttribLayer
 End Enum

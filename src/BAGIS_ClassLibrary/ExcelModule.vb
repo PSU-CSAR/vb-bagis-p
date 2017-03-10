@@ -1912,4 +1912,293 @@ Public Module ExcelModule
         Return 1
     End Function
 
+    Public Function BA_CreateRepresentPrecipTable(ByVal tableGdbPath As String, ByVal tableFileName As String, ByVal precipFieldName As String, _
+                                              ByVal elevFieldName As String, ByVal aspectFieldName As String, ByVal partitionFieldName As String, _
+                                              ByVal pAreaElvWorksheet As Worksheet, ByVal demUnit As MeasurementUnit, ByVal precipUnit As MeasurementUnit, _
+                                              ByVal partitionColName As String) As BA_ReturnCode
+        Dim pTable As ITable = Nothing
+        Dim pCursor As ICursor
+        Dim pRow As IRow
+        Dim pQFilter As IQueryFilter = New QueryFilter
+
+        Try
+            '=============================================
+            'Create Field Titles
+            '=============================================
+            Dim idxPrecipExcelCol As Short = 1
+            Dim idxElevExcelCol As Short = 2
+            Dim idxAspectExcelCol As Short = 3
+            Dim idxPartitionExcelCol As Short = 4
+
+            pAreaElvWorksheet.Cells(1, idxPrecipExcelCol) = "Precipitation (" + BA_EnumDescription(precipUnit) + ")"
+            pAreaElvWorksheet.Cells(1, idxElevExcelCol) = "Elevation (" + BA_EnumDescription(demUnit) + ")"
+            pAreaElvWorksheet.Cells(1, idxAspectExcelCol) = "ASPECT"
+            If Not partitionFieldName.Equals(BA_UNKNOWN) Then
+                pAreaElvWorksheet.Cells(1, idxPartitionExcelCol) = partitionColName
+            End If
+
+            'Open up table with data from sample function
+            pTable = BA_OpenTableFromGDB(tableGdbPath, tableFileName)
+            If pTable IsNot Nothing Then
+                Dim idxPrecipTableCol As Short = pTable.FindField(precipFieldName)
+                Dim idxElevTableCol As Short = pTable.FindField(elevFieldName)
+                Dim idxAspectTableCol As Short = pTable.FindField(aspectFieldName)
+                Dim idxPartitionTableCol As Short = -1
+                If Not String.IsNullOrEmpty(partitionFieldName) Then _
+                    idxPartitionTableCol = pTable.FindField(partitionFieldName)
+                If idxPrecipTableCol > -1 AndAlso idxElevTableCol > -1 AndAlso idxAspectTableCol > -1 Then
+                    pQFilter = New QueryFilter
+                    pQFilter.WhereClause = precipFieldName + " is not null and " + elevFieldName + " is not null"
+                    pCursor = pTable.Search(pQFilter, False)
+                    Dim idxRow As Integer = 2
+                    If pCursor IsNot Nothing Then
+                        pRow = pCursor.NextRow
+                        Do While pRow IsNot Nothing
+                            pAreaElvWorksheet.Cells(idxRow, idxPrecipExcelCol) = Convert.ToDouble(pRow.Value(idxPrecipTableCol))
+                            pAreaElvWorksheet.Cells(idxRow, idxElevExcelCol) = Convert.ToDouble(pRow.Value(idxElevTableCol))
+                            If IsDBNull(pRow.Value(idxAspectTableCol)) Then
+                                pAreaElvWorksheet.Cells(idxRow, idxAspectExcelCol) = BA_UNKNOWN
+                            Else
+                                pAreaElvWorksheet.Cells(idxRow, idxAspectExcelCol) = Convert.ToString(pRow.Value(idxAspectTableCol))
+                            End If
+                            If idxPartitionTableCol > 0 Then
+                                If IsDBNull(pRow.Value(idxPartitionTableCol)) Then
+                                    pAreaElvWorksheet.Cells(idxRow, idxPartitionExcelCol) = BA_UNKNOWN
+                                Else
+                                    pAreaElvWorksheet.Cells(idxRow, idxPartitionExcelCol) = Convert.ToString(pRow.Value(idxPartitionTableCol))
+                                End If
+                            End If
+                            pRow = pCursor.NextRow
+                            idxRow += 1
+                        Loop
+                    End If
+                End If
+            End If
+            Return BA_ReturnCode.Success
+        Catch ex As Exception
+            Debug.Print("BA_CreateRepresentPrecipTable Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+            pCursor = Nothing
+            pTable = Nothing
+            pRow = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
+    End Function
+
+    Public Function BA_CreateRepresentPrecipChart(ByVal bkWorkBook As Workbook, ByVal pPrecipElvWorksheet As Worksheet, _
+                                                  ByVal pPrecipSNOTELWorksheet As Worksheet, ByVal pChartsWorksheet As Worksheet, ByVal XAxisTitleUnit As MeasurementUnit, ByVal YAxisTitleUnit As MeasurementUnit, _
+                                                  ByVal dem_min As Double, ByVal precip_min As Double) As BA_ReturnCode
+        Try
+            Dim myChart As Chart = pChartsWorksheet.Shapes.AddChart.Chart
+            Dim legendTop As Int16 = 25
+            Dim plotWidth As Int16 = 575
+            With myChart
+                'Clear Styles
+                .ClearToMatchStyle()
+                'Insert Title
+                .HasTitle = True
+                .HasLegend = True
+                .ChartTitle.Caption = "Elevation Precipitation"
+                'Set Chart Type and Data Range
+                .ChartType = Microsoft.Office.Interop.Excel.XlChartType.xlXYScatter
+
+                'Set Chart Position
+                .Parent.Left = BA_ChartSpacing
+                .Parent.Width = 800
+                .Parent.Top = BA_ChartSpacing
+                .Parent.Height = 500
+            End With
+
+            'Set series for precip/elevation values
+            Dim nrecords As Long = BA_Excel_CountRecords(pPrecipElvWorksheet, 2)
+            Dim precipValueRange As String = "A2:A" & nrecords + 2
+            Dim xDemValueRange As String = "B2:B" & nrecords + 2
+            Dim ser As Series = myChart.SeriesCollection.NewSeries
+
+            'precip/elevation values scatterplot for each cell
+            With ser
+                .Name = "All DEM cells"
+                'Set Series Values
+                .Values = pPrecipElvWorksheet.Range(precipValueRange)
+                .XValues = pPrecipElvWorksheet.Range(xDemValueRange)
+                'Set Series Formats
+                .MarkerStyle = Microsoft.Office.Interop.Excel.XlMarkerStyle.xlMarkerStyleDiamond
+                .MarkerSize = 7
+            End With
+
+            'trendline for aoi dataset
+            Dim trendlines As Microsoft.Office.Interop.Excel.Trendlines = ser.Trendlines
+            Dim trendline As Microsoft.Office.Interop.Excel.Trendline =
+                trendlines.Add(Microsoft.Office.Interop.Excel.XlTrendlineType.xlLinear, System.Type.Missing,
+                System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing,
+                True, True, "Linear (All DEM cells)")
+            Dim sitesTrendlineColor As Long = RGB(0, 112, 192)
+            With trendline
+                .DataLabel.Left = 710
+                .DataLabel.Top = legendTop + 100
+                .DataLabel.Font.Size = 20
+                .Format.Line.Weight = 1.5
+                .DataLabel.Font.Color = sitesTrendlineColor
+                .Format.Line.ForeColor.RGB = sitesTrendlineColor
+            End With
+
+            'Set series for SNOTEL precip/elevation values
+            nrecords = BA_Excel_CountRecords(pPrecipSNOTELWorksheet, 2)
+            precipValueRange = "D2:D" & nrecords + 2
+            Dim xElevValueRange = "A2:A" & nrecords + 2
+            Dim MarkerColor As Long = RGB(246, 32, 10)
+            Dim ser2 As Series = myChart.SeriesCollection.NewSeries
+            With ser2
+                .Name = "Sites"
+                'Set Series Values
+                .Values = pPrecipSNOTELWorksheet.Range(precipValueRange)
+                .XValues = pPrecipSNOTELWorksheet.Range(xElevValueRange)
+                'Set Series Formats
+                .MarkerStyle = Excel.XlMarkerStyle.xlMarkerStyleSquare
+                .MarkerSize = 7
+                .MarkerBackgroundColor = MarkerColor
+                .MarkerForegroundColor = MarkerColor
+            End With
+
+            'Trendline for sites; if > 1 site
+            If nrecords > 1 Then
+                Dim trendlines2 As Microsoft.Office.Interop.Excel.Trendlines = ser2.Trendlines
+                Dim trendline2 As Microsoft.Office.Interop.Excel.Trendline =
+                trendlines2.Add(Microsoft.Office.Interop.Excel.XlTrendlineType.xlLinear, System.Type.Missing,
+                    System.Type.Missing, System.Type.Missing, System.Type.Missing, System.Type.Missing,
+                    True, True, "Linear (Sites)")
+                sitesTrendlineColor = RGB(255, 165, 0)
+                With trendline2
+                    .DataLabel.Left = 710
+                    .DataLabel.Top = legendTop + 180
+                    .DataLabel.Font.Size = 20
+                    .DataLabel.Font.Color = sitesTrendlineColor
+                    .Format.Line.ForeColor.RGB = sitesTrendlineColor
+                    .Format.Line.Weight = 1.5
+                End With
+            Else
+                System.Windows.Forms.MessageBox.Show("Warning: Your sites data did not contain enough sites to generate a trendline!")
+            End If
+
+            With myChart
+
+                'Set Element Positions
+                .SetElement(MsoChartElementType.msoElementChartTitleAboveChart)
+                .SetElement(MsoChartElementType.msoElementLegendRight)
+                .Legend.Top = legendTop
+                .Legend.Left = plotWidth + 20
+                .PlotArea.Width = plotWidth
+
+                'Left Side Axis
+                Dim yAxis As Microsoft.Office.Interop.Excel.Axis = CType(.Axes(Microsoft.Office.Interop.Excel.XlAxisType.xlValue, Microsoft.Office.Interop.Excel.XlAxisGroup.xlPrimary), Microsoft.Office.Interop.Excel.Axis)
+                With yAxis
+                    .HasTitle = True
+                    .AxisTitle.Text = "Precipitation (" + BA_EnumDescription(YAxisTitleUnit) + ")"
+                    .AxisTitle.Orientation = 90
+                    '.MaximumScale = Y_Max
+                    .MinimumScale = Math.Round(precip_min)
+                    '.MajorUnit = Y_Unit
+                End With
+
+                'Bottom Axis
+                Dim categoryAxis As Microsoft.Office.Interop.Excel.Axis = CType(.Axes(Microsoft.Office.Interop.Excel.XlAxisType.xlCategory, _
+                                                                                      Microsoft.Office.Interop.Excel.XlAxisGroup.xlPrimary), Microsoft.Office.Interop.Excel.Axis)
+                With categoryAxis
+                    .HasTitle = True
+                    .AxisTitle.Text = "Elevation (" + BA_EnumDescription(XAxisTitleUnit) + ")"
+                    .AxisTitle.Orientation = 0
+                    '.MaximumScale = "100.1"
+                    .MinimumScale = Math.Round(dem_min)
+                End With
+            End With
+
+            Return BA_ReturnCode.Success
+        Catch ex As Exception
+            Debug.Print("BA_CreateRepresentPrecipChart Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        End Try
+    End Function
+
+    Public Function BA_CreateSnotelPrecipTable(ByVal vectorGdbPath As String, ByVal vectorFileName As String, ByVal precipFieldName As String, _
+                                          ByVal elevFieldName As String, ByVal nameFieldName As String, ByVal typeFieldName As String, _
+                                          ByVal aspectFieldName As String, ByVal partitionFieldName As String, ByVal pStelElvWorksheet As Worksheet, _
+                                          ByVal precipUnit As MeasurementUnit, ByVal partitionColName As String) As BA_ReturnCode
+        Dim pFClass As IFeatureClass = Nothing
+        Dim pCursor As IFeatureCursor
+        Dim pFeature As IFeature
+        Dim pQFilter As IQueryFilter = New QueryFilter
+
+        Try
+            '=============================================
+            'Create Field Titles
+            '=============================================
+            Dim idxElevExcelCol As Short = 1
+            Dim idxNameExcelCol As Short = 2
+            Dim idxTypeExcelCol As Short = 3
+            Dim idxPrecipExcelCol As Short = 4
+            Dim idxAspectExcelCol As Short = 5
+            Dim idxPartitionExcelCol As Short = 6
+
+            pStelElvWorksheet.Cells(1, idxElevExcelCol) = "BA_SELEV"
+            pStelElvWorksheet.Cells(1, idxNameExcelCol) = "BA_SNAME"
+            pStelElvWorksheet.Cells(1, idxTypeExcelCol) = "BA_STYPE"
+            'RASTERVALU after extract values to points
+            pStelElvWorksheet.Cells(1, idxPrecipExcelCol) = "Precipitation (" + BA_EnumDescription(precipUnit) + ")"
+            pStelElvWorksheet.Cells(1, idxAspectExcelCol) = "ASPECT"
+            If Not partitionColName.Equals(BA_UNKNOWN) Then _
+                pStelElvWorksheet.Cells(1, idxPartitionExcelCol) = partitionColName
+
+            'Open up table with data from sample function
+            pFClass = BA_OpenFeatureClassFromGDB(vectorGdbPath, vectorFileName)
+            If pFClass IsNot Nothing Then
+                Dim idxPrecipCol As Short = pFClass.FindField(precipFieldName)
+                Dim idxElevCol As Short = pFClass.FindField(elevFieldName)
+                Dim idxNameCol As Short = pFClass.FindField(nameFieldName)
+                Dim idxTypeCol As Short = pFClass.FindField(typeFieldName)
+                Dim idxAspectCol As Short = pFClass.FindField(aspectFieldName)
+                Dim idxPartitionCol As Short = pFClass.FindField(partitionFieldName)
+                If idxPrecipCol > -1 AndAlso idxElevCol > -1 AndAlso idxNameCol > -1 Then
+                    pQFilter = New QueryFilter
+                    pCursor = pFClass.Search(pQFilter, False)
+                    Dim idxRow As Integer = 2
+                    If pCursor IsNot Nothing Then
+                        pFeature = pCursor.NextFeature
+                        Do While pFeature IsNot Nothing
+                            pStelElvWorksheet.Cells(idxRow, idxPrecipExcelCol) = Convert.ToDouble(pFeature.Value(idxPrecipCol))
+                            pStelElvWorksheet.Cells(idxRow, idxElevExcelCol) = Convert.ToDouble(pFeature.Value(idxElevCol))
+                            pStelElvWorksheet.Cells(idxRow, idxNameExcelCol) = Convert.ToString(pFeature.Value(idxNameCol))
+                            pStelElvWorksheet.Cells(idxRow, idxTypeExcelCol) = Convert.ToString(pFeature.Value(idxTypeCol))
+                            If IsDBNull(pFeature.Value(idxAspectCol)) Then
+                                pStelElvWorksheet.Cells(idxRow, idxAspectExcelCol) = BA_UNKNOWN
+                            Else
+                                pStelElvWorksheet.Cells(idxRow, idxAspectExcelCol) = Convert.ToString(pFeature.Value(idxAspectCol))
+                            End If
+                            If idxPartitionCol > 0 Then
+                                If IsDBNull(pFeature.Value(idxPartitionCol)) Then
+                                    pStelElvWorksheet.Cells(idxRow, idxPartitionExcelCol) = BA_UNKNOWN
+                                Else
+                                    pStelElvWorksheet.Cells(idxRow, idxPartitionExcelCol) = Convert.ToString(pFeature.Value(idxPartitionCol))
+                                End If
+                            End If
+                            pFeature = pCursor.NextFeature
+                            idxRow += 1
+                        Loop
+                    End If
+                End If
+            End If
+            Return BA_ReturnCode.Success
+        Catch ex As Exception
+            Debug.Print("BA_CreateSnotelPrecipTable Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+            pCursor = Nothing
+            pFClass = Nothing
+            pFeature = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
+    End Function
+
 End Module

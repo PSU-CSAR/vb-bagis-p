@@ -2233,7 +2233,12 @@ Optional ByVal hasPaddingBackSlach As Boolean = False) As String
             pRasterP = pRasterBand
             Dim pPnt As IPnt = New DblPnt
             pPnt = pRasterP.MeanCellSize
-            Return (pPnt.X + pPnt.Y) / 2
+            If Math.Round(pPnt.X, 5) <> Math.Round(pPnt.Y, 5) Then
+                MessageBox.Show("The X and Y cell size values are not the same for " + folderPath + "\" +
+                                fileName + ". This may cause problems with some BAGIS functions.", "Warning", _
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            End If
+                Return (pPnt.X + pPnt.Y) / 2
         Catch ex As Exception
             MsgBox("BA_CellSize Exception: " & ex.Message)
             Return 0

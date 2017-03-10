@@ -9,6 +9,8 @@ Imports System.Windows.Forms
 Imports System.Text
 Imports ESRI.ArcGIS.esriSystem
 Imports ESRI.ArcGIS.GeoAnalyst
+Imports Microsoft.Office.Interop.Excel
+Imports Microsoft.Office.Core
 
 Public Module MapsModule
 
@@ -541,8 +543,8 @@ Public Module MapsModule
                 'search layer of the specified name, if found
                 Dim pMap As IMap = pMxDoc.FocusMap
                 Dim nlayers As Integer = pMap.LayerCount
-                For I = nlayers To 1 Step -1
-                    pTempLayer = CType(pMap.Layer(I - 1), ILayer)   'Explicit cast
+                For i = nlayers To 1 Step -1
+                    pTempLayer = CType(pMap.Layer(i - 1), ILayer)   'Explicit cast
                     If DisplayName = pTempLayer.Name Then 'remove the layer
                         pMap.DeleteLayer(pTempLayer)
                     End If
@@ -2075,7 +2077,7 @@ Public Module MapsModule
             Dim pTextSymbol As IFormattedTextSymbol
             Dim pTextFont As stdole.IFontDisp
             Dim pPntElement As IElement
-            Dim pPoint As IPoint
+            Dim pPoint As ESRI.ArcGIS.Geometry.IPoint
             ' Define the text font.
             pTextFont = New stdole.StdFont
             With pTextFont
@@ -2098,7 +2100,7 @@ Public Module MapsModule
             pTextElement.Symbol = pTextSymbol
 
             ' Define the position to plot the title.
-            pPoint = New Point
+            pPoint = New ESRI.ArcGIS.Geometry.Point
             pPoint.X = 4.0#
             pPoint.Y = 10.5
             pPntElement = pTextElement
@@ -2132,7 +2134,7 @@ Public Module MapsModule
 
             ' Define the position to plot the subtitle.
             pPntElement = pTextElement
-            pPoint = New Point
+            pPoint = New ESRI.ArcGIS.Geometry.Point
             pPoint.X = 4.0#
             pPoint.Y = 10.1
             pPntElement.Geometry = pPoint
@@ -2163,7 +2165,7 @@ Public Module MapsModule
 
             ' Define the position to plot the textbox.
             pPntElement = pTextElement
-            pPoint = New Point
+            pPoint = New ESRI.ArcGIS.Geometry.Point
             pPoint.X = 5.0#
             pPoint.Y = 1.0
             pPntElement.Geometry = pPoint
@@ -2192,7 +2194,7 @@ Public Module MapsModule
             pEnumStyleGallery.Reset()
 
             Dim pStyleItem As IStyleGalleryItem2 = pEnumStyleGallery.Next
-            Dim pBorder As IBorder = New SymbolBorder
+            Dim pBorder As ESRI.ArcGIS.Carto.IBorder = New SymbolBorder
 
             Do Until pStyleItem Is Nothing
                 If pStyleItem.Name = "1.5 Point" Then
@@ -2553,7 +2555,7 @@ Public Module MapsModule
 
         Dim pMapSurround As IMapSurround
         Dim pMapSurroundFrame As IMapSurroundFrame
-        Dim pLegend As ILegend
+        Dim pLegend As ESRI.ArcGIS.Carto.ILegend
         Dim pLegendItem As ILegendItem
         Dim pLFormat As ILegendFormat
         Dim pLClsFormat As ILegendClassFormat
@@ -2660,7 +2662,7 @@ Public Module MapsModule
 
         Dim pMapSurround As IMapSurround
         Dim pMapSurroundFrame As IMapSurroundFrame
-        Dim pLegend As ILegend
+        Dim pLegend As ESRI.ArcGIS.Carto.ILegend
 
         If IsLegend Then
             pMapSurroundFrame = pMElem
@@ -2993,8 +2995,8 @@ Public Module MapsModule
         pEnv.QueryCoords(llx, lly, urx, ury)
         xrange = urx - llx
         yrange = ury - lly
-        xoffset = xrange * (Buffer_Factor - 1) / 2
-        yoffset = yrange * (Buffer_Factor - 1) / 2
+        xoffset = xrange * (buffer_Factor - 1) / 2
+        yoffset = yrange * (buffer_Factor - 1) / 2
         llx = llx - xoffset
         lly = lly - yoffset
         urx = urx + xoffset
@@ -3114,6 +3116,254 @@ Public Module MapsModule
         Catch ex As Exception
             Debug.Print("BA_BufferPoint Exception: " & ex.Message)
             Return Nothing
+        End Try
+    End Function
+
+    Public Function BA_CreateElevPrecipLayer(ByVal aoiFolder As String, ByVal prismFolder As String, ByVal prismFileName As String, _
+                                             ByVal resampleDemPath As String) As BA_ReturnCode
+        Try
+            Dim demCellSize As Double = BA_CellSize(BA_GeodatabasePath(aoiFolder, GeodatabaseNames.Surfaces), BA_EnumDescription(MapsFileName.filled_dem_gdb))
+            Dim prismCellSize As Double = BA_CellSize(prismFolder, prismFileName)
+            Dim prismPath As String = prismFolder + "\" + prismFileName
+            Dim demPath As String = BA_GeodatabasePath(aoiFolder, GeodatabaseNames.Surfaces) + "\" + BA_EnumDescription(MapsFileName.filled_dem_gdb)
+            Dim cellFactor As Integer = Math.Round(prismCellSize / demCellSize)
+            Dim cellSize As Double = prismCellSize / cellFactor
+            Dim aggregateType As String = BA_FieldNameFromStatisticEnum(esriGeoAnalysisStatisticsEnum.esriGeoAnalysisStatsMean)
+            Dim success As BA_ReturnCode = BA_Aggregate(demPath, resampleDemPath, cellFactor, cellSize, prismPath, aggregateType)
+            Return BA_ReturnCode.Success
+        Catch ex As Exception
+            Debug.Print("BA_CreateElevPrecipLayer Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        End Try
+    End Function
+
+    Public Function BA_CreateSitesLayer(ByVal aoiPath As String, ByVal outputLayerName As String, ByVal siteTypeField As String, _
+                                        ByVal snotelSite As String, ByVal snowCourseSite As String) As String
+        Dim layersGdbPath As String = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Layers, True)
+        Dim hasSnotel As Boolean = BA_File_Exists(layersGdbPath + BA_EnumDescription(MapsFileName.Snotel), WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass)
+        Dim hasSnowCourse As Boolean = BA_File_Exists(layersGdbPath + BA_EnumDescription(MapsFileName.SnowCourse), WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass)
+        Dim pFClass As IFeatureClass = Nothing
+        Dim pCursor As IFeatureCursor = Nothing
+        Dim pCursorScos As IFeatureCursor = Nothing
+        Dim pFeature As IFeature = Nothing
+        Dim pField As IField = New Field
+        Dim pFld As IFieldEdit2 = CType(pField, IFieldEdit2)
+        Try
+            'Append layer type attribute to snotel file
+            pFClass = BA_OpenFeatureClassFromGDB(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Layers), BA_EnumDescription(MapsFileName.Snotel))
+            If pFClass IsNot Nothing Then
+                Dim idxLayerType As Short = pFClass.FindField(siteTypeField)
+                'Field doesn't exist yet, we need to add it
+                If idxLayerType < 0 Then
+                    pFld.Name_2 = siteTypeField
+                    pFld.Type_2 = esriFieldType.esriFieldTypeString
+                    pFld.Length_2 = 5
+                    pFld.Required_2 = False
+                    ' Add field
+                    pFClass.AddField(pFld)
+                    idxLayerType = pFClass.FindField(siteTypeField)
+                End If
+                pCursor = pFClass.Update(Nothing, False)
+                pFeature = pCursor.NextFeature
+                Do While pFeature IsNot Nothing
+                    pFeature.Value(idxLayerType) = snotelSite
+                    pCursor.UpdateFeature(pFeature)
+                    pFeature = pCursor.NextFeature
+                Loop
+            End If
+            'Append layer type attribute to snotel file
+            pFClass = BA_OpenFeatureClassFromGDB(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Layers), BA_EnumDescription(MapsFileName.SnowCourse))
+            If pFClass IsNot Nothing Then
+                Dim idxLayerType As Short = pFClass.FindField(siteTypeField)
+                'Field doesn't exist yet, we need to add it
+                If idxLayerType < 0 Then
+                    pFld.Name_2 = siteTypeField
+                    pFld.Type_2 = esriFieldType.esriFieldTypeString
+                    pFld.Length_2 = 5
+                    pFld.Required_2 = False
+                    ' Add field
+                    pFClass.AddField(pFld)
+                    idxLayerType = pFClass.FindField(siteTypeField)
+                End If
+                pCursorScos = pFClass.Update(Nothing, False)
+                pFeature = pCursorScos.NextFeature
+                Do While pFeature IsNot Nothing
+                    pFeature.Value(idxLayerType) = snowCourseSite
+                    pCursorScos.UpdateFeature(pFeature)
+                    pFeature = pCursorScos.NextFeature
+                Loop
+            End If
+            Dim returnPath As String = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis, True) & outputLayerName
+            If hasSnotel And Not hasSnowCourse Then
+                ' No snow course to merge; return path to Snotel layer
+                returnPath = layersGdbPath + BA_EnumDescription(MapsFileName.Snotel)
+            ElseIf Not hasSnotel And hasSnowCourse Then
+                ' No snotel to merge; return path to snow course layer
+                returnPath = layersGdbPath + BA_EnumDescription(MapsFileName.SnowCourse)
+            Else
+                'merge snotel and snow course
+                Dim featuresToMerge As String = layersGdbPath + BA_EnumDescription(MapsFileName.Snotel) + "; " + _
+                                                layersGdbPath + BA_EnumDescription(MapsFileName.SnowCourse)
+                Dim success As BA_ReturnCode = BA_MergeFeatures(featuresToMerge, returnPath, Nothing)
+                If success <> BA_ReturnCode.Success Then
+                    returnPath = Nothing
+                End If
+            End If
+            Return returnPath
+        Catch ex As Exception
+            Debug.Print("BA_CreateSitesLayer Exception: " & ex.Message)
+            Return Nothing
+        Finally
+            pFClass = Nothing
+            pCursor = Nothing
+            pCursorScos = Nothing
+            pField = Nothing
+            pFld = Nothing
+            pFeature = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
+    End Function
+
+    Public Function BA_UpdateTableAttributes(ByVal IntervalList() As BA_IntervalList, ByVal filepath As String, _
+                                             ByVal FileName As String, ByVal updateFieldName As String, ByVal queryFieldName As String, _
+                                             ByVal fieldType As esriFieldType) As BA_ReturnCode
+        'fields to be added
+        'NAME - esriFieldTypeString: for labeling purpose
+        Dim success As BA_ReturnCode = BA_ReturnCode.UnknownError
+
+        'open raster attribute table
+        Dim pTable As ITable
+        Dim pFld As IFieldEdit
+        Dim pCursor As ICursor
+        Dim pRow As IRow
+        Dim pQFilter As IQueryFilter = New QueryFilter
+
+        'add field
+        Try
+            pTable = BA_OpenTableFromGDB(filepath, FileName)
+            If pTable IsNot Nothing Then
+
+                Dim nclass As Integer = UBound(IntervalList)
+
+                'add Name field
+                ' check if field exist
+                Dim FieldIndex As Integer = pTable.FindField(updateFieldName)
+
+                ' Define field type
+                If FieldIndex < 0 Then 'add field
+                    'Define field name
+                    pFld = New Field
+                    pFld.Name_2 = updateFieldName
+                    pFld.Type_2 = esriFieldType.esriFieldTypeString
+                    pFld.Length_2 = BA_NAME_FIELD_WIDTH
+                    pFld.Required_2 = True
+
+                    ' Add field
+                    pTable.AddField(pFld)
+                    FieldIndex = pTable.FindField(updateFieldName)
+                End If
+
+                'update value
+                Dim tempname As String
+                For i = 1 To nclass
+                    pQFilter.WhereClause = queryFieldName & " = " & CLng(IntervalList(i).Value)
+                    pCursor = pTable.Update(pQFilter, False)
+                    pRow = pCursor.NextRow
+
+                    Do While Not pRow Is Nothing
+                        tempname = Trim(IntervalList(i).Name)
+                        If Len(tempname) >= BA_NAME_FIELD_WIDTH Then 'truncate the string if it's longer than the att field width
+                            tempname = Left(tempname, BA_NAME_FIELD_WIDTH - 1)
+                        End If
+                        pRow.Value(FieldIndex) = tempname
+                        pCursor.UpdateRow(pRow)
+                        pRow = pCursor.NextRow
+                    Loop
+                Next
+                success = BA_ReturnCode.Success
+            End If
+            Return success
+        Catch ex As Exception
+            Debug.Print("BA_UpdateTableAttributes Exception: " & ex.Message)
+            Return success
+        Finally
+            pTable = Nothing
+            pQFilter = Nothing
+            pRow = Nothing
+            pCursor = Nothing
+
+        End Try
+    End Function
+
+    Public Function BA_UpdateFeatureClassAttributes(ByVal IntervalList() As BA_IntervalList, ByVal filepath As String, _
+                                         ByVal FileName As String, ByVal updateFieldName As String, ByVal queryFieldName As String, _
+                                         ByVal fieldType As esriFieldType) As BA_ReturnCode
+        'fields to be added
+        'NAME - esriFieldTypeString: for labeling purpose
+        Dim success As BA_ReturnCode = BA_ReturnCode.UnknownError
+
+        'open raster attribute table
+        Dim pFClass As IFeatureClass
+        Dim pFld As IFieldEdit
+        Dim pCursor As IFeatureCursor
+        Dim pFeature As IFeature
+        Dim pQFilter As IQueryFilter = New QueryFilter
+
+        'add field
+        Try
+            pFClass = BA_OpenFeatureClassFromGDB(filepath, FileName)
+            If pFClass IsNot Nothing Then
+
+                Dim nclass As Integer = UBound(IntervalList)
+
+                'add Name field
+                ' check if field exist
+                Dim FieldIndex As Integer = pFClass.FindField(updateFieldName)
+
+                ' Define field type
+                If FieldIndex < 0 Then 'add field
+                    'Define field name
+                    pFld = New Field
+                    pFld.Name_2 = updateFieldName
+                    pFld.Type_2 = esriFieldType.esriFieldTypeString
+                    pFld.Length_2 = BA_NAME_FIELD_WIDTH
+                    pFld.Required_2 = True
+
+                    ' Add field
+                    pFClass.AddField(pFld)
+                    FieldIndex = pFClass.FindField(updateFieldName)
+                End If
+
+                'update value
+                Dim tempname As String
+                For i = 1 To nclass
+                    pQFilter.WhereClause = queryFieldName & " = " & CLng(IntervalList(i).Value)
+                    pCursor = pFClass.Update(pQFilter, False)
+                    pFeature = pCursor.NextFeature
+
+                    Do While Not pFeature Is Nothing
+                        tempname = Trim(IntervalList(i).Name)
+                        If Len(tempname) >= BA_NAME_FIELD_WIDTH Then 'truncate the string if it's longer than the att field width
+                            tempname = Left(tempname, BA_NAME_FIELD_WIDTH - 1)
+                        End If
+                        pFeature.Value(FieldIndex) = tempname
+                        pCursor.UpdateFeature(pFeature)
+                        pFeature = pCursor.NextFeature
+                    Loop
+                Next
+                success = BA_ReturnCode.Success
+            End If
+            Return success
+        Catch ex As Exception
+            Debug.Print("BA_UpdateFeatureClassAttributes Exception: " & ex.Message)
+            Return success
+        Finally
+            pFClass = Nothing
+            pQFilter = Nothing
+            pFeature = Nothing
+            pCursor = Nothing
+
         End Try
     End Function
 
