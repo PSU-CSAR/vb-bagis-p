@@ -314,10 +314,16 @@ Public Class FrmPEandSRObs
             If m_aoiParamTable.ContainsKey(BA_Aoi_Parameter_SR_Station_Info) Then
                 Dim stationParam As AoiParameter = m_aoiParamTable(BA_Aoi_Parameter_SR_Station_Info)
                 Dim values As IList(Of String) = stationParam.ValuesList
-                TxtStationId.Text = values(IDX_STATION_ID)
-                Dim dblElev As Double = -1
-                Double.TryParse(values(IDX_STATION_ELEV), dblElev)
-                TxtStationElev.Text = Math.Round(dblElev)
+                ' Error handling if no station exists
+                If values.Count > 0 Then
+                    TxtStationId.Text = values(IDX_STATION_ID)
+                    Dim dblElev As Double = -1
+                    Double.TryParse(values(IDX_STATION_ELEV), dblElev)
+                    TxtStationElev.Text = Math.Round(dblElev)
+                Else
+                    TxtStationId.Text = Nothing
+                    TxtStationElev.Text = Nothing
+                End If
             Else
                 TxtStationId.Text = Nothing
                 TxtStationElev.Text = Nothing
