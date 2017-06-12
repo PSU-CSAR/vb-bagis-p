@@ -303,7 +303,7 @@ Public Class FrmParametersFromLayers
             End If
         Else
             idxField = BA_AddUserFieldToVector(hruGdbPath, v_name, TxtParamName.Text, _
-            esriFieldType.esriFieldTypeDouble, 0)
+            esriFieldType.esriFieldTypeDouble, 0, Nothing)
         End If
         If idxField > -1 Then
             Dim tableName As String = "tmpTable"

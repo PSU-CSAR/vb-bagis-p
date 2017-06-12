@@ -36,5 +36,5 @@ Public Enum MapsLayerName
     <Description("Scenario 2 SNOTEL buffers")> S2SnotelBuffers
     <Description("Scenario 2 Snow Course buffers")> S2SnowCourseBuffers
     <Description("Scenario 2 Pseudo Site buffers")> S2PseudoBuffers
-
+    <Description("New Pseudo Site")> NewPseudoSite
 End Enum

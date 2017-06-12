@@ -271,8 +271,6 @@ Public Module WebservicesModule
 
     End Function
 
-    'Note that an image service can't be clipped directly to a vector. This function converts a vector to a raster
-    'before calling another clip function and deletes the temporary raster when the clip completes
     Public Function BA_ClipImageServiceToVector(ByVal clipFilePath As String, ByVal webServiceUrl As String, _
                                                 ByVal newFilePath As String) As BA_ReturnCode
         Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(newFilePath)
@@ -300,11 +298,21 @@ Public Module WebservicesModule
             Dim yRows As Long = -1
             Dim cellSize As Double = BA_CellSizeImageService(webServiceUrl)
             BA_GetColumnRowCountFromVector(clipFilePath, cellSize, cellSize, extent, xCols, yRows)
+            Dim newExtent As IEnvelope = extent
+
+            'Reset extent to accomodate cell size
+            Dim aPoint As IPnt = imageRasterProps.MeanCellSize
+            newExtent.XMin = imageRasterProps.Extent.XMin + Math.Truncate((extent.XMin - imageRasterProps.Extent.XMin) / aPoint.X) * aPoint.X
+            newExtent.YMin = imageRasterProps.Extent.YMin + Math.Truncate((extent.YMin - imageRasterProps.Extent.YMin) / aPoint.Y) * aPoint.Y
+            newExtent.XMax = newExtent.XMin + aPoint.X * xCols
+            newExtent.YMax = newExtent.YMin + aPoint.Y * yRows
 
             '@ToDo: May need to worry about the projection in real-life
-            imageRasterProps.Extent = extent
+            imageRasterProps.Extent = newExtent
             imageRasterProps.Width = xCols
             imageRasterProps.Height = yRows
+
+            aPoint = imageRasterProps.MeanCellSize
 
             'Save the clipped raster to the file geodatabase.
             Dim newFolder As String = "PleaseReturn"

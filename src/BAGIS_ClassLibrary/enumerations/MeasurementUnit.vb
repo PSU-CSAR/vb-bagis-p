@@ -12,4 +12,5 @@ Public Enum MeasurementUnit
     <Description("Millimeters")> Millimeters
     <Description("Celsius")> Celsius
     <Description("Fahrenheit")> Fahrenheit
+    <Description("Kilometers")> Kilometers
 End Enum

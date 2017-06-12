@@ -178,7 +178,7 @@ Public Class FrmTimberlineTool
                 Dim red As IRgbColor = New RgbColor()
                 red.RGB = RGB(255, 0, 0)
                 Dim success As BA_ReturnCode = BA_AddExtentLayer(My.ArcMap.Document, hruFolder & vectorName, _
-                                                                 red, hruName, actionCode, 1.0)
+                                                                 red, True, hruName, actionCode, 1.0)
                 Dim idxHruVectorLayer As Integer = BA_GetLayerIndexByName(My.Document, hruName)
                 If success = BA_ReturnCode.Success And idxHruVectorLayer > -1 Then
                     'Add labels to layer

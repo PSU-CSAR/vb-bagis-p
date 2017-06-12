@@ -1396,61 +1396,85 @@ Public Module AOIModule
     End Sub
 
     Public Sub BA_SetSlopeClasses(ByRef IntervalList() As BA_IntervalList)
-        ReDim IntervalList(0 To 7)
+        ReDim IntervalList(0 To 10)
 
-        'flat - 2
+        'flat - 10
         With IntervalList(1)
             .Value = 1
-            .Name = "Flat - 2%"
+            .Name = "Flat - 10%"
             .LowerBound = 0
-            .UpperBound = 2
-        End With
-
-        '2 - 5
-        With IntervalList(2)
-            .Value = 2
-            .Name = "2% - 5%"
-            .LowerBound = 2
-            .UpperBound = 5
-        End With
-
-        '5 - 7
-        With IntervalList(3)
-            .Value = 3
-            .Name = "5% - 7%"
-            .LowerBound = 5
-            .UpperBound = 7
-        End With
-
-        '7 - 10
-        With IntervalList(4)
-            .Value = 4
-            .Name = "7% - 10%"
-            .LowerBound = 7
             .UpperBound = 10
         End With
 
-        '10 - 15
-        With IntervalList(5)
-            .Value = 5
-            .Name = "10% - 15%"
+        '10 - 20
+        With IntervalList(2)
+            .Value = 2
+            .Name = "10% - 20%"
             .LowerBound = 10
-            .UpperBound = 15
-        End With
-
-        '15 - 20
-        With IntervalList(6)
-            .Value = 6
-            .Name = "15% - 20%"
-            .LowerBound = 15
             .UpperBound = 20
         End With
 
-        '> 20
+        '20 - 30
+        With IntervalList(3)
+            .Value = 3
+            .Name = "20% - 30%"
+            .LowerBound = 20
+            .UpperBound = 30
+        End With
+
+        '30 - 40
+        With IntervalList(4)
+            .Value = 4
+            .Name = "30% - 40%"
+            .LowerBound = 30
+            .UpperBound = 40
+        End With
+
+        '40 - 50
+        With IntervalList(5)
+            .Value = 5
+            .Name = "40% - 50%"
+            .LowerBound = 40
+            .UpperBound = 50
+        End With
+
+        '50 - 75
+        With IntervalList(6)
+            .Value = 6
+            .Name = "50% - 75%"
+            .LowerBound = 50
+            .UpperBound = 75
+        End With
+
+        '75 - 100
         With IntervalList(7)
             .Value = 7
-            .Name = "> 20%"
-            .LowerBound = 20
+            .Name = "75% - 100%"
+            .LowerBound = 75
+            .UpperBound = 100
+        End With
+
+        '100 - 150
+        With IntervalList(8)
+            .Value = 8
+            .Name = "100% - 150%"
+            .LowerBound = 100
+            .UpperBound = 150
+        End With
+
+        '150 - 200
+        With IntervalList(9)
+            .Value = 9
+            .Name = "150% - 200%"
+            .LowerBound = 150
+            .UpperBound = 200
+        End With
+
+        '> 200
+        With IntervalList(10)
+            .Value = 10
+            .Name = "> 200%"
+            .LowerBound = 200
             .UpperBound = 999
         End With
 
@@ -2033,6 +2057,24 @@ Public Module AOIModule
         Else
             Return Nothing
         End If
+    End Function
+
+    Public Function BA_ClipAOIImageServer(ByVal AoiFolder As String, ByVal strDEMDataSet As String, ByVal newFilePath As String, ByVal clipFile As AOIClipFile) As Integer
+        Dim newFolderPath As String = "PleaseReturn"
+        Dim newFileName As String = BA_GetBareName(newFilePath, newFolderPath)
+        Dim tempOutputName As String = "tmpImg"
+        Dim clipFilePath As String = BA_GeodatabasePath(AoiFolder, GeodatabaseNames.Aoi, True) + BA_EnumDescription(clipFile)
+        Dim response As Integer = -1
+        Dim success As BA_ReturnCode = BA_ClipImageServiceToVector(clipFilePath, strDEMDataSet, newFolderPath + tempOutputName)
+        If success = BA_ReturnCode.Success Then
+            'BA_ClipImageServiceToVector returns a rectangle; We have to reclip to clip to the AOI boundary
+            response = BA_ClipAOIRaster(AoiFolder, newFolderPath + tempOutputName, newFileName, _
+                                        newFolderPath, clipFile)
+            If response = 1 Then
+                BA_RemoveRasterFromGDB(newFolderPath, tempOutputName)
+            End If
+        End If
+        Return response
     End Function
 
 End Module

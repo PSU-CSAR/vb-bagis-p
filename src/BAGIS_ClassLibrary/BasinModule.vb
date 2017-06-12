@@ -735,11 +735,11 @@ Public Module BasinModule
             End If
             If features IsNot Nothing Then
                 extent = features.Extent
-                xColumns = CLng(Math.Ceiling(extent.Width / xCellSize))
-                yRows = CLng(Math.Ceiling(extent.Height / yCellSize))
+                xColumns = CLng(Math.Ceiling(extent.Width / xCellSize)) + 1
+                yRows = CLng(Math.Ceiling(extent.Height / yCellSize)) + 1
             End If
         Catch ex As Exception
-            Debug.Print("BA_GetColumnRowCountFromVector exception: " & ex.Message)
+            Debug.Print("BA_GetColumnRowCountFromVector Exception: " & ex.Message)
         Finally
             features = Nothing
             GC.WaitForPendingFinalizers()

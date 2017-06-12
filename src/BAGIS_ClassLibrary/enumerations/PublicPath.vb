@@ -71,4 +71,5 @@ Public Enum PublicPath
     <Description("\task_log.xml")> EBagisTaskLog
     <Description("/FeatureServer/0")> FeatureServiceUrl
     <Description("\BAGIS\bagis-h-settings.json")> BagisHSettings
+    <Description("\pseudo_site.xml")> PseudoSiteXml
 End Enum

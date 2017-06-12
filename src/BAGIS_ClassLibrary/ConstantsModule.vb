@@ -1,7 +1,7 @@
 ﻿Public Module ConstantsModule
 
     'Class library version; Update with each change to class library
-    Public Const BA_CLASS_LIBRARY_VERSION As String = "L037"
+    Public Const BA_CLASS_LIBRARY_VERSION As String = "L038"
 
     ' Used with BA_QueryAttributeTable to customize query
     Public Const BA_STRING_ATTRIBUTE As String = "string_attribute"
@@ -83,6 +83,7 @@
     Public Const BA_FIELD_AREA As String = "AREA"
     Public Const BA_FIELD_SHAPE_AREA As String = "Shape_Area"
     Public Const BA_FIELD_AOI_NAME As String = "AOINAME"
+    Public Const BA_FIELD_PSITE As String = "PSITE"
 
     'mapframe
     Public Const BA_MAPS_DEFAULT_MAP_NAME As String = "Basin Analysis"
@@ -108,7 +109,12 @@
     Public Const BA_MAPS_PSEUDO_SCENARIO1 = "Pseudo Site Scenario 1"
     Public Const BA_MAPS_PSEUDO_SCENARIO2 = "Pseudo Site Scenario 2"
     Public Const BA_MAPS_FILLED_DEM = "Filled DEM"
-    Public Const BA_MAPS_NOT_REPRESENTED = "Not Represented"
+    Public Const BA_MAPS_PS_REPRESENTED = "Represented Area"
+    Public Const BA_MAPS_PS_ELEVATION = "Area Included For Elevation"
+    Public Const BA_MAPS_AOI_BASEMAP = "AOI"
+    Public Const BA_MAPS_PS_INDICATOR = "New Pseudo Site Indicator"
+    Public Const BA_MAPS_PS_PROXIMITY = "Area Included For Proximity"
+    Public Const BA_MAPS_PS_PRECIPITATION = "Area Included For Precipitation"
 
     'these constants are used to ID whether a folder is a basin or an AOI or both
     Public Const BA_BASIN_DEM_EXTENT_SHAPEFILE As String = "aoi_v" 'vector

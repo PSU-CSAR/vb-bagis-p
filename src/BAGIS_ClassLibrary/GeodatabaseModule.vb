@@ -1520,15 +1520,17 @@ Public Module GeodatabaseModule
         Dim inputGeodataset As IGeoDataset = Nothing
         Dim pRasterDataset As IRasterDataset3 = Nothing
         Dim isNullGeodataset As IGeoDataset = Nothing
-        Dim outputGeodataset As IGeoDataset = Nothing
         Dim maskFeatureClass As IFeatureClass = Nothing
         Dim maskGeodataset As IGeoDataset = Nothing
         Dim workspaceFactory As IWorkspaceFactory = New FileGDBWorkspaceFactory()
         Dim workspace As IWorkspace = Nothing
         Dim pEnv As IRasterAnalysisEnvironment = Nothing
-        Dim retVal As BA_ReturnCode = BA_ReturnCode.UnknownError
+        Dim success As BA_ReturnCode = BA_ReturnCode.UnknownError
 
         Try
+            If BA_File_Exists(outputFolder + "\" + outputFile, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
+                Dim retVal As Short = BA_RemoveRasterFromGDB(outputFolder, outputFile)
+            End If
             inputGeodataset = BA_OpenRasterFromGDB(inputFolder, inputFile)
             If inputGeodataset IsNot Nothing Then
                 pRasterDataset = CType(inputGeodataset, IRasterDataset3) ' Explicit cast
@@ -1549,23 +1551,21 @@ Public Module GeodatabaseModule
                 isNullGeodataset = mapAlgebraOp.Execute("SetNull([noData1]" & whereClause & ",[noData1])")
                 If isNullGeodataset IsNot Nothing Then
                     BA_SaveRasterDatasetGDB(isNullGeodataset, outputFolder, BA_RASTER_FORMAT, outputFile)
-                    retVal = BA_ReturnCode.Success
+                    success = BA_ReturnCode.Success
                 End If
             End If
-            Return retVal
+            Return success
         Catch ex As Exception
             MsgBox("BA_ReplaceNoDataCellsGDB Exception: " & ex.Message)
-            Return retVal
+            Return success
         Finally
             mapAlgebraOp.UnbindRaster("noData1")
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pEnv)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(maskGeodataset)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(maskFeatureClass)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(outputGeodataset)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(isNullGeodataset)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(inputGeodataset)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(workspace)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(mapAlgebraOp)
+            inputGeodataset = Nothing
+            pRasterDataset = Nothing
+            isNullGeodataset = Nothing
+            workspace = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
         End Try
 
     End Function
@@ -1835,10 +1835,11 @@ Public Module GeodatabaseModule
     End Function
 
     Public Function BA_AddUserFieldToVector(ByVal folderName As String, ByVal fileName As String, ByVal fieldName As String, _
-                                        ByVal fieldType As esriFieldType, ByVal fieldLength As Integer) As BA_ReturnCode
+                                        ByVal fieldType As esriFieldType, ByVal fieldLength As Integer, ByVal fieldValue As String) As BA_ReturnCode
         Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(folderName)
         Dim targetFC As IFeatureClass = Nothing
-        Dim tFields As IFieldsEdit = Nothing
+        Dim pCursor As IFeatureCursor = Nothing
+        Dim pFeature As IFeature = Nothing
         Try
             If wType = WorkspaceType.Geodatabase Then
                 targetFC = BA_OpenFeatureClassFromGDB(folderName, fileName)
@@ -1846,15 +1847,32 @@ Public Module GeodatabaseModule
                 targetFC = BA_OpenFeatureClassFromFile(folderName, fileName)
             End If
             If targetFC IsNot Nothing Then
-                tFields = CType(targetFC.Fields, IFieldsEdit)
-
                 ' Create the new field.
                 Dim newField As IField = New FieldClass()
                 Dim newFieldEdit As IFieldEdit = CType(newField, IFieldEdit)
-                If fieldLength > -1 Then newField.Length_2 = fieldLength ' Only string fields require that you set the length.
-                newField.Name_2 = fieldName
+                If fieldLength > -1 Then newFieldEdit.Length_2 = fieldLength ' Only string fields require that you set the length.
+                newFieldEdit.Name_2 = fieldName
                 newFieldEdit.Type_2 = fieldType
-                tFields.AddField(newField)
+                targetFC.AddField(newFieldEdit)
+                Dim idxField As Int16 = targetFC.FindField(fieldName)
+
+                If Not String.IsNullOrEmpty(fieldValue) Then
+                    'Open update cursor
+                    pCursor = targetFC.Update(Nothing, False)
+                    pFeature = pCursor.NextFeature
+                    Do While Not pFeature Is Nothing
+                        Select Case fieldType
+                            Case esriFieldType.esriFieldTypeString
+                                pFeature.Value(idxField) = fieldValue
+                            Case esriFieldType.esriFieldTypeInteger
+                                Dim intOut As Integer = -1
+                                Integer.TryParse(fieldValue, intOut)
+                                pFeature.Value(idxField) = intOut
+                        End Select
+                        pCursor.UpdateFeature(pFeature)
+                        pFeature = pCursor.NextFeature
+                    Loop
+                End If
                 Return BA_ReturnCode.Success
             End If
             Return BA_ReturnCode.UnknownError
@@ -1893,6 +1911,117 @@ Public Module GeodatabaseModule
             pFeatureCursor = Nothing
             pDataStatistics = Nothing
             statisticsResults = Nothing
+        End Try
+    End Function
+
+    'Deletes features when supplied with a select query
+    'If > 1 feature deleted returns success
+    Public Function BA_DeleteFeatures(ByVal pFolder As String, ByVal pFile As String, ByVal selectQuery As String) As BA_ReturnCode
+        Dim pGeoDataSet As IGeoDataset = Nothing
+        Dim pFeatureClass As IFeatureClass = Nothing
+        Dim pFeatureCursor As IFeatureCursor = Nothing
+        Dim pFeature As IFeature = Nothing
+        Dim pQueryFilter As IQueryFilter = New QueryFilterClass()
+        Dim deleteFeatureCount As Int32 = 0
+        Try
+            pGeoDataSet = BA_OpenFeatureClassFromGDB(pFolder, pFile)
+            If pGeoDataSet IsNot Nothing Then
+                pFeatureClass = CType(pGeoDataSet, IFeatureClass)
+                pQueryFilter.WhereClause = selectQuery
+                pFeatureCursor = pFeatureClass.Update(pQueryFilter, False)
+                pFeature = pFeatureCursor.NextFeature
+                Do While pFeature IsNot Nothing
+                    pFeature.Delete()
+                    pFeature = pFeatureCursor.NextFeature
+                    deleteFeatureCount += 1
+                Loop
+            End If
+            If deleteFeatureCount > 0 Then
+                Return BA_ReturnCode.Success
+            Else
+                Return BA_ReturnCode.UnknownError
+            End If
+        Catch ex As Exception
+            Debug.Print("BA_DeleteFeatures Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+            pGeoDataSet = Nothing
+            pFeatureClass = Nothing
+            pFeatureCursor = Nothing
+            pFeature = Nothing
+            pQueryFilter = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
+    End Function
+
+    Public Function BA_IsRasterEmpty(ByVal rFolder As String, ByVal rFile As String) As Boolean
+        Dim pRDataset As IGeoDataset = BA_OpenRasterFromGDB(rFolder, rFile)
+        Dim pBandCol As IRasterBandCollection = CType(pRDataset, IRasterBandCollection)
+        Dim pRasterBand As IRasterBand = pBandCol.Item(0)
+        Dim pTable As ITable = pRasterBand.AttributeTable
+        Try
+            Dim rCount As Integer = pTable.RowCount(Nothing)
+            If rCount > 0 Then
+                Return False
+            Else
+                Return True
+            End If
+        Catch ex As Exception
+            MessageBox.Show("BA_IsRasterEmpty Exception: " + ex.Message)
+            Return True
+        Finally
+            pTable = Nothing
+            pBandCol = Nothing
+            pRasterBand = Nothing
+            pRDataset = Nothing
+        End Try
+    End Function
+
+    Public Function BA_AddUserFieldToRaster(ByVal filepath As String, ByVal FileName As String, ByVal fieldName As String, _
+                                            ByVal fieldType As esriFieldType, ByVal fieldLength As Int16, ByVal fieldValue As Object) As BA_ReturnCode
+
+        'open raster attribute table
+        Dim pRDataset As IGeoDataset = BA_OpenRasterFromGDB(filepath, FileName)
+        Dim pBandCol As IRasterBandCollection = CType(pRDataset, IRasterBandCollection)
+        Dim pRasterBand As IRasterBand = pBandCol.Item(0)
+        Dim pTable As ITable = pRasterBand.AttributeTable
+        Dim pCursor As ICursor = Nothing
+        Try
+            Dim idxField As Int16 = pTable.FindField(fieldName)
+            Dim pField As IField = New Field
+            Dim pFld As IFieldEdit2 = CType(pField, IFieldEdit2)
+            Dim pRow As IRow
+
+            If idxField < 0 Then
+                'Define field
+                pFld.Name_2 = fieldName
+                pFld.Type_2 = fieldType
+                pFld.Length_2 = fieldLength
+                pFld.Required_2 = False
+                ' Add field
+                pTable.AddField(pFld)
+                idxField = pTable.FindField(fieldName)
+            End If
+
+            'Open update cursor
+            pCursor = pTable.Update(Nothing, False)
+            pRow = pCursor.NextRow
+            Do While Not pRow Is Nothing
+                pRow.Value(idxField) = fieldValue
+                pCursor.UpdateRow(pRow)
+                pRow = pCursor.NextRow
+            Loop
+            Return BA_ReturnCode.Success
+        Catch ex As Exception
+            MessageBox.Show("BA_AddFieldToRaster Exception: " + ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+            pCursor = Nothing
+            pTable = Nothing
+            pBandCol = Nothing
+            pRasterBand = Nothing
+            pRDataset = Nothing
         End Try
     End Function
 
