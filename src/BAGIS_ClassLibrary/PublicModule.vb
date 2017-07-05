@@ -1193,9 +1193,12 @@ Public Module PublicModule
     '                       -2 filename error
     '                       -3 not a raster dataset
     '                       , otherwise, the same value as the Action code
+    'Action code: 0, default add and replace if layer of the same name already added, and zoom to layer
+    '                   1, add and replace only
+    '                   2, add
     'add a raster file to the active view
     Public Function BA_DisplayRaster(ByVal application As ESRI.ArcGIS.Framework.IApplication, ByVal LayerPathName As String, _
-                                     Optional ByVal DisplayName As String = "") As Short
+                                     Optional ByVal DisplayName As String = "", Optional ByVal Action As Short = 0) As Short
         Dim File_Path As String = "PleaseReturn"
         Dim File_Name As String = BA_GetBareName(LayerPathName, File_Path)
 
@@ -1247,27 +1250,29 @@ Public Module PublicModule
             pMxDoc.AddLayer(pRLayer)
             pMxDoc.UpdateContents()
 
-            'zoom to layer
-            'create a buffer around the AOI
-            pEnv = pRLayer.AreaOfInterest
+            If Action = 0 Then 'zoom to layer
+                'zoom to layer
+                'create a buffer around the AOI
+                pEnv = pRLayer.AreaOfInterest
 
-            Dim urx, llx, lly, ury As Double
-            Dim xrange, yrange As Double
-            Dim xoffset, yoffset As Double
+                Dim urx, llx, lly, ury As Double
+                Dim xrange, yrange As Double
+                Dim xoffset, yoffset As Double
 
-            pEnv.QueryCoords(llx, lly, urx, ury)
-            xrange = urx - llx
-            yrange = ury - lly
-            xoffset = xrange * (Buffer_Factor - 1) / 2
-            yoffset = yrange * (Buffer_Factor - 1) / 2
-            llx = llx - xoffset
-            lly = lly - yoffset
-            urx = urx + xoffset
-            ury = ury + yoffset
-            pEnv.PutCoords(llx, lly, urx, ury)
+                pEnv.QueryCoords(llx, lly, urx, ury)
+                xrange = urx - llx
+                yrange = ury - lly
+                xoffset = xrange * (Buffer_Factor - 1) / 2
+                yoffset = yrange * (Buffer_Factor - 1) / 2
+                llx = llx - xoffset
+                lly = lly - yoffset
+                urx = urx + xoffset
+                ury = ury + yoffset
+                pEnv.PutCoords(llx, lly, urx, ury)
 
-            pActiveView = pMxDoc.ActiveView
-            pActiveView.Extent = pEnv
+                pActiveView = pMxDoc.ActiveView
+                pActiveView.Extent = pEnv
+            End If
 
             'refresh the active view
             pMxDoc.ActiveView.PartialRefresh(esriViewDrawPhase.esriViewGeography, Nothing, Nothing)

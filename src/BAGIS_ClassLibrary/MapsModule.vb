@@ -307,6 +307,9 @@ Public Module MapsModule
                     Case MapsDisplayStyle.Yellows 'Pseudo-site proximity Layer (orange)
                         StyleName = "Yellows"
                         StyleCategory = "Default Schemes"
+                    Case MapsDisplayStyle.Brown_to_Blue_Green 'Pseudo-site Location Layer (brown)
+                        StyleName = "Brown to Blue Green Diverging, Dark"
+                        StyleCategory = "Dichromatic Ramps"
                     Case Else
                         StyleName = "Black to White"
                         StyleCategory = "Default Ramps"

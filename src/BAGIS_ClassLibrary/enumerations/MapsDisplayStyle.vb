@@ -11,5 +11,6 @@
     Purple_Blues
     Condition_Number
     Yellows
+    Brown_to_Blue_Green
     Unknown
 End Enum

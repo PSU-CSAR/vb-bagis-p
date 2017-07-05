@@ -1957,13 +1957,20 @@ Public Module GeodatabaseModule
 
     Public Function BA_IsRasterEmpty(ByVal rFolder As String, ByVal rFile As String) As Boolean
         Dim pRDataset As IGeoDataset = BA_OpenRasterFromGDB(rFolder, rFile)
-        Dim pBandCol As IRasterBandCollection = CType(pRDataset, IRasterBandCollection)
-        Dim pRasterBand As IRasterBand = pBandCol.Item(0)
-        Dim pTable As ITable = pRasterBand.AttributeTable
+        Dim pTable As ITable = Nothing
+        Dim pBandCol As IRasterBandCollection = Nothing
+        Dim pRasterBand As IRasterBand = Nothing
         Try
-            Dim rCount As Integer = pTable.RowCount(Nothing)
-            If rCount > 0 Then
-                Return False
+            If pRDataset IsNot Nothing Then
+                pBandCol = CType(pRDataset, IRasterBandCollection)
+                pRasterBand = pBandCol.Item(0)
+                pTable = pRasterBand.AttributeTable
+                Dim rCount As Integer = pTable.RowCount(Nothing)
+                If rCount > 0 Then
+                    Return False
+                Else
+                    Return True
+                End If
             Else
                 Return True
             End If
@@ -1980,49 +1987,83 @@ Public Module GeodatabaseModule
 
     Public Function BA_AddUserFieldToRaster(ByVal filepath As String, ByVal FileName As String, ByVal fieldName As String, _
                                             ByVal fieldType As esriFieldType, ByVal fieldLength As Int16, ByVal fieldValue As Object) As BA_ReturnCode
-
-        'open raster attribute table
-        Dim pRDataset As IGeoDataset = BA_OpenRasterFromGDB(filepath, FileName)
-        Dim pBandCol As IRasterBandCollection = CType(pRDataset, IRasterBandCollection)
-        Dim pRasterBand As IRasterBand = pBandCol.Item(0)
-        Dim pTable As ITable = pRasterBand.AttributeTable
+        Dim pRDataset As IGeoDataset = Nothing
+        Dim pBandCol As IRasterBandCollection = Nothing
+        Dim pRasterBand As IRasterBand = Nothing
         Dim pCursor As ICursor = Nothing
+        Dim pTable As ITable = Nothing
         Try
-            Dim idxField As Int16 = pTable.FindField(fieldName)
-            Dim pField As IField = New Field
-            Dim pFld As IFieldEdit2 = CType(pField, IFieldEdit2)
-            Dim pRow As IRow
+            pRDataset = BA_OpenRasterFromGDB(filepath, FileName)
+            If pRDataset IsNot Nothing Then
+                pBandCol = CType(pRDataset, IRasterBandCollection)
+                pRasterBand = pBandCol.Item(0)
+                'open raster attribute table
+                pTable = pRasterBand.AttributeTable
+                Dim idxField As Int16 = pTable.FindField(fieldName)
+                Dim pField As IField = New Field
+                Dim pFld As IFieldEdit2 = CType(pField, IFieldEdit2)
+                Dim pRow As IRow
 
-            If idxField < 0 Then
-                'Define field
-                pFld.Name_2 = fieldName
-                pFld.Type_2 = fieldType
-                pFld.Length_2 = fieldLength
-                pFld.Required_2 = False
-                ' Add field
-                pTable.AddField(pFld)
-                idxField = pTable.FindField(fieldName)
-            End If
+                If idxField < 0 Then
+                    'Define field
+                    pFld.Name_2 = fieldName
+                    pFld.Type_2 = fieldType
+                    pFld.Length_2 = fieldLength
+                    pFld.Required_2 = False
+                    ' Add field
+                    pTable.AddField(pFld)
+                    idxField = pTable.FindField(fieldName)
+                End If
 
-            'Open update cursor
-            pCursor = pTable.Update(Nothing, False)
-            pRow = pCursor.NextRow
-            Do While Not pRow Is Nothing
-                pRow.Value(idxField) = fieldValue
-                pCursor.UpdateRow(pRow)
+                'Open update cursor
+                pCursor = pTable.Update(Nothing, False)
                 pRow = pCursor.NextRow
-            Loop
-            Return BA_ReturnCode.Success
-        Catch ex As Exception
-            MessageBox.Show("BA_AddFieldToRaster Exception: " + ex.Message)
-            Return BA_ReturnCode.UnknownError
-        Finally
-            pCursor = Nothing
-            pTable = Nothing
-            pBandCol = Nothing
-            pRasterBand = Nothing
-            pRDataset = Nothing
-        End Try
+                Do While Not pRow Is Nothing
+                    pRow.Value(idxField) = fieldValue
+                    pCursor.UpdateRow(pRow)
+                    pRow = pCursor.NextRow
+                Loop
+                Return BA_ReturnCode.Success
+            Else
+                Return BA_ReturnCode.UnknownError
+            End If
+            Catch ex As Exception
+                MessageBox.Show("BA_AddFieldToRaster Exception: " + ex.Message)
+                Return BA_ReturnCode.UnknownError
+            Finally
+                pCursor = Nothing
+                pTable = Nothing
+                pBandCol = Nothing
+                pRasterBand = Nothing
+                pRDataset = Nothing
+            End Try
     End Function
 
+    'Opens a raster and checks the properties to see if it is an integer raster
+    Public Function BA_HasAttributeTable(ByVal fullLayerFilePath As String) As Boolean
+        Dim filePath As String = "blank"
+        Dim fileName As String = BA_GetBareName(fullLayerFilePath, filePath)
+        Dim pGeoDS As IGeoDataset = Nothing
+        Dim pRasterBandColl As IRasterBandCollection = Nothing
+        Dim pRasterBand As IRasterBand = Nothing
+        Try
+            pGeoDS = BA_OpenRasterFromGDB(filePath, fileName)
+            If pGeoDS Is Nothing Then
+                Return False
+            End If
+            pRasterBandColl = CType(pGeoDS, IRasterBandCollection)
+            pRasterBand = pRasterBandColl.Item(0)
+            Dim hasTable As Boolean = False
+            pRasterBand.HasTable(hasTable)
+            Return hasTable
+        Catch ex As Exception
+            MessageBox.Show("BA_HasAttributeTable Exception: " + ex.Message)
+            Return False
+        Finally
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pRasterBand)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pRasterBandColl)
+            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pGeoDS)
+        End Try
+
+    End Function
 End Module
