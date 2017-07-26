@@ -24,7 +24,7 @@ Public Class AoiTask
     Public offset As String
     Public created_at As String
     ' Status code used by django
-    Public status As Integer
+    Public status As String
     Public completed_at As String
     Public task As Task
 

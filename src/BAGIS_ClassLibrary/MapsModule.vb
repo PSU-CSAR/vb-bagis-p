@@ -310,6 +310,9 @@ Public Module MapsModule
                     Case MapsDisplayStyle.Brown_to_Blue_Green 'Pseudo-site Location Layer (brown)
                         StyleName = "Brown to Blue Green Diverging, Dark"
                         StyleCategory = "Dichromatic Ramps"
+                    Case MapsDisplayStyle.Pink_to_Yellow_Green 'All constraints Layer (bright purple)
+                        StyleName = "Pink to YellowGreen Diverging, Bright"
+                        StyleCategory = "Dichromatic Ramps"
                     Case Else
                         StyleName = "Black to White"
                         StyleCategory = "Default Ramps"
@@ -988,7 +991,7 @@ Public Module MapsModule
             Else
                 pmxDoc.PageLayout.ZoomToWhole()
             End If
-            pmxDoc.ActiveView.Refresh()
+            'pmxDoc.ActiveView.Refresh()
         End If
     End Sub
 

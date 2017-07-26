@@ -98,8 +98,8 @@
     Public Const BA_MAPS_STREAMS = "AOI Streams"
     Public Const BA_MAPS_ASPECT = "Aspect"
     Public Const BA_MAPS_SLOPE = "Slope"
-    Public Const BA_MAPS_SCENARIO1_REPRESENTATION = "Scenario 1 Represented"
-    Public Const BA_MAPS_SCENARIO2_REPRESENTATION = "Scenario 2 Represented"
+    Public Const BA_MAPS_SCENARIO1_REPRESENTATION = "Scenario 1 Represented Area"
+    Public Const BA_MAPS_SCENARIO2_REPRESENTATION = "Scenario 2 Represented Area"
     Public Const BA_MAPS_PSEUDO_SITES = "Pseudo Sites"
     Public Const BA_MAPS_BOTH_REPRESENTATION = "Represented in Both"
     Public Const BA_MAPS_SNOTEL_SCENARIO1 = "Snotel Scenario 1"
@@ -109,13 +109,13 @@
     Public Const BA_MAPS_PSEUDO_SCENARIO1 = "Pseudo Site Scenario 1"
     Public Const BA_MAPS_PSEUDO_SCENARIO2 = "Pseudo Site Scenario 2"
     Public Const BA_MAPS_FILLED_DEM = "Filled DEM"
-    Public Const BA_MAPS_PS_REPRESENTED = "Represented Area"
     Public Const BA_MAPS_PS_ELEVATION = "Area Included For Elevation"
     Public Const BA_MAPS_AOI_BASEMAP = "AOI"
     Public Const BA_MAPS_PS_INDICATOR = "New Pseudo Site Indicator"
     Public Const BA_MAPS_PS_PROXIMITY = "Area Included For Proximity"
     Public Const BA_MAPS_PS_PRECIPITATION = "Area Included For Precipitation"
     Public Const BA_MAPS_PS_LOCATION = "Area Included For Location"
+    Public Const BA_MAPS_PS_ALL_CONSTRAINTS = "Area Meeting All Constraints"
 
     'these constants are used to ID whether a folder is a basin or an AOI or both
     Public Const BA_BASIN_DEM_EXTENT_SHAPEFILE As String = "aoi_v" 'vector
