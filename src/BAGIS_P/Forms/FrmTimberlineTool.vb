@@ -730,6 +730,7 @@ Public Class FrmTimberlineTool
     Private Sub CboParentHru_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles CboParentHru.SelectedIndexChanged
         If CboParentHru.SelectedIndex > -1 Then
             BtnViewHru.Enabled = True
+            BtnBinary.Enabled = True
         End If
     End Sub
 
@@ -919,5 +920,150 @@ Public Class FrmTimberlineTool
             relOp = Nothing
         End Try
 
+    End Sub
+
+    Private Sub BtnBinary_Click(sender As System.Object, e As System.EventArgs) Handles BtnBinary.Click
+        Dim pFeatureClass As IFeatureClass
+        Dim pGeoDataset As IGeoDataset = Nothing
+        Dim pRasterBandCollection As IRasterBandCollection = Nothing
+        Dim pRasterBand As IRasterBand = Nothing
+        Dim pTable As ITable = Nothing
+        Dim pCursor As ICursor = Nothing
+        Dim pData As IDataStatistics = New DataStatistics
+        Dim pRasterStats As IRasterStatistics
+        Dim pEnumVar As IEnumerator = Nothing
+        ' Create/configure a step progressor
+        Dim pStepProg As IStepProgressor = Nothing
+        Dim progressDialog2 As IProgressDialog2 = Nothing
+        Const ABOVE_TIMBERLINE As Int16 = 1
+        Const BELOW_TIMBERLINE As Int16 = 0
+        Dim vectorName As String = BA_GetBareName(BA_EnumDescription(PublicPath.HruZonesVector))
+        Try
+            If CboParentHru.SelectedIndex > -1 Then
+                Dim hruName As String = CStr(CboParentHru.SelectedItem)
+                Dim hruFolder As String = BA_GetHruPathGDB(TxtAoiPath.Text, PublicPath.HruDirectory, hruName)
+                pFeatureClass = BA_OpenFeatureClassFromGDB(hruFolder, vectorName)
+                If pFeatureClass IsNot Nothing Then
+                    Dim idxElev As Integer = pFeatureClass.Fields.FindField(BA_FIELD_TIMBER_ELEV)
+                    If idxElev < 0 Then
+                        MessageBox.Show("The " + BA_FIELD_TIMBER_ELEV + " field is missing from " + vectorName + ". " +
+                                        "Please save the timberline values before trying to run this tool!", "BAGIS-P",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        Exit Sub
+                    End If
+                    pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
+                    progressDialog2 = BA_GetProgressDialog(pStepProg, "Working ...", "Generating binary timberline data ")
+                    pStepProg.Show()
+                    progressDialog2.ShowDialog()
+                    pStepProg.Step()
+                    Dim surfacesFolder As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Surfaces, False)
+                    Dim filledDem As String = BA_EnumDescription(MapsFileName.filled_dem_gdb)
+                    Dim cellSize As Double = -1
+                    pRasterStats = BA_GetRasterStatsGDB(surfacesFolder + "\" + filledDem, cellSize)
+                    Dim inputFeatures As String = hruFolder + "\" + vectorName
+                    Dim outRaster As String = "tmpTimber"
+                    Dim outRaster2 As String = "tmpTimber2"
+                    Dim outRasterPath As String = hruFolder + "\" + outRaster
+                    Dim aoiGdbPath = TxtAoiPath.Text & "\" & BA_EnumDescription(GeodatabaseNames.Aoi)
+                    Dim snapRasterPath As String = aoiGdbPath & BA_EnumDescription(PublicPath.AoiBufferedGrid)
+                    Dim success As BA_ReturnCode = BA_Feature2RasterGP(inputFeatures, outRasterPath, BA_FIELD_TIMBER_ELEV, _
+                                                                       cellSize, snapRasterPath)
+                    Dim allValuesAreZero As Boolean = True     'Timberline set to zeroes for all HRU's; We will produce a raster with all zeroes
+                    Dim atLeastOneValueIsZero As Boolean = False    'Timberline set to zero for at least 1 HRU; Special processing required to update those values
+                    If success = BA_ReturnCode.Success Then
+                        pGeoDataset = BA_OpenRasterFromGDB(hruFolder, outRaster)
+                        If pGeoDataset IsNot Nothing Then
+                            pRasterBandCollection = CType(pGeoDataset, IRasterBandCollection)
+                            pRasterBand = pRasterBandCollection.Item(0)
+                            pTable = pRasterBand.AttributeTable
+                            pCursor = pTable.Search(Nothing, False)
+                            pData.Field = BA_FIELD_VALUE
+                            pData.Cursor = pCursor
+                            pEnumVar = pData.UniqueValues
+                            pEnumVar.MoveNext()
+                            Dim pObj As Object = pEnumVar.Current
+                            Dim nextValue As Double = -1
+                            While pObj IsNot Nothing
+                                Dim isDouble As Boolean = Double.TryParse(pObj, nextValue)
+                                If isDouble = True Then
+                                    If nextValue = 0 Then atLeastOneValueIsZero = True
+                                    If nextValue <> 0 Then allValuesAreZero = False
+                                End If
+                                pEnumVar.MoveNext()
+                                pObj = pEnumVar.Current
+                            End While
+                            success = BA_ReturnCode.Success
+                        End If
+                    End If
+                    If success = BA_ReturnCode.Success Then
+                        Dim pExpression As String
+                        Dim inputTimberlinePath As String = outRasterPath
+                        If allValuesAreZero = True Then
+                            pExpression = "'" + surfacesFolder + "\" + filledDem + _
+                                "' * " + CStr(BELOW_TIMBERLINE)
+                            success = BA_RasterCalculator(hruFolder + "\" + BA_EnumDescription(MapsFileName.timber_r), _
+                                                          pExpression, snapRasterPath, snapRasterPath)
+                        Else
+                            If atLeastOneValueIsZero = True Then
+                                Dim newTimberlineValue As String = CStr(pRasterStats.Maximum + 100)
+                                pExpression = "Con('" + outRasterPath + _
+                                    "' == 0, " + newTimberlineValue + ", '" + outRasterPath + "')"
+                                success = BA_RasterCalculator(hruFolder + "\" + outRaster2, pExpression, _
+                                                              snapRasterPath, snapRasterPath)
+                                If success = BA_ReturnCode.Success Then
+                                    inputTimberlinePath = hruFolder + "\" + outRaster2
+                                Else
+                                    MessageBox.Show("An error occurred while trying to process timberline values of 0!", _
+                                                    "BAGIS-P", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                                    Exit Sub
+                                End If
+                            End If
+                            pExpression = "Con('" + surfacesFolder + "\" + filledDem + _
+                                "' < '" + inputTimberlinePath + "' , " + CStr(BELOW_TIMBERLINE) + ", " + CStr(ABOVE_TIMBERLINE) + ")"
+                            success = BA_RasterCalculator(hruFolder + "\" + BA_EnumDescription(MapsFileName.timber_r), pExpression, _
+                                      snapRasterPath, snapRasterPath)
+                        End If
+                        'Delete temp files, if they exist
+                        Dim retVal As Int16 = -1
+                        If BA_File_Exists(outRasterPath, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
+                            retVal = BA_RemoveRasterFromGDB(hruFolder, outRaster)
+                        End If
+                        If BA_File_Exists(hruFolder + "\" + outRaster2, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
+                            retVal = BA_RemoveRasterFromGDB(hruFolder, outRaster2)
+                        End If
+                        'Display raster
+                        If success = BA_ReturnCode.Success Then
+                            BA_DisplayRasterNoBuffer(My.ArcMap.Application, hruFolder & "\" & _
+                                                     BA_EnumDescription(MapsFileName.timber_r), "Binary Timberline", True)
+                        End If
+                    End If
+                Else
+                    MessageBox.Show("The " + vectorName + " file is missing. " +
+                        "Please save the timberline values before trying to run this tool!", "BAGIS-P",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Exit Sub
+                End If
+            End If
+        Catch ex As Exception
+            Debug.Print("BtnBinary_Click Exception: " & ex.Message)
+        Finally
+            pFeatureClass = Nothing
+            pEnumVar = Nothing
+            pData = Nothing
+            pCursor = Nothing
+            pTable = Nothing
+            pRasterBand = Nothing
+            pRasterBandCollection = Nothing
+            pGeoDataset = Nothing
+            pRasterStats = Nothing
+            If pStepProg IsNot Nothing Then
+                pStepProg.Hide()
+                pStepProg = Nothing
+                progressDialog2.HideDialog()
+                progressDialog2 = Nothing
+            End If
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
     End Sub
 End Class

@@ -19,8 +19,8 @@ Partial Class FrmTimberlineTool
   'Do not modify it using the code editor.
   <System.Diagnostics.DebuggerStepThrough()> _
   Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.PnlTimberline = New System.Windows.Forms.Panel()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.RdoFeet = New System.Windows.Forms.RadioButton()
@@ -60,6 +60,7 @@ Partial Class FrmTimberlineTool
         Me.RdoMouseClick = New System.Windows.Forms.RadioButton()
         Me.BtnCustom = New System.Windows.Forms.Button()
         Me.BtnSatellite = New System.Windows.Forms.Button()
+        Me.BtnBinary = New System.Windows.Forms.Button()
         Me.PnlTimberline.SuspendLayout()
         CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Pnl1.SuspendLayout()
@@ -78,7 +79,7 @@ Partial Class FrmTimberlineTool
         Me.PnlTimberline.Controls.Add(Me.TxtElevMax)
         Me.PnlTimberline.Controls.Add(Me.TxtElevMin)
         Me.PnlTimberline.Location = New System.Drawing.Point(4, 85)
-        Me.PnlTimberline.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.PnlTimberline.Margin = New System.Windows.Forms.Padding(2)
         Me.PnlTimberline.Name = "PnlTimberline"
         Me.PnlTimberline.Size = New System.Drawing.Size(431, 79)
         Me.PnlTimberline.TabIndex = 88
@@ -88,7 +89,7 @@ Partial Class FrmTimberlineTool
         Me.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TextBox2.Location = New System.Drawing.Point(3, 5)
-        Me.TextBox2.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.TextBox2.Margin = New System.Windows.Forms.Padding(2)
         Me.TextBox2.Name = "TextBox2"
         Me.TextBox2.ReadOnly = True
         Me.TextBox2.Size = New System.Drawing.Size(178, 15)
@@ -101,7 +102,7 @@ Partial Class FrmTimberlineTool
         Me.RdoFeet.Enabled = False
         Me.RdoFeet.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.RdoFeet.Location = New System.Drawing.Point(179, 25)
-        Me.RdoFeet.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.RdoFeet.Margin = New System.Windows.Forms.Padding(2)
         Me.RdoFeet.Name = "RdoFeet"
         Me.RdoFeet.Size = New System.Drawing.Size(53, 20)
         Me.RdoFeet.TabIndex = 120
@@ -114,7 +115,7 @@ Partial Class FrmTimberlineTool
         Me.RdoMeters.Enabled = False
         Me.RdoMeters.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.RdoMeters.Location = New System.Drawing.Point(109, 25)
-        Me.RdoMeters.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.RdoMeters.Margin = New System.Windows.Forms.Padding(2)
         Me.RdoMeters.Name = "RdoMeters"
         Me.RdoMeters.Size = New System.Drawing.Size(67, 20)
         Me.RdoMeters.TabIndex = 119
@@ -126,7 +127,7 @@ Partial Class FrmTimberlineTool
         Me.TextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TextBox1.Location = New System.Drawing.Point(3, 27)
-        Me.TextBox1.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.TextBox1.Margin = New System.Windows.Forms.Padding(2)
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.ReadOnly = True
         Me.TextBox1.Size = New System.Drawing.Size(105, 15)
@@ -159,7 +160,7 @@ Partial Class FrmTimberlineTool
         '
         Me.TxtElevMean.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtElevMean.Location = New System.Drawing.Point(325, 50)
-        Me.TxtElevMean.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.TxtElevMean.Margin = New System.Windows.Forms.Padding(2)
         Me.TxtElevMean.Name = "TxtElevMean"
         Me.TxtElevMean.ReadOnly = True
         Me.TxtElevMean.Size = New System.Drawing.Size(68, 22)
@@ -181,7 +182,7 @@ Partial Class FrmTimberlineTool
         '
         Me.TxtElevMax.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtElevMax.Location = New System.Drawing.Point(211, 50)
-        Me.TxtElevMax.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.TxtElevMax.Margin = New System.Windows.Forms.Padding(2)
         Me.TxtElevMax.Name = "TxtElevMax"
         Me.TxtElevMax.ReadOnly = True
         Me.TxtElevMax.Size = New System.Drawing.Size(68, 22)
@@ -192,7 +193,7 @@ Partial Class FrmTimberlineTool
         '
         Me.TxtElevMin.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtElevMin.Location = New System.Drawing.Point(67, 50)
-        Me.TxtElevMin.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.TxtElevMin.Margin = New System.Windows.Forms.Padding(2)
         Me.TxtElevMin.Name = "TxtElevMin"
         Me.TxtElevMin.ReadOnly = True
         Me.TxtElevMin.Size = New System.Drawing.Size(68, 22)
@@ -205,7 +206,7 @@ Partial Class FrmTimberlineTool
         Me.TxtAoiPath.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtAoiPath.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
         Me.TxtAoiPath.Location = New System.Drawing.Point(161, 33)
-        Me.TxtAoiPath.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.TxtAoiPath.Margin = New System.Windows.Forms.Padding(2)
         Me.TxtAoiPath.Name = "TxtAoiPath"
         Me.TxtAoiPath.ReadOnly = True
         Me.TxtAoiPath.Size = New System.Drawing.Size(291, 22)
@@ -227,7 +228,7 @@ Partial Class FrmTimberlineTool
         '
         Me.BtnSelectAoi.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnSelectAoi.Location = New System.Drawing.Point(2, 31)
-        Me.BtnSelectAoi.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.BtnSelectAoi.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnSelectAoi.Name = "BtnSelectAoi"
         Me.BtnSelectAoi.Size = New System.Drawing.Size(91, 23)
         Me.BtnSelectAoi.TabIndex = 89
@@ -251,7 +252,7 @@ Partial Class FrmTimberlineTool
         Me.CboParentHru.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.CboParentHru.FormattingEnabled = True
         Me.CboParentHru.Location = New System.Drawing.Point(136, 58)
-        Me.CboParentHru.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.CboParentHru.Margin = New System.Windows.Forms.Padding(2)
         Me.CboParentHru.Name = "CboParentHru"
         Me.CboParentHru.Size = New System.Drawing.Size(185, 24)
         Me.CboParentHru.TabIndex = 98
@@ -261,7 +262,7 @@ Partial Class FrmTimberlineTool
         Me.BtnViewHru.Enabled = False
         Me.BtnViewHru.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnViewHru.Location = New System.Drawing.Point(326, 58)
-        Me.BtnViewHru.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.BtnViewHru.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnViewHru.Name = "BtnViewHru"
         Me.BtnViewHru.Size = New System.Drawing.Size(110, 23)
         Me.BtnViewHru.TabIndex = 99
@@ -272,27 +273,27 @@ Partial Class FrmTimberlineTool
         '
         Me.DataGridView1.AllowUserToAddRows = False
         Me.DataGridView1.AllowUserToDeleteRows = False
-        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.DataGridView1.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.DataGridView1.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle3
         Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.DataGridView1.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.HruId, Me.TimberlineElevation})
         Me.DataGridView1.Location = New System.Drawing.Point(2, 214)
-        Me.DataGridView1.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.DataGridView1.Margin = New System.Windows.Forms.Padding(2)
         Me.DataGridView1.Name = "DataGridView1"
         Me.DataGridView1.Size = New System.Drawing.Size(214, 131)
         Me.DataGridView1.TabIndex = 103
         '
         'HruId
         '
-        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.HruId.DefaultCellStyle = DataGridViewCellStyle2
+        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.HruId.DefaultCellStyle = DataGridViewCellStyle4
         Me.HruId.HeaderText = "HRU ID"
         Me.HruId.Name = "HruId"
         Me.HruId.ReadOnly = True
@@ -308,7 +309,7 @@ Partial Class FrmTimberlineTool
         '
         Me.TxtElev.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtElev.Location = New System.Drawing.Point(220, 23)
-        Me.TxtElev.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.TxtElev.Margin = New System.Windows.Forms.Padding(2)
         Me.TxtElev.Name = "TxtElev"
         Me.TxtElev.ReadOnly = True
         Me.TxtElev.Size = New System.Drawing.Size(58, 22)
@@ -318,7 +319,7 @@ Partial Class FrmTimberlineTool
         '
         Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnClose.Location = New System.Drawing.Point(534, 349)
-        Me.BtnClose.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.BtnClose.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnClose.Name = "BtnClose"
         Me.BtnClose.Size = New System.Drawing.Size(53, 23)
         Me.BtnClose.TabIndex = 109
@@ -330,7 +331,7 @@ Partial Class FrmTimberlineTool
         Me.BtnSave.Enabled = False
         Me.BtnSave.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnSave.Location = New System.Drawing.Point(475, 349)
-        Me.BtnSave.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.BtnSave.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnSave.Name = "BtnSave"
         Me.BtnSave.Size = New System.Drawing.Size(53, 23)
         Me.BtnSave.TabIndex = 110
@@ -374,7 +375,7 @@ Partial Class FrmTimberlineTool
         '
         Me.TxtHruId.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtHruId.Location = New System.Drawing.Point(94, 23)
-        Me.TxtHruId.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.TxtHruId.Margin = New System.Windows.Forms.Padding(2)
         Me.TxtHruId.Name = "TxtHruId"
         Me.TxtHruId.ReadOnly = True
         Me.TxtHruId.Size = New System.Drawing.Size(42, 22)
@@ -384,7 +385,7 @@ Partial Class FrmTimberlineTool
         '
         Me.BtnAbout.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnAbout.Location = New System.Drawing.Point(463, 6)
-        Me.BtnAbout.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.BtnAbout.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnAbout.Name = "BtnAbout"
         Me.BtnAbout.Size = New System.Drawing.Size(97, 23)
         Me.BtnAbout.TabIndex = 113
@@ -397,7 +398,7 @@ Partial Class FrmTimberlineTool
         Me.BtnIdentify.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnIdentify.Image = Global.BAGIS_P.My.Resources.Resources.IdentifyTool16
         Me.BtnIdentify.Location = New System.Drawing.Point(21, 24)
-        Me.BtnIdentify.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.BtnIdentify.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnIdentify.Name = "BtnIdentify"
         Me.BtnIdentify.Size = New System.Drawing.Size(17, 19)
         Me.BtnIdentify.TabIndex = 104
@@ -428,7 +429,7 @@ Partial Class FrmTimberlineTool
         Me.Pnl1.Controls.Add(Me.Label7)
         Me.Pnl1.Controls.Add(Me.Label6)
         Me.Pnl1.Location = New System.Drawing.Point(220, 215)
-        Me.Pnl1.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.Pnl1.Margin = New System.Windows.Forms.Padding(2)
         Me.Pnl1.Name = "Pnl1"
         Me.Pnl1.Size = New System.Drawing.Size(367, 131)
         Me.Pnl1.TabIndex = 115
@@ -438,7 +439,7 @@ Partial Class FrmTimberlineTool
         Me.BtnUpdate.Enabled = False
         Me.BtnUpdate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnUpdate.Location = New System.Drawing.Point(282, 47)
-        Me.BtnUpdate.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.BtnUpdate.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnUpdate.Name = "BtnUpdate"
         Me.BtnUpdate.Size = New System.Drawing.Size(67, 23)
         Me.BtnUpdate.TabIndex = 118
@@ -450,7 +451,7 @@ Partial Class FrmTimberlineTool
         Me.TxtSelElev.Enabled = False
         Me.TxtSelElev.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtSelElev.Location = New System.Drawing.Point(215, 48)
-        Me.TxtSelElev.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.TxtSelElev.Margin = New System.Windows.Forms.Padding(2)
         Me.TxtSelElev.Name = "TxtSelElev"
         Me.TxtSelElev.Size = New System.Drawing.Size(55, 22)
         Me.TxtSelElev.TabIndex = 125
@@ -461,7 +462,7 @@ Partial Class FrmTimberlineTool
         Me.TextBox4.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TextBox4.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TextBox4.Location = New System.Drawing.Point(18, 70)
-        Me.TextBox4.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.TextBox4.Margin = New System.Windows.Forms.Padding(2)
         Me.TextBox4.Name = "TextBox4"
         Me.TextBox4.ReadOnly = True
         Me.TextBox4.Size = New System.Drawing.Size(347, 15)
@@ -473,7 +474,7 @@ Partial Class FrmTimberlineTool
         Me.BtnClearSelection.Enabled = False
         Me.BtnClearSelection.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnClearSelection.Location = New System.Drawing.Point(5, 91)
-        Me.BtnClearSelection.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.BtnClearSelection.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnClearSelection.Name = "BtnClearSelection"
         Me.BtnClearSelection.Size = New System.Drawing.Size(110, 23)
         Me.BtnClearSelection.TabIndex = 118
@@ -486,7 +487,7 @@ Partial Class FrmTimberlineTool
         Me.RdoSelect.Enabled = False
         Me.RdoSelect.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.RdoSelect.Location = New System.Drawing.Point(7, 49)
-        Me.RdoSelect.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.RdoSelect.Margin = New System.Windows.Forms.Padding(2)
         Me.RdoSelect.Name = "RdoSelect"
         Me.RdoSelect.Size = New System.Drawing.Size(230, 21)
         Me.RdoSelect.TabIndex = 1
@@ -499,7 +500,7 @@ Partial Class FrmTimberlineTool
         Me.RdoMouseClick.Enabled = False
         Me.RdoMouseClick.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.RdoMouseClick.Location = New System.Drawing.Point(7, 3)
-        Me.RdoMouseClick.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.RdoMouseClick.Margin = New System.Windows.Forms.Padding(2)
         Me.RdoMouseClick.Name = "RdoMouseClick"
         Me.RdoMouseClick.Size = New System.Drawing.Size(306, 21)
         Me.RdoMouseClick.TabIndex = 0
@@ -511,7 +512,7 @@ Partial Class FrmTimberlineTool
         Me.BtnCustom.Enabled = False
         Me.BtnCustom.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnCustom.Location = New System.Drawing.Point(139, 185)
-        Me.BtnCustom.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.BtnCustom.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnCustom.Name = "BtnCustom"
         Me.BtnCustom.Size = New System.Drawing.Size(161, 23)
         Me.BtnCustom.TabIndex = 116
@@ -523,18 +524,31 @@ Partial Class FrmTimberlineTool
         Me.BtnSatellite.Enabled = False
         Me.BtnSatellite.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnSatellite.Location = New System.Drawing.Point(2, 185)
-        Me.BtnSatellite.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.BtnSatellite.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnSatellite.Name = "BtnSatellite"
         Me.BtnSatellite.Size = New System.Drawing.Size(129, 23)
         Me.BtnSatellite.TabIndex = 117
         Me.BtnSatellite.Text = "Satellite Landcover"
         Me.BtnSatellite.UseVisualStyleBackColor = True
         '
+        'BtnBinary
+        '
+        Me.BtnBinary.Enabled = False
+        Me.BtnBinary.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnBinary.Location = New System.Drawing.Point(307, 185)
+        Me.BtnBinary.Margin = New System.Windows.Forms.Padding(2)
+        Me.BtnBinary.Name = "BtnBinary"
+        Me.BtnBinary.Size = New System.Drawing.Size(129, 23)
+        Me.BtnBinary.TabIndex = 118
+        Me.BtnBinary.Text = "Binary Map"
+        Me.BtnBinary.UseVisualStyleBackColor = True
+        '
         'FrmTimberlineTool
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(96.0!, 96.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi
         Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+        Me.Controls.Add(Me.BtnBinary)
         Me.Controls.Add(Me.BtnSatellite)
         Me.Controls.Add(Me.BtnCustom)
         Me.Controls.Add(Me.Pnl1)
@@ -551,7 +565,7 @@ Partial Class FrmTimberlineTool
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.BtnSelectAoi)
         Me.Controls.Add(Me.PnlTimberline)
-        Me.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.Margin = New System.Windows.Forms.Padding(2)
         Me.Name = "FrmTimberlineTool"
         Me.Size = New System.Drawing.Size(593, 378)
         Me.PnlTimberline.ResumeLayout(False)
@@ -602,5 +616,6 @@ Partial Class FrmTimberlineTool
     Friend WithEvents HruId As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents TimberlineElevation As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents BtnUpdate As System.Windows.Forms.Button
+    Friend WithEvents BtnBinary As System.Windows.Forms.Button
 
 End Class
