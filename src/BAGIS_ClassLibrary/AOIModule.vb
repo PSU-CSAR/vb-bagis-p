@@ -577,22 +577,13 @@ Public Module AOIModule
                                              ByRef IntervalList() As BA_IntervalList) As Short
         Dim return_value As Short = -1
         Dim pFClass As IFeatureClass
-        Dim HasNameField As Boolean
         Dim valuelist() As Object
         Dim namelist() As Object
         Dim nuniquevalue As Integer
-        Dim pData As IDataStatistics
-        Dim pCursor As ICursor
-        Dim pEnumVar As System.Collections.IEnumerator
-
-        If String.IsNullOrEmpty(NameFieldName) Then HasNameField = False Else HasNameField = True
+        Dim pCursor As IFeatureCursor
 
         Try
-            Dim pQFilter As IQueryFilter
-            Dim pFCursor As IFeatureCursor
-            Dim ClassNumber As Double
-            Dim pFeature As IFeature
-            Dim FIName As Short
+             Dim pFeature As IFeature
 
             'open shapefile
             pFClass = BA_OpenFeatureClassFromGDB(FilePath, shapefilename)
@@ -601,16 +592,43 @@ Public Module AOIModule
                 Return -1
             End If
 
-            'get unique list of gridcode from the vector att
-            pCursor = pFClass.Search(Nothing, False)
+            'get Dictionary of unique elevations from the vector att
+            Dim dictElev As IDictionary(Of String, String) = New Dictionary(Of String, String)()
+            Dim idxElev As Int16 = pFClass.FindField(valuefieldname)
+            Dim idxName As Int16 = pFClass.FindField(NameFieldName)
+            If idxElev < 0 Then
+                Return -1
+            End If
 
-            pData = New DataStatistics
-            pData.Field = valuefieldname
-            pData.Cursor = pCursor
-            pEnumVar = pData.UniqueValues
-            nuniquevalue = pData.UniqueValueCount
+            pCursor = pFClass.Search(Nothing, False)
+            pFeature = pCursor.NextFeature
+            Do While pFeature IsNot Nothing
+                Dim strElev As String = Convert.ToString(pFeature.Value(idxElev))
+                If Not String.IsNullOrEmpty(strElev) Then
+                    Dim strName As String = strElev
+                    If idxName > 0 Then
+                        If pFeature.Value(idxName) Is DBNull.Value Then
+                            strName = "Name missing"
+                        ElseIf String.IsNullOrEmpty(Convert.ToString(pFeature.Value(idxName))) Then
+                            strName = "Name missing"
+                        Else
+                            strName = Convert.ToString(pFeature.Value(idxName))
+                        End If
+                        If dictElev.ContainsKey(strElev) Then
+                            Dim strNewName = dictElev(strElev) + ", " + strName
+                            dictElev(strElev) = strNewName
+                        Else
+                            dictElev.Add(strElev, strName)
+                        End If
+                    End If
+                End If
+                pFeature = pCursor.NextFeature
+            Loop
+
+            nuniquevalue = dictElev.Keys.Count
 
             ReDim valuelist(nuniquevalue + 2)
+            ReDim namelist(nuniquevalue + 2)
 
             'keep a list of unique value and find the largest value
             Dim i As Short
@@ -618,23 +636,24 @@ Public Module AOIModule
             Dim Value As Double
 
             i = 0 'i keeps track of the actual numbers in the list, ignore negative values
-            Do While i < nuniquevalue
-                pEnumVar.MoveNext()
-                Value = pEnumVar.Current
+            For Each strElev As String In dictElev.Keys
+                Value = -1
+                Double.TryParse(strElev, Value)
                 If Int(Value - 0.5) < Int(upperbnd) And Int(Value + 0.5) > Int(lowerbnd) Then
                     i = i + 1
                     valuelist(i) = Val(CStr(Value))
+                    namelist(i) = dictElev(strElev)
                 Else
                     If Value > upperbnd Or Value < lowerbnd Then 'invalid data in the attribute field, out of bound
                         MsgBox("WARNING!!" & vbCrLf & "A monitoring site is ignored in the analysis!" & vbCrLf & "The site's elevation (" & Value & ") is outside the DEM range (" & lowerbnd & ", " & upperbnd & ")!")
                     End If
                     nuniquevalue = nuniquevalue - 1
                 End If
-            Loop
-
+            Next
+ 
             ncount = i + 2
             ReDim Preserve valuelist(ncount)
-            ReDim namelist(ncount)
+            ReDim Preserve namelist(ncount)
             ReDim IntervalList(ncount - 1)
 
             'add upper and lower bnds to the list
@@ -643,51 +662,6 @@ Public Module AOIModule
             valuelist(ncount - 1) = Val(CStr(lowerbnd))
             namelist(ncount - 1) = "Min Value"
 
-            'read value
-            ' Get field index again
-            If Not String.IsNullOrEmpty(NameFieldName) Then
-                FIName = pFClass.FindField(NameFieldName)
-                If FIName <= 0 Then HasNameField = False
-            End If
-
-            pQFilter = New QueryFilter
-
-            'read name field data
-            Dim delimiter As String
-
-            For i = 1 To ncount - 2
-                If HasNameField Then
-                    ClassNumber = valuelist(i)
-                    pQFilter.WhereClause = valuefieldname & " = " & ClassNumber
-                    pFCursor = pFClass.Search(pQFilter, False)
-                    pFeature = pFCursor.NextFeature
-
-                    If Not pFeature Is Nothing Then
-                        namelist(i) = ""
-                        delimiter = ""
-                        Do While Not pFeature Is Nothing 'get all the names of the features that are of the same value
-                            If Not pFeature.Value(FIName) Is DBNull.Value Then
-                                If Len(Trim(pFeature.Value(FIName))) > 0 Then
-                                    namelist(i) = namelist(i) & delimiter & pFeature.Value(FIName)
-                                Else
-                                    namelist(i) = namelist(i) & delimiter & "Name missing"
-                                End If
-                            Else
-                                namelist(i) = namelist(i) & delimiter & "Name missing"
-                            End If
-                            delimiter = ", "
-                            pFeature = pFCursor.NextFeature
-                        Loop
-                    Else
-                        namelist(i) = valuelist(i)
-                    End If
-
-                    pFCursor = Nothing
-                    pFeature = Nothing
-                Else
-                    namelist(i) = valuelist(i)
-                End If
-            Next
             'sort the list ascendingly
             QuickSort(valuelist, namelist)
 
@@ -704,9 +678,7 @@ Public Module AOIModule
             Return -1
         Finally
             pCursor = Nothing
-            pData = Nothing
             pFClass = Nothing
-            pEnumVar = Nothing
         End Try
     End Function
 
