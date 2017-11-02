@@ -316,8 +316,12 @@ Module MethodModule
                 If pDataSource.AoiLayer = False AndAlso pDataSource.IsValid = True Then
                     If String.IsNullOrEmpty(aoiPath) Then
                         'This is a public data source
-                        inputFolder = "PleaseReturn"
-                        inputFile = BA_GetBareName(pDataSource.Source, inputFolder)
+                        If BA_GetWorkspaceTypeFromPath(pDataSource.Source) = WorkspaceType.ImageServer Then
+                            inputFolder = pDataSource.Source
+                        Else
+                            inputFolder = "PleaseReturn"
+                            inputFile = BA_GetBareName(pDataSource.Source, inputFolder)
+                        End If
                     Else
                         'Otherwise it's a local data source
                         inputFolder = BA_GetDataBinPath(aoiPath)

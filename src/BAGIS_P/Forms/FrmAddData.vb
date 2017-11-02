@@ -118,9 +118,13 @@ Public Class FrmAddData
     Private Sub BtnSelectSource_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSelectSource.Click
         'Declare ArcObjects outside of Try/Catch so we can dispose of them in Finally
         Dim bObjectSelected As Boolean
-        Dim pGxDialog As IGxDialog = New GxDialog
-        'Only show shapefiles
+        Dim filterCollection As IGxObjectFilterCollection = New GxDialogClass()
         Dim pFilter As IGxObjectFilter = New GxFilterGeoDatasets
+        filterCollection.AddFilter(pFilter, True)
+        Dim imageFilter As IGxObjectFilter = New GxFilterImageServers
+        filterCollection.AddFilter(imageFilter, False)
+        Dim pGxDialog As IGxDialog = CType(filterCollection, IGxDialog)
+
         'Collection of layers to be assigned here
         Dim pGxObjects As IEnumGxObject = Nothing
         Dim pGxDataset As IGxDataset
@@ -130,25 +134,33 @@ Public Class FrmAddData
                 .AllowMultiSelect = False
                 .ButtonCaption = "Select"
                 .Title = "Select data source"
-                'using shapefile filter
-                .ObjectFilter = pFilter
                 'open dialog passing handle to Application from AddIn
                 bObjectSelected = .DoModalOpen(My.ArcMap.Application.hWnd, pGxObjects)
             End With
             'no file selected; exit
             If bObjectSelected = Nothing Then Exit Sub
-            'get first dataset
-            pGxDataset = pGxObjects.Next
-            'no dataset has been selected
-            If pGxDataset Is Nothing Then Exit Sub
-            Dim folderPath As String = pGxDataset.Dataset.Workspace.PathName
-            'Folder path may have trailing backslash if it is a grid
-            folderPath = BA_StandardizePathString(folderPath)
-            Dim fileName As String = pGxDataset.DatasetName.Name
-            TxtSource.Text = folderPath & "\" & fileName
-            '24-APR-2012 As of this date we aren't saving the data field
-            'PopulateCboDataField(pGxDataset.Dataset, pGxDataset.Type, Nothing)
-            SetLayerType(pGxDataset.Type)
+
+            Dim pGxObj As IGxObject = pGxObjects.Next
+            If pGxObj.Category.Equals(BA_EnumDescription(GxFilterCategory.ImageService)) Then
+                'get the url of the selected image service
+                Dim agsObj As IGxAGSObject = CType(pGxObj, IGxAGSObject)
+                TxtSource.Text = agsObj.AGSServerObjectName.URL
+                m_layerType = LayerType.ImageService
+                ' Set the units, if applicable
+
+            Else
+                'get first dataset
+                pGxDataset = CType(pGxObj, IGxDataset)
+                'no dataset has been selected
+                If pGxDataset Is Nothing Then Exit Sub
+                Dim folderPath As String = pGxDataset.Dataset.Workspace.PathName
+                'Folder path may have trailing backslash if it is a grid
+                folderPath = BA_StandardizePathString(folderPath)
+                Dim fileName As String = pGxDataset.DatasetName.Name
+                TxtSource.Text = folderPath & "\" & fileName
+                SetLayerType(pGxDataset.Type)
+            End If
+
             'Appends the units (if applicable) and sets the UI
             AppendUnitsToDataSource()
         Catch ex As Exception
@@ -821,8 +833,31 @@ Public Class FrmAddData
         PnlJhCoeff.Visible = False
     End Sub
 
+    'This method carries forward the units of the data source being edited, if there is one
     Private Sub AppendUnitsToDataSource()
-        If m_selDataSource IsNot Nothing Then
+        If m_layerType = LayerType.ImageService Then
+            Dim tempDataSource As DataSource = New DataSource(1, "tempName", "", TxtSource.Text, False, m_layerType)
+            tempDataSource.IsValid = True
+            Dim dataDict As IDictionary(Of String, DataSource) = New Dictionary(Of String, DataSource)
+            dataDict.Add("tempName", tempDataSource)
+            Dim success As BA_ReturnCode = BA_AppendUnitsToDataSources(dataDict, Nothing)
+            If success = BA_ReturnCode.Success Then
+                If tempDataSource.MeasurementUnitType <> MeasurementUnitType.Missing Then
+                    For Each strItem As String In CboDataType.Items
+                        If strItem = tempDataSource.MeasurementUnitType.ToString Then
+                            CboDataType.SelectedItem = strItem
+                        End If
+                    Next
+                Else
+                    CboDataType.SelectedIndex = 0
+                End If
+            End If
+            MessageBox.Show("Units for ImageService layers are read-only! The units for this " + _
+                            "data source will be set by the ImageService, if applicable.", "BAGIS-P", _
+                            MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf m_selDataSource IsNot Nothing Then
+            'Can't update units for image server data sources; Warn user
+
             m_selDataSource.Source = TxtSource.Text
             m_selDataSource.IsValid = True      'Required by BA_AppendUnitsToDataSources
             Dim dataDict As IDictionary(Of String, DataSource) = New Dictionary(Of String, DataSource)

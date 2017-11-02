@@ -206,6 +206,7 @@
     <Compile Include="enumerations\AOIPrismFolderNames.vb" />
     <Compile Include="enumerations\BA_HelpTopics.vb" />
     <Compile Include="enumerations\BA_ReturnCode.vb" />
+    <Compile Include="enumerations\GxFilterCategory.vb" />
     <Compile Include="enumerations\MethodStatus.vb" />
     <Compile Include="enumerations\MeasurementUnitType.vb" />
     <Compile Include="enumerations\SystemModelParameterName.vb" />

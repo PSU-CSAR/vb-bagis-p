@@ -1,5 +1,6 @@
 ﻿Imports ESRI.ArcGIS.Geodatabase
 Imports ESRI.ArcGIS.esriSystem
+Imports ESRI.ArcGIS.Carto
 Imports System.Xml
 Imports System.Text
 
@@ -17,6 +18,8 @@ Public Module MetadataModule
                 pMeta = BA_GetMetadataForRaster(inputFolder, inputFile)
             ElseIf layerType = layerType.Vector Then
                 pMeta = BA_GetMetadataForVector(inputFolder, inputFile)
+            ElseIf layerType = BAGIS_ClassLibrary.LayerType.ImageService Then
+                pMeta = BA_GetMetadataForImageService(inputFolder)
             End If
             'Get a reference to the IXmlPropertySet2 from the metadata
             pXmlPropertySet = pMeta.Metadata
@@ -189,6 +192,25 @@ Public Module MetadataModule
             pRasterGDS = Nothing
         End Try
 
+    End Function
+
+    ' Returns the metadata object for an image service
+    Public Function BA_GetMetadataForImageService(ByVal inputUrl As String) As IMetadata
+        Dim imageServerLayer As IImageServerLayer = New ImageServerLayerClass()
+        Dim dataLayer As IDataLayer = Nothing
+        Dim pMeta As IMetadata = Nothing
+        Try
+            imageServerLayer.Initialize(inputUrl)
+            dataLayer = CType(imageServerLayer, IDataLayer)
+            pMeta = CType(dataLayer.DataSourceName, IMetadata)
+            Return pMeta
+        Catch ex As Exception
+            Debug.Print("BA_GetMetadataForImageService: " & ex.Message)
+            Return Nothing
+        Finally
+            imageServerLayer = Nothing
+            dataLayer = Nothing
+        End Try
     End Function
 
     ' Returns the metadata object for a vector dataset
