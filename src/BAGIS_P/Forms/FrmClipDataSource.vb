@@ -68,11 +68,13 @@ Public Class FrmClipDataSource
                         If dataSource.LayerType = LayerType.Raster Then
                             Dim folderPath As String = "PleaseReturn"
                             Dim fileName As String = BA_GetBareName(dataSource.Source, folderPath)
-                            clipCellSize = BA_CellSize(folderPath, FileName)
+                            clipCellSize = BA_CellSize(folderPath, fileName)
+                        ElseIf dataSource.LayerType = LayerType.ImageService Then
+                            clipCellSize = BA_CellSizeImageService(dataSource.Source)
                         End If
                         'If the cell size is different
                         Dim clipDataSet As Boolean = True
-                        If aoiCellSize <> clipCellSize Then
+                        If dataSource.LayerType <> LayerType.Vector AndAlso aoiCellSize <> clipCellSize Then
                             Dim sb As StringBuilder = New StringBuilder
                             sb.Append("The default cell size of AOI '" & aoiName & "'" & vbCrLf)
                             sb.Append("does not match the cell size of data source" & vbCrLf)
