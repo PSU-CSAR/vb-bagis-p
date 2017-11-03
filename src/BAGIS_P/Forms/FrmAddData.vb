@@ -71,6 +71,10 @@ Public Class FrmAddData
         TxtDescription.Text = m_selDataSource.Description
         TxtSource.Text = m_selDataSource.Source
         m_layerType = m_selDataSource.LayerType
+        If m_layerType = LayerType.ImageService Then
+            CboDataType.Enabled = False
+            CboUnits.Enabled = False
+        End If
 
         InitJHCoeff()
         LoadMeasurementUnitTypes()
@@ -139,6 +143,10 @@ Public Class FrmAddData
             End With
             'no file selected; exit
             If bObjectSelected = Nothing Then Exit Sub
+
+            'Enable combo boxes in case they were disabled previously
+            CboDataType.Enabled = True
+            CboUnits.Enabled = True
 
             Dim pGxObj As IGxObject = pGxObjects.Next
             If pGxObj.Category.Equals(BA_EnumDescription(GxFilterCategory.ImageService)) Then
@@ -260,29 +268,46 @@ Public Class FrmAddData
         'Check to see if > 1 layer in the data manager has the same file name
         'If so, warn user that it may not be able to be clipped to an aoi with another file of the same name
         Dim source As String = Trim(TxtSource.Text) 'This is the full path
-        Dim newFileName As String = BA_GetBareName(source)
+        Dim newFileName As String = Nothing
+        If m_layerType <> LayerType.ImageService Then
+            newFileName = BA_GetBareName(source)
+        Else
+            newFileName = source
+        End If
         Dim sb1 As StringBuilder = New StringBuilder
         For Each key As String In m_layerTable.Keys
             Dim nextDataSource As DataSource = m_layerTable(key)
             'Only need to check custom layers and layers that are NOT the selected layer
             If nextDataSource.AoiLayer = False AndAlso layerName <> m_selLayerName Then
-                Dim fileName2 As String = BA_GetBareName(nextDataSource.Source)
-                If fileName2.ToUpper = newFileName.ToUpper Then
-                    'Add prefix to warning message; The stringbuilder hasn't been initialized yet
-                    If sb1.Length < 1 Then
-                        sb1.Append("The data source you are trying to add" & vbCrLf)
-                        sb1.Append("has the same file name as the following" & vbCrLf)
-                        sb1.Append("data source(s):" & vbCrLf & vbCrLf)
+                If m_layerType <> LayerType.ImageService Then
+                    Dim fileName2 As String = BA_GetBareName(nextDataSource.Source)
+                    If fileName2.ToUpper = newFileName.ToUpper Then
+                        'Add prefix to warning message; The stringbuilder hasn't been initialized yet
+                        If sb1.Length < 1 Then
+                            sb1.Append("The data source you are trying to add" & vbCrLf)
+                            sb1.Append("has the same file name as the following" & vbCrLf)
+                            sb1.Append("data source(s):" & vbCrLf & vbCrLf)
+                        End If
+                        sb1.Append("Name: " & nextDataSource.Name & " Path:" & nextDataSource.Source & vbCrLf)
                     End If
-                    sb1.Append("Name: " & nextDataSource.Name & " Path:" & nextDataSource.Source & vbCrLf)
+                Else
+                    If newFileName.Trim.ToUpper = nextDataSource.Source.Trim.ToUpper Then
+                        'Add prefix to warning message; The stringbuilder hasn't been initialized yet
+                        If sb1.Length < 1 Then
+                            sb1.Append("The data source you are trying to add" & vbCrLf)
+                            sb1.Append("is trying to use the same image service as the following" & vbCrLf)
+                            sb1.Append("data source(s):" & vbCrLf & vbCrLf)
+                        End If
+                        sb1.Append("Name: " & nextDataSource.Name & " Path:" & nextDataSource.Source & vbCrLf)
+                    End If
                 End If
             End If
         Next
         'Add suffix to warning message if there were any conflicts and pop message
         If sb1.Length > 0 Then
             sb1.Append(vbCrLf & "You may not clip data sources with the" & vbCrLf)
-            sb1.Append("same name to an AOI. If you plan to use this data" & vbCrLf)
-            sb1.Append("source with the data source(s) listed above, rename " & vbCrLf)
+            sb1.Append("same file name or image service to an AOI. If you plan to use this data" & vbCrLf)
+            sb1.Append("source with the data source(s) listed above and it is a file, you can rename " & vbCrLf)
             sb1.Append("the file with a unique name before adding it in " & vbCrLf)
             sb1.Append("the Data Manager." & vbCrLf & vbCrLf)
             sb1.Append("Do you still wish to add this data source ?")
@@ -338,8 +363,6 @@ Public Class FrmAddData
             pLayer.Name = layerName
             pLayer.Source = Trim(TxtSource.Text)
             pLayer.Description = TxtDescription.Text
-            '24-APR-2012 As of this date we aren't saving the data field
-            'pLayer.DataField = CStr(CboDataField.SelectedItem)
             pLayer.LayerType = pLayerType
             pLayer.MeasurementUnitType = selUnitType
             If CboDataType.SelectedIndex > 0 Then
@@ -427,7 +450,9 @@ Public Class FrmAddData
                 srcList.Add(pDS)
             Next
             BA_SaveDataLayers(srcList, m_settingsPath)
-            UpdateMeasurementUnits()
+            If m_layerType <> LayerType.ImageService Then
+                UpdateMeasurementUnits()
+            End If
         End If
         m_DirtyFlag = True
         Me.Close()
@@ -755,8 +780,10 @@ Public Class FrmAddData
     Public Sub EnableAdminActions()
         TxtName.ReadOnly = False
         TxtDescription.ReadOnly = False
-        CboDataType.Enabled = True
-        CboUnits.Enabled = True
+        If m_layerType <> LayerType.ImageService Then
+            CboDataType.Enabled = True
+            CboUnits.Enabled = True
+        End If
         PnlJhCoeff.Enabled = True
     End Sub
 
@@ -836,6 +863,8 @@ Public Class FrmAddData
     'This method carries forward the units of the data source being edited, if there is one
     Private Sub AppendUnitsToDataSource()
         If m_layerType = LayerType.ImageService Then
+            CboDataType.Enabled = False
+            CboUnits.Enabled = False
             Dim tempDataSource As DataSource = New DataSource(1, "tempName", "", TxtSource.Text, False, m_layerType)
             tempDataSource.IsValid = True
             Dim dataDict As IDictionary(Of String, DataSource) = New Dictionary(Of String, DataSource)
