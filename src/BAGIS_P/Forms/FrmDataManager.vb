@@ -29,6 +29,7 @@ Public Class FrmDataManager
 
         ' Add any initialization after the InitializeComponent() call.
         If pMode = BA_BAGISP_MODE_PUBLIC Then
+            jsonTest()
             Me.Height = DataGridView1.Height + 100
             Dim pnt1 As System.Drawing.Point = New System.Drawing.Point(2, 2)
             PnlMain.Location = pnt1
@@ -427,6 +428,23 @@ Public Class FrmDataManager
                 'If user supplied the admin password, admin rights will now be set to true in extension
                 If bExt.ProfileAdministrator = True Then EnableAdminButtons()
             End If
+        End If
+    End Sub
+
+    Private Sub jsonTest()
+        If System.IO.File.Exists("bagisp_datasources.json") Then
+            Try
+                Dim dataSources As List(Of ServerDataSource) = New List(Of ServerDataSource)
+                Dim ser2 As System.Runtime.Serialization.Json.DataContractJsonSerializer = New System.Runtime.Serialization.Json.DataContractJsonSerializer(dataSources.[GetType]())
+                Using fs2 As System.IO.FileStream = System.IO.File.Open("bagisp_datasources.json", System.IO.FileMode.Open)
+                    dataSources = CType(ser2.ReadObject(fs2), List(Of ServerDataSource))
+                End Using
+                Dim aDataSource As ServerDataSource = dataSources(0)
+                Dim blah As Integer = 1
+            Catch ex As Exception
+                Debug.Print("jsonTest Exception: " + ex.Message)
+            End Try
+
         End If
     End Sub
 
