@@ -186,6 +186,8 @@ Public Class FrmClipDataSource
                                 If pDS.MeasurementUnitType <> MeasurementUnitType.Missing Then
                                     Dim aoiDataTbl As Hashtable = BA_LoadDataSources(BA_GetLocalSettingsPath(aoiPath))
                                     BA_AppendUnitsToDataSources(aoiDataTbl, aoiPath)
+                                    '@ToDo: temporarily setting measurement unit for testing
+                                    pDS.MeasurementUnit = MeasurementUnit.Celsius
                                     Dim measureDS As DataSource = BA_ValidateMeasurementUnits(aoiDataTbl, pDS.MeasurementUnitType, _
                                                                                               pDS.MeasurementUnit, pDS.SlopeUnit)
                                     If measureDS IsNot Nothing Then
@@ -226,6 +228,9 @@ Public Class FrmClipDataSource
                                     End If
                                     If layerAlreadyExists = False Then
                                         Dim clipFileName As String = BA_GetBareName(pDS.Source)
+                                        If pDS.LayerType = LayerType.ImageService Then
+                                            clipFileName = BA_GetBareNameImageService(pDS.Source)
+                                        End If
                                         Dim clipFullPath As String = dataBinPath & "\" & clipFileName
                                         Dim success As BA_ReturnCode = BA_ClipLayerToAoi(aoiPath, dataBinPath, pDS)
                                         If pDS.MeasurementUnitType = MeasurementUnitType.Slope And pDS.SlopeUnit <> SlopeUnit.Missing Then
@@ -277,9 +282,13 @@ Public Class FrmClipDataSource
                                         Dim aoiCellSize As Double = BA_CellSize(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Surfaces), BA_EnumDescription(MapsFileName.filled_dem_gdb))
                                         Dim clipCellSize As Double
                                         'check the cell size of the aoi against the clip data source if the clip is a raster
-                                        If pDS.LayerType = LayerType.Raster Then
+                                        If pDS.LayerType = LayerType.Raster Or pDS.LayerType = LayerType.ImageService Then
                                             Dim folderPath As String = "PleaseReturn"
                                             Dim fileName As String = BA_GetBareName(pDS.Source, folderPath)
+                                            If pDS.LayerType = LayerType.ImageService Then
+                                                folderPath = dataBinPath
+                                                fileName = BA_GetBareNameImageService(pDS.Source)
+                                            End If
                                             clipCellSize = BA_CellSize(folderPath, fileName)
                                         End If
                                         'If the cell sizes are different, we need to resample the result of the clip

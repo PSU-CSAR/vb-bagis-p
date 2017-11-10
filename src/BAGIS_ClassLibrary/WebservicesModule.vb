@@ -1026,4 +1026,19 @@ Public Module WebservicesModule
         End Try
     End Function
 
+    Public Function BA_GetBareNameImageService(ByVal imageUrl As String) As String
+        Dim pArray As String() = imageUrl.Split("/")
+        Dim strName As String = Nothing
+        If pArray IsNot Nothing AndAlso pArray.Length > 0 Then
+            For i As Integer = pArray.Count - 1 To 0 Step -1
+                strName = pArray(i)
+                If strName.Equals(BA_Url_ImageServer) Then
+                    strName = pArray(i - 1) 'Return the element immediately before ImageServer
+                    Exit For
+                End If
+            Next i
+        End If
+        Return strName
+    End Function
+
 End Module

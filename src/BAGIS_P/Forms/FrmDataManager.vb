@@ -432,11 +432,11 @@ Public Class FrmDataManager
     End Sub
 
     Private Sub jsonTest()
-        If System.IO.File.Exists("bagisp_datasources.json") Then
+        If System.IO.File.Exists("bagisp_datasources.txt") Then
             Try
                 Dim dataSources As List(Of ServerDataSource) = New List(Of ServerDataSource)
                 Dim ser2 As System.Runtime.Serialization.Json.DataContractJsonSerializer = New System.Runtime.Serialization.Json.DataContractJsonSerializer(dataSources.[GetType]())
-                Using fs2 As System.IO.FileStream = System.IO.File.Open("bagisp_datasources.json", System.IO.FileMode.Open)
+                Using fs2 As System.IO.FileStream = System.IO.File.Open("bagisp_datasources.txt", System.IO.FileMode.Open)
                     dataSources = CType(ser2.ReadObject(fs2), List(Of ServerDataSource))
                 End Using
                 Dim aDataSource As ServerDataSource = dataSources(0)
