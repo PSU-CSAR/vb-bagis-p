@@ -775,4 +775,46 @@ Module MethodModule
         End Try
     End Function
 
+    Public Sub BA_CopyMeasurementUnits(ByVal aoiPath As String, ByVal sourceDataSource As DataSource, _
+                                       ByVal targetDataSource As DataSource)
+        Dim errorSb As StringBuilder = New StringBuilder()
+        errorSb.Append("An error occurred while trying to update the measurement units ")
+        errorSb.Append("in the layer metadata. The measurement units could not be updated.")
+ 
+        'We need to add a new tag at "/metadata/dataIdInfo/searchKeys/keyword"
+        Dim bagisTag As String = BA_CreateBagisTag(sourceDataSource)
+        Dim inputFolder As String = Nothing
+        Dim inputFile As String = Nothing
+        If String.IsNullOrEmpty(aoiPath) Then
+            'This is a public data source
+            inputFolder = "PleaseReturn"
+            inputFile = BA_GetBareName(targetDataSource.Source, inputFolder)
+        Else
+            'Otherwise it's a local data source
+            inputFolder = BA_GetDataBinPath(aoiPath)
+            inputFile = targetDataSource.Source
+        End If
+
+        Dim success As BA_ReturnCode = BA_UpdateMetadata(inputFolder, inputFile, targetDataSource.LayerType, _
+                                    BA_XPATH_TAGS, bagisTag, BA_BAGIS_TAG_PREFIX.Length)
+        If success <> BA_ReturnCode.Success Then
+            MessageBox.Show(errorSb.ToString, "Update error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+    End Sub
+
+    Public Function BA_CreateBagisTag(ByVal sourceDataSource As DataSource) As String
+        Dim sb As StringBuilder = New StringBuilder
+        sb.Append(BA_BAGIS_TAG_PREFIX)
+        sb.Append(BA_ZUNIT_CATEGORY_TAG & sourceDataSource.MeasurementUnitType.ToString & "; ")
+        If sourceDataSource.MeasurementUnitType = MeasurementUnitType.Slope Then
+            sb.Append(BA_ZUNIT_VALUE_TAG & BA_EnumDescription(sourceDataSource.SlopeUnit) & ";")
+        Else
+            sb.Append(BA_ZUNIT_VALUE_TAG & sourceDataSource.MeasurementUnit.ToString & ";")
+        End If
+        sb.Append(BA_BAGIS_TAG_SUFFIX)
+        Return sb.ToString
+    End Function
+
 End Module

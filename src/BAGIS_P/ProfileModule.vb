@@ -175,6 +175,16 @@ Module ProfileModule
         msg.Append("the data source: '" & dataSource.Name & "' to" & vbCrLf)
         msg.Append("AOI: '" & strAoi & "'")
         Dim outputFullPath As String = dataBinPath & "\" & outputFileName
+
+        'Create new data source object
+        Dim id As Integer = BA_GetNextDataSourceId(BA_GetLocalSettingsPath(aoiPath))
+        Dim newLayerType As LayerType = dataSource.LayerType
+        'Reset layerType to raster for image sources; Local layers cannot be image service
+        If dataSource.LayerType = LayerType.ImageService Then _
+            newLayerType = LayerType.Raster
+        Dim localDS As DataSource = New DataSource(id, dataSource.Name, dataSource.Description, outputFileName, _
+                                                   dataSource.AoiLayer, newLayerType)
+
         If dataSource.LayerType = LayerType.Vector Then
             If BA_File_Exists(outputFullPath, WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
                 response = BA_Remove_ShapefileFromGDB(dataBinPath, outputFileName)
@@ -208,16 +218,12 @@ Module ProfileModule
                 Dim clipKey As AOIClipFile = BA_SelectRasterClipFile(demPath, dataSource.Source, dataSource.LayerType)
                 response = BA_ClipAOIImageServer(aoiPath, dataSource.Source, dataBinPath + "\" + outputFileName, clipKey)
             End If
+            If response > 0 Then
+                ' Copy metadata from source datasource for image services; It doesn't copy like it does for FGDB
+                BA_CopyMeasurementUnits(aoiPath, dataSource, localDS)
+            End If
         End If
 
-            'Create new data source object
-        Dim id As Integer = BA_GetNextDataSourceId(BA_GetLocalSettingsPath(aoiPath))
-        Dim newLayerType As LayerType = dataSource.LayerType
-        'Reset layerType to raster for image sources; Local layers cannot be image service
-        If dataSource.LayerType = LayerType.ImageService Then _
-            newLayerType = LayerType.Raster
-        Dim localDS As DataSource = New DataSource(id, dataSource.Name, dataSource.Description, outputFileName, _
-                                                dataSource.AoiLayer, newLayerType)
         Dim success As BA_ReturnCode = BA_SaveNewDataSource(localDS, BA_GetLocalSettingsPath(aoiPath))
         Return success
     End Function

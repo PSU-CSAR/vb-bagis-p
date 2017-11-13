@@ -743,7 +743,7 @@ Public Class FrmAddData
             Next
             'We had existing "keyword" tags but no BAGIS tag; Need to add
             If updateBagisTag = False Then
-                Dim bagisTag As String = CreateBagisTag()
+                Dim bagisTag As String = BA_CreateBagisTag(m_selDataSource)
                 Dim success As BA_ReturnCode = BA_UpdateMetadata(inputFolder, inputFile, m_selDataSource.LayerType, _
                                                                  BA_XPATH_TAGS, bagisTag, BA_BAGIS_TAG_PREFIX.Length)
                 If success <> BA_ReturnCode.Success Then
@@ -753,7 +753,7 @@ Public Class FrmAddData
             End If
         Else
             'We need to add a new tag at "/metadata/dataIdInfo/searchKeys/keyword"
-            Dim bagisTag As String = CreateBagisTag()
+            Dim bagisTag As String = BA_CreateBagisTag(m_selDataSource)
             Dim success As BA_ReturnCode = BA_UpdateMetadata(inputFolder, inputFile, m_selDataSource.LayerType, _
                                                              BA_XPATH_TAGS, bagisTag, BA_BAGIS_TAG_PREFIX.Length)
             If success <> BA_ReturnCode.Success Then
@@ -763,19 +763,6 @@ Public Class FrmAddData
         End If
 
     End Sub
-
-    Private Function CreateBagisTag() As String
-        Dim sb As StringBuilder = New StringBuilder
-        sb.Append(BA_BAGIS_TAG_PREFIX)
-        sb.Append(BA_ZUNIT_CATEGORY_TAG & m_selDataSource.MeasurementUnitType.ToString & "; ")
-        If m_selDataSource.MeasurementUnitType = MeasurementUnitType.Slope Then
-            sb.Append(BA_ZUNIT_VALUE_TAG & BA_EnumDescription(m_selDataSource.SlopeUnit) & ";")
-        Else
-            sb.Append(BA_ZUNIT_VALUE_TAG & m_selDataSource.MeasurementUnit.ToString & ";")
-        End If
-        sb.Append(BA_BAGIS_TAG_SUFFIX)
-        Return sb.ToString
-    End Function
 
     Public Sub EnableAdminActions()
         TxtName.ReadOnly = False
