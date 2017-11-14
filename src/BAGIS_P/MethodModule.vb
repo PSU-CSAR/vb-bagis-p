@@ -90,7 +90,7 @@ Module MethodModule
                     For Each pInnerText As String In tagsList
                         'This is our BAGIS tag
                         If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                             If strUnits IsNot Nothing Then
                                 pUnit = BA_GetMeasurementUnit(strUnits)
                             End If
@@ -119,7 +119,7 @@ Module MethodModule
                     For Each pInnerText As String In tagsList
                         'This is our BAGIS tag
                         If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                             If strUnits IsNot Nothing Then
                                 pUnit = BA_GetMeasurementUnit(strUnits)
                             End If
@@ -138,7 +138,7 @@ Module MethodModule
                     For Each pInnerText As String In tagsList
                         'This is our BAGIS tag
                         If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                             If strUnits IsNot Nothing Then
                                 pUnit = BA_GetMeasurementUnit(strUnits)
                             End If
@@ -334,12 +334,16 @@ Module MethodModule
                         For Each pInnerText As String In tagsList
                             'This is our BAGIS tag
                             If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                                Dim strCategory As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_CATEGORY_TAG)
+                                Dim strSplit As String = ";"
+                                If pDataSource.LayerType = LayerType.ImageService Then
+                                    strSplit = "!"
+                                End If
+                                Dim strCategory As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_CATEGORY_TAG, strSplit)
                                 If Not String.IsNullOrEmpty(strCategory) Then
                                     Dim pUnitType As MeasurementUnitType = BA_GetMeasurementUnitType(strCategory)
                                     pDataSource.MeasurementUnitType = pUnitType
                                 End If
-                                Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                                Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, strSplit)
                                 If Not String.IsNullOrEmpty(strUnits) Then
                                     Dim pUnits As MeasurementUnit = BA_GetMeasurementUnit(strUnits)
                                     If pUnits <> MeasurementUnit.Missing Then
@@ -388,7 +392,7 @@ Module MethodModule
             For Each pInnerText As String In tagsList
                 'This is our BAGIS tag
                 If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                     If strUnits IsNot Nothing Then
                         slopeUnit = BA_GetSlopeUnit(strUnits)
                     End If
@@ -405,7 +409,7 @@ Module MethodModule
             For Each pInnerText As String In tagsList
                 'This is our BAGIS tag
                 If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                     If strUnits IsNot Nothing Then
                         elevUnit = BA_GetMeasurementUnit(strUnits)
                     End If
@@ -425,7 +429,7 @@ Module MethodModule
                 For Each pInnerText As String In tagsList
                     'This is our BAGIS tag
                     If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                        Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                        Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                         If strUnits IsNot Nothing Then
                             depthUnit = BA_GetMeasurementUnit(strUnits)
                         End If
@@ -450,10 +454,10 @@ Module MethodModule
                         For Each pInnerText As String In tagsList
                             'This is our BAGIS tag
                             If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                                Dim strCategory As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_CATEGORY_TAG)
+                                Dim strCategory As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_CATEGORY_TAG, ";")
                                 Dim unitCategory As MeasurementUnitType = BA_GetMeasurementUnitType(strCategory)
                                 If unitCategory = MeasurementUnitType.Temperature Then
-                                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                                     If strUnits IsNot Nothing Then
                                         degreeUnit = BA_GetMeasurementUnit(strUnits)
                                     End If

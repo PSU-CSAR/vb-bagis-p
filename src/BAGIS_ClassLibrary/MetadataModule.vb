@@ -149,9 +149,10 @@ Public Module MetadataModule
         End Try
     End Function
 
-    Public Function BA_GetValueForKey(ByVal innerText As String, ByVal keyText As String) As String
+    'strSplit should be ; for local files and ! for image services
+    Public Function BA_GetValueForKey(ByVal innerText As String, ByVal keyText As String, ByVal strSplit As String) As String
         Dim strValue As String = Nothing
-        Dim pContents As String() = innerText.Split(";")
+        Dim pContents As String() = innerText.Split(strSplit)
         For Each pValue As String In pContents
             'This tag contains the zUnitCategory
             If pValue.IndexOf(keyText) > -1 Then
@@ -257,7 +258,8 @@ Public Module MetadataModule
             For Each pInnerText As String In tagsList
                 'This is our BAGIS tag
                 If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                    ' The separator is a ; because aoi layers are always local
+                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                     If strUnits IsNot Nothing Then
                         retVal = BA_GetSlopeUnit(strUnits)
                     End If
@@ -279,7 +281,7 @@ Public Module MetadataModule
             For Each pInnerText As String In tagsList
                 'This is our BAGIS tag
                 If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                     If strUnits IsNot Nothing Then
                         retVal = BA_GetSlopeUnit(strUnits)
                     End If
