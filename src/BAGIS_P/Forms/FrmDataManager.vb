@@ -29,7 +29,6 @@ Public Class FrmDataManager
 
         ' Add any initialization after the InitializeComponent() call.
         If pMode = BA_BAGISP_MODE_PUBLIC Then
-            jsonTest()
             Me.Height = DataGridView1.Height + 100
             Dim pnt1 As System.Drawing.Point = New System.Drawing.Point(2, 2)
             PnlMain.Location = pnt1
@@ -46,6 +45,7 @@ Public Class FrmDataManager
             BtnClip.Visible = False
             BtnAdd.Visible = False
             BtnEdit.Visible = False
+            BtnDefaultSettings.Visible = False
             BtnDelete.Location = New System.Drawing.Point(4, 329)
             'Delete button always visible for local data manager
             BtnDelete.Visible = True
@@ -431,21 +431,55 @@ Public Class FrmDataManager
         End If
     End Sub
 
-    Private Sub jsonTest()
-        If System.IO.File.Exists("bagisp_datasources.txt") Then
-            Try
-                Dim dataSources As List(Of ServerDataSource) = New List(Of ServerDataSource)
-                Dim ser2 As System.Runtime.Serialization.Json.DataContractJsonSerializer = New System.Runtime.Serialization.Json.DataContractJsonSerializer(dataSources.[GetType]())
-                Using fs2 As System.IO.FileStream = System.IO.File.Open("bagisp_datasources.txt", System.IO.FileMode.Open)
-                    dataSources = CType(ser2.ReadObject(fs2), List(Of ServerDataSource))
-                End Using
-                Dim aDataSource As ServerDataSource = dataSources(0)
-                Dim blah As Integer = 1
-            Catch ex As Exception
-                Debug.Print("jsonTest Exception: " + ex.Message)
-            End Try
+    Private Function QueryDefaultDataSources() As IList(Of BagisImageService)
+        Dim webserviceUrl As String = BA_WebServerName & "/api/rest/desktop/settings/bagis-p/"
+        Dim req As System.Net.WebRequest = System.Net.WebRequest.Create(webserviceUrl & "?f=pjson")
+        Try
+            Dim mySettings As ServerSettings = New ServerSettings()
+            Using resp As System.Net.WebResponse = req.GetResponse()
+                Dim ser As System.Runtime.Serialization.Json.DataContractJsonSerializer = New System.Runtime.Serialization.Json.DataContractJsonSerializer(mySettings.[GetType]())
+                mySettings = CType(ser.ReadObject(resp.GetResponseStream), ServerSettings)
+            End Using
+            Dim count As Integer = mySettings.datasources.Count
+            Return mySettings.datasources
+        Catch ex As Exception
+            Debug.Print("QueryDefaultDataSources Exception: " + ex.Message)
+            Return Nothing
+        End Try
+    End Function
 
+    Private Sub BtnDefaultSettings_Click(sender As System.Object, e As System.EventArgs) Handles BtnDefaultSettings.Click
+        If Not String.IsNullOrEmpty(m_settingsPath) Then
+            If System.IO.File.Exists(m_settingsPath) Then
+                Dim res As DialogResult = MessageBox.Show("The default data sources will overwrite your current data sources. " + _
+                                                          "This action cannot be undone. Do you wish to continue ?", "BAGIS-P", _
+                                                          MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+                If res <> Windows.Forms.DialogResult.Yes Then
+                    Exit Sub
+                End If
+            End If
+            Dim imageServiceList As IList(Of BagisImageService) = QueryDefaultDataSources()
+            If imageServiceList.Count > 0 Then
+                ' Delete all datasources from the underlying datatable except for aoi
+                Dim keysToDelete As IList(Of String) = New List(Of String)
+                For Each strKey As String In m_dataTable.Keys
+                    Dim dSource As DataSource = m_dataTable(strKey)
+                    If Not dSource.AoiLayer Then
+                        keysToDelete.Add(strKey)
+                    End If
+                Next
+                For Each strKey As String In keysToDelete
+                    m_dataTable.Remove(strKey)
+                Next
+                ' Read and add the default data sources
+                For Each iService As BagisImageService In imageServiceList
+                    Dim dSource As DataSource = New DataSource(iService)
+                    dSource.IsValid = BA_File_ExistsImageServer(dSource.Source)
+                    m_dataTable.Add(dSource.Name, dSource)
+                Next
+                BA_AppendUnitsToDataSources(m_dataTable, Nothing)
+                ReloadGrid()
+            End If
         End If
     End Sub
-
 End Class

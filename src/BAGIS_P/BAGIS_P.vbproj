@@ -362,7 +362,7 @@
     <Compile Include="Objects\HruProfileStatus.vb" />
     <Compile Include="Objects\Parameter.vb" />
     <Compile Include="Objects\ParameterTable.vb" />
-    <Compile Include="Objects\ServerDataSource.vb" />
+    <Compile Include="Objects\ServerSettings.vb" />
     <Compile Include="Objects\Settings.vb" />
     <Compile Include="Objects\DataSource.vb" />
     <Compile Include="Objects\SubAOI.vb" />
