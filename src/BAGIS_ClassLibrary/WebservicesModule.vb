@@ -446,6 +446,7 @@ Public Module WebservicesModule
         Dim boundary As String = MultipartFormHelper.CreateFormDataBoundary()
         reqT.ContentType = "multipart/form-data; boundary=" & boundary
         reqT.KeepAlive = True
+        reqT.Timeout = 300000
 
         'Retrieve the token and format it for the header; Token comes from caller
         Dim cred As String = String.Format("{0} {1}", "Token", strToken)
@@ -484,21 +485,21 @@ Public Module WebservicesModule
             Return anUpload
         Catch w As WebException
             Dim sb As StringBuilder = New StringBuilder
-            Using exceptResp As HttpWebResponse = TryCast(w.Response, HttpWebResponse)
-                'The response is a long html page
-                'The exception is indicated with this line: <pre class="exception_value">An AOI of the same name already exists.</pre>
-                '@ToDo: Figure out how to parse the response and pull out this exception_value
                 sb.Append(fileName & " " & BA_TASK_UPLOAD & " error!" & vbCrLf & vbCrLf)
-                If exceptResp IsNot Nothing Then
-                    Using SReader As System.IO.StreamReader = New System.IO.StreamReader(exceptResp.GetResponseStream)
+            If w.Response IsNot Nothing Then
+                Using SReader As System.IO.StreamReader = New System.IO.StreamReader(w.Response.GetResponseStream())
                         sb.Append(SReader.ReadToEnd)
                     End Using
+            Else
+                sb.Append(w.Message & vbCrLf)
+                sb.Append(w.StackTrace)
                 End If
-            End Using
-            'Debug.Print("BA_UploadMultiPart WebException: " & sb.ToString)
+
+            Debug.Print("BA_UploadMultiPart WebException: " & sb.ToString)
             'May dump the error to a local file
-            'Dim tempDir As String = System.IO.Path.GetTempPath
-            'System.IO.File.WriteAllText(tempDir + "\upload_error.txt", sb.ToString)
+            Dim parentFolder As String = "PleaseReturn"
+            Dim zipFile As String = BA_GetBareName(filePath, parentFolder)
+            System.IO.File.WriteAllText(parentFolder + fileName + "\ebagis_upload_error.txt", sb.ToString)
             MessageBox.Show(sb.ToString, "Error message", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return anUpload
         Catch ex As Exception
@@ -518,7 +519,7 @@ Public Module WebservicesModule
         Next
     End Sub
 
-    Public Function BA_List_Aoi(ByVal url As String, ByVal strToken As String, ByVal filter As AOISearchFilter) As Dictionary(Of String, StoredAoi)
+    Public Function BA_List_Aoi(ByVal url As String, ByVal filter As AOISearchFilter) As Dictionary(Of String, StoredAoi)
         Dim aoiDictionary As Dictionary(Of String, StoredAoi) = New Dictionary(Of String, StoredAoi)
 
         'The end point for getting a token for the web service
@@ -538,10 +539,6 @@ Public Module WebservicesModule
         'This is a GET request
         reqT.Method = "GET"
 
-        'Retrieve the token and format it for the header; Token comes from caller
-        Dim cred As String = String.Format("{0} {1}", "Token", strToken)
-        'Put token in header
-        reqT.Headers(HttpRequestHeader.Authorization) = cred
         'Set the accept header to request the current version of the api
         reqT.Accept = "application/json; version=" + BA_EbagisApiVersion
 
@@ -642,9 +639,8 @@ Public Module WebservicesModule
         End Try
     End Function
 
-    Public Function BA_AoiInArchive(ByVal url As String, ByVal strToken As String, _
-                                    ByVal aoiName As String) As Boolean
-        Dim storedAois As Dictionary(Of String, StoredAoi) = BA_List_Aoi(url, strToken, Nothing)
+    Public Function BA_AoiInArchive(ByVal url As String, ByVal aoiName As String) As Boolean
+        Dim storedAois As Dictionary(Of String, StoredAoi) = BA_List_Aoi(url, Nothing)
         For Each kvp As KeyValuePair(Of String, StoredAoi) In storedAois
             If kvp.Value.name.ToUpper = aoiName.ToUpper Then
                 Return True
