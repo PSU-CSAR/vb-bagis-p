@@ -450,6 +450,7 @@ Public Class FrmDataManager
 
     Private Sub BtnDefaultSettings_Click(sender As System.Object, e As System.EventArgs) Handles BtnDefaultSettings.Click
         If Not String.IsNullOrEmpty(m_settingsPath) Then
+            Dim overwriteSettings As Boolean = False
             If System.IO.File.Exists(m_settingsPath) Then
                 Dim res As DialogResult = MessageBox.Show("The default data sources will overwrite your current data sources. " + _
                                                           "This action cannot be undone. Do you wish to continue ?", "BAGIS-P", _
@@ -458,28 +459,64 @@ Public Class FrmDataManager
                     Exit Sub
                 End If
             End If
-            Dim imageServiceList As IList(Of BagisImageService) = QueryDefaultDataSources()
-            If imageServiceList.Count > 0 Then
-                ' Delete all datasources from the underlying datatable except for aoi
-                Dim keysToDelete As IList(Of String) = New List(Of String)
-                For Each strKey As String In m_dataTable.Keys
-                    Dim dSource As DataSource = m_dataTable(strKey)
-                    If Not dSource.AoiLayer Then
-                        keysToDelete.Add(strKey)
+            overwriteSettings = True
+            ' Create/configure a step progressor
+            Dim pStepProg As IStepProgressor = Nothing
+            Dim progressDialog2 As IProgressDialog2 = Nothing
+            Try
+                pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
+                progressDialog2 = BA_GetProgressDialog(pStepProg, "Working ...", "Configuring default data sources ")
+                pStepProg.Show()
+                progressDialog2.ShowDialog()
+                pStepProg.Step()
+                BtnDefaultSettings.Enabled = False
+                Dim imageServiceList As IList(Of BagisImageService) = QueryDefaultDataSources()
+                If imageServiceList.Count > 0 Then
+                    pStepProg.Step()
+                    ' Delete all datasources from the underlying datatable except for aoi
+                    Dim keysToDelete As IList(Of String) = New List(Of String)
+                    For Each strKey As String In m_dataTable.Keys
+                        Dim dSource As DataSource = m_dataTable(strKey)
+                        If Not dSource.AoiLayer Then
+                            keysToDelete.Add(strKey)
+                        End If
+                    Next
+                    For Each strKey As String In keysToDelete
+                        m_dataTable.Remove(strKey)
+                    Next
+                    ' Read and add the default data sources
+                    For Each iService As BagisImageService In imageServiceList
+                        Dim dSource As DataSource = New DataSource(iService)
+                        dSource.IsValid = BA_File_ExistsImageServer(dSource.Source)
+                        m_dataTable.Add(dSource.Name, dSource)
+                    Next
+                    pStepProg.Step()
+                    Dim success As BA_ReturnCode = BA_AppendUnitsToDataSources(m_dataTable, Nothing)
+                    pStepProg.Step()
+                    If success = BA_ReturnCode.Success AndAlso overwriteSettings = True Then
+                        System.IO.File.Delete(m_settingsPath)
+                        Dim dataLayerList As List(Of DataSource) = New List(Of DataSource)
+                        For Each key As String In m_dataTable.Keys
+                            dataLayerList.Add(m_dataTable(key))
+                        Next
+                        success = BA_SaveDataLayers(dataLayerList, m_settingsPath)
+                        ReloadGrid()
+                    Else
+                        MessageBox.Show("An error occurred while trying to load the default data sources", "BAGIS-P", _
+                                        MessageBoxButtons.OK, MessageBoxIcon.Information)
                     End If
-                Next
-                For Each strKey As String In keysToDelete
-                    m_dataTable.Remove(strKey)
-                Next
-                ' Read and add the default data sources
-                For Each iService As BagisImageService In imageServiceList
-                    Dim dSource As DataSource = New DataSource(iService)
-                    dSource.IsValid = BA_File_ExistsImageServer(dSource.Source)
-                    m_dataTable.Add(dSource.Name, dSource)
-                Next
-                BA_AppendUnitsToDataSources(m_dataTable, Nothing)
-                ReloadGrid()
-            End If
+                End If
+            Catch ex As Exception
+                Debug.Print("BtnDefaultSettings_Click Exception: " + ex.Message)
+            Finally
+                BtnDefaultSettings.Enabled = True
+                If pStepProg IsNot Nothing Then
+                    pStepProg.Hide()
+                    pStepProg = Nothing
+                    progressDialog2.HideDialog()
+                    progressDialog2 = Nothing
+                End If
+            End Try
         End If
     End Sub
 End Class

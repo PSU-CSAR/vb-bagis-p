@@ -46,6 +46,7 @@ Public Class DataSource
         m_source = pImageService.source
         m_aoiLayer = False
         m_isValid = m_aoiLayer
+        m_jh_coeff = pImageService.jhCoeff
         m_layerType = BAGIS_ClassLibrary.LayerType.ImageService
     End Sub
 

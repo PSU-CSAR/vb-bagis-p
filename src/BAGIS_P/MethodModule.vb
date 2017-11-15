@@ -581,6 +581,8 @@ Module MethodModule
             If Not String.IsNullOrEmpty(dSource.JH_Coeff) Then
                 Dim jhRole As String = dSource.JH_Coeff
                 Dim fileName As String = BA_GetBareName(dSource.Source)
+                If dSource.LayerType = LayerType.ImageService Then _
+                    fileName = BA_GetBareNameImageService(dSource.Source)
                 Dim lclPath As String = BA_GetDataBinPath(aoiPath) & "\" & fileName
                 If BA_File_Exists(lclPath, WorkspaceType.Geodatabase, ESRI.ArcGIS.Geodatabase.esriDatasetType.esriDTRasterDataset) Then
                     returnDictionary.Add(jhRole, lclPath)
