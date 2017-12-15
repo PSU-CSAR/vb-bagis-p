@@ -1432,6 +1432,10 @@ Public Module GeodatabaseModule
         Dim pRasterBandCollection As IRasterBandCollection = Nothing
         Dim pRasterBand As IRasterBand
         Dim pRStats As IRasterStatistics
+        Dim pExtractOp As IExtractionOp2
+        Dim pEnv As IRasterAnalysisEnvironment = Nothing
+        Dim workspaceFactory As IWorkspaceFactory = New FileGDBWorkspaceFactory()
+        Dim workspace As IWorkspace = Nothing
         Try
             'get the location and name of the dem.
             Dim DemFilePath As String = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Surfaces)
@@ -1447,10 +1451,12 @@ Public Module GeodatabaseModule
                 'Use the AOI extent for analysis
                 'Open AOI Polygon to set the analysis mask
                 pAOIRaster = BA_OpenRasterFromGDB(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Aoi), BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)))
-                Dim pExtractOp As IExtractionOp2 = New RasterExtractionOp
+                pExtractOp = New RasterExtractionOp()
+                pEnv = CType(pExtractOp, IRasterAnalysisEnvironment)  ' Explicit cast
+                workspace = workspaceFactory.OpenFromFile(DemFilePath, 0)
+                pEnv.OutWorkspace = workspace
                 pTempRaster = pExtractOp.Raster(pRasterDataset, pAOIRaster)
                 pRasterBandCollection = CType(pTempRaster, IRasterBandCollection)   'Explict cast
-                pExtractOp = Nothing
             Else 'DEM is not bufferred
                 pRasterBandCollection = CType(pRasterDataset, IRasterBandCollection)
             End If
@@ -1467,6 +1473,9 @@ Public Module GeodatabaseModule
             pRasterBandCollection = Nothing
             pRasterBand = Nothing
             pRStats = Nothing
+            pExtractOp = Nothing
+            pEnv = Nothing
+            workspace = Nothing
         End Try
 
     End Function
