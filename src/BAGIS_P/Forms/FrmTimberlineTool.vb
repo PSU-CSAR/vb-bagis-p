@@ -730,7 +730,7 @@ Public Class FrmTimberlineTool
     Private Sub CboParentHru_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles CboParentHru.SelectedIndexChanged
         If CboParentHru.SelectedIndex > -1 Then
             BtnViewHru.Enabled = True
-            BtnBinary.Enabled = True
+            BtnTimberlineLayer.Enabled = True
         End If
     End Sub
 
@@ -922,7 +922,7 @@ Public Class FrmTimberlineTool
 
     End Sub
 
-    Private Sub BtnBinary_Click(sender As System.Object, e As System.EventArgs) Handles BtnBinary.Click
+    Private Sub BtnTimberlineLayer_Click(sender As System.Object, e As System.EventArgs) Handles BtnTimberlineLayer.Click
         Dim pFeatureClass As IFeatureClass
         Dim pGeoDataset As IGeoDataset = Nothing
         Dim pRasterBandCollection As IRasterBandCollection = Nothing
@@ -941,6 +941,15 @@ Public Class FrmTimberlineTool
         Try
             If CboParentHru.SelectedIndex > -1 Then
                 Dim hruName As String = CStr(CboParentHru.SelectedItem)
+                Dim outputLayerPath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Layers)
+                Dim outputLayerName As String = hruName + "_timberline"
+                'Check to see if layer already exists and allow user to abend
+                If BA_File_Exists(outputLayerPath + "\" + outputLayerName, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
+                    Dim res As DialogResult = MessageBox.Show("The timberline layer already exists for this HRU. Do you want to recalculate it?", "BAGIS-P", _
+                                              MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+                    If res <> DialogResult.Yes Then _
+                        Exit Sub
+                End If
                 Dim hruFolder As String = BA_GetHruPathGDB(TxtAoiPath.Text, PublicPath.HruDirectory, hruName)
                 pFeatureClass = BA_OpenFeatureClassFromGDB(hruFolder, vectorName)
                 If pFeatureClass IsNot Nothing Then
@@ -1001,7 +1010,7 @@ Public Class FrmTimberlineTool
                         If allValuesAreZero = True Then
                             pExpression = "'" + surfacesFolder + "\" + filledDem + _
                                 "' * " + CStr(BELOW_TIMBERLINE)
-                            success = BA_RasterCalculator(hruFolder + "\" + BA_EnumDescription(MapsFileName.timber_r), _
+                            success = BA_RasterCalculator(outputLayerPath + "\" + outputLayerName, _
                                                           pExpression, snapRasterPath, snapRasterPath)
                         Else
                             If atLeastOneValueIsZero = True Then
@@ -1020,7 +1029,7 @@ Public Class FrmTimberlineTool
                             End If
                             pExpression = "Con('" + surfacesFolder + "\" + filledDem + _
                                 "' < '" + inputTimberlinePath + "' , " + CStr(BELOW_TIMBERLINE) + ", " + CStr(ABOVE_TIMBERLINE) + ")"
-                            success = BA_RasterCalculator(hruFolder + "\" + BA_EnumDescription(MapsFileName.timber_r), pExpression, _
+                            success = BA_RasterCalculator(outputLayerPath + "\" + outputLayerName, pExpression, _
                                       snapRasterPath, snapRasterPath)
                         End If
                         'Delete temp files, if they exist
@@ -1031,10 +1040,9 @@ Public Class FrmTimberlineTool
                         If BA_File_Exists(hruFolder + "\" + outRaster2, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
                             retVal = BA_RemoveRasterFromGDB(hruFolder, outRaster2)
                         End If
-                        'Display raster
                         If success = BA_ReturnCode.Success Then
-                            BA_DisplayRasterNoBuffer(My.ArcMap.Application, hruFolder & "\" & _
-                                                     BA_EnumDescription(MapsFileName.timber_r), "Binary Timberline", True)
+                            MessageBox.Show("The binary timberline layer has been successfully calculated and saved to " + _
+                                            outputLayerPath + "\" + outputLayerName, "BAGIS-P", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         End If
                     End If
                 Else
