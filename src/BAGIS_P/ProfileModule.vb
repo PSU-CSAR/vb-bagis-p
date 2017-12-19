@@ -152,8 +152,7 @@ Module ProfileModule
         ElseIf dataSource.LayerType = LayerType.Raster Then
             validDatum = BA_DatumMatch(dataSource.Source, pExt.Datum)
         ElseIf dataSource.LayerType = LayerType.ImageService Then
-            '@ToDo: May change handling of datum with image services; For now just pass everything through
-            validDatum = True
+            validDatum = BA_ImageDatumMatch(dataSource.Source, pExt.Datum)
         End If
         If validDatum = False Then
             Dim sb As StringBuilder = New StringBuilder()
