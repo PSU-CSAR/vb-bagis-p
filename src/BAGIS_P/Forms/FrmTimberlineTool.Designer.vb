@@ -19,8 +19,8 @@ Partial Class FrmTimberlineTool
   'Do not modify it using the code editor.
   <System.Diagnostics.DebuggerStepThrough()> _
   Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.PnlTimberline = New System.Windows.Forms.Panel()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.RdoFeet = New System.Windows.Forms.RadioButton()
@@ -60,7 +60,7 @@ Partial Class FrmTimberlineTool
         Me.RdoMouseClick = New System.Windows.Forms.RadioButton()
         Me.BtnCustom = New System.Windows.Forms.Button()
         Me.BtnSatellite = New System.Windows.Forms.Button()
-        Me.BtnBinary = New System.Windows.Forms.Button()
+        Me.BtnTimberlineLayer = New System.Windows.Forms.Button()
         Me.PnlTimberline.SuspendLayout()
         CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Pnl1.SuspendLayout()
@@ -273,14 +273,14 @@ Partial Class FrmTimberlineTool
         '
         Me.DataGridView1.AllowUserToAddRows = False
         Me.DataGridView1.AllowUserToDeleteRows = False
-        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.DataGridView1.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle3
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.DataGridView1.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.DataGridView1.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.HruId, Me.TimberlineElevation})
         Me.DataGridView1.Location = New System.Drawing.Point(2, 214)
@@ -291,9 +291,9 @@ Partial Class FrmTimberlineTool
         '
         'HruId
         '
-        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle4.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.HruId.DefaultCellStyle = DataGridViewCellStyle4
+        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.HruId.DefaultCellStyle = DataGridViewCellStyle2
         Me.HruId.HeaderText = "HRU ID"
         Me.HruId.Name = "HruId"
         Me.HruId.ReadOnly = True
@@ -531,24 +531,24 @@ Partial Class FrmTimberlineTool
         Me.BtnSatellite.Text = "Satellite Landcover"
         Me.BtnSatellite.UseVisualStyleBackColor = True
         '
-        'BtnBinary
+        'BtnTimberlineLayer
         '
-        Me.BtnBinary.Enabled = False
-        Me.BtnBinary.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnBinary.Location = New System.Drawing.Point(307, 185)
-        Me.BtnBinary.Margin = New System.Windows.Forms.Padding(2)
-        Me.BtnBinary.Name = "BtnBinary"
-        Me.BtnBinary.Size = New System.Drawing.Size(129, 23)
-        Me.BtnBinary.TabIndex = 118
-        Me.BtnBinary.Text = "Binary Map"
-        Me.BtnBinary.UseVisualStyleBackColor = True
+        Me.BtnTimberlineLayer.Enabled = False
+        Me.BtnTimberlineLayer.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnTimberlineLayer.Location = New System.Drawing.Point(307, 185)
+        Me.BtnTimberlineLayer.Margin = New System.Windows.Forms.Padding(2)
+        Me.BtnTimberlineLayer.Name = "BtnTimberlineLayer"
+        Me.BtnTimberlineLayer.Size = New System.Drawing.Size(160, 23)
+        Me.BtnTimberlineLayer.TabIndex = 118
+        Me.BtnTimberlineLayer.Text = "Create Timberline Layer"
+        Me.BtnTimberlineLayer.UseVisualStyleBackColor = True
         '
         'FrmTimberlineTool
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(96.0!, 96.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi
         Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.Controls.Add(Me.BtnBinary)
+        Me.Controls.Add(Me.BtnTimberlineLayer)
         Me.Controls.Add(Me.BtnSatellite)
         Me.Controls.Add(Me.BtnCustom)
         Me.Controls.Add(Me.Pnl1)
@@ -616,6 +616,6 @@ Partial Class FrmTimberlineTool
     Friend WithEvents HruId As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents TimberlineElevation As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents BtnUpdate As System.Windows.Forms.Button
-    Friend WithEvents BtnBinary As System.Windows.Forms.Button
+    Friend WithEvents BtnTimberlineLayer As System.Windows.Forms.Button
 
 End Class
