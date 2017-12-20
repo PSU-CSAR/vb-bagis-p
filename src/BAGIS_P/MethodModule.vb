@@ -631,8 +631,10 @@ Module MethodModule
 
             Dim errorMessage As String = Nothing
             Dim warningMessage As String = Nothing
+            'Create Default.gdb in aoi if it doesn't exist
+            Dim success As BA_ReturnCode = BA_CheckDefaultWorkspace(aoiPath)
             Dim scratchDir As String = aoiPath & BA_EnumDescription(PublicPath.BagisPDefaultWorkspace)
-            Dim success As BA_ReturnCode = BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage, warningMessage)
+            success = BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage, warningMessage)
             If Not String.IsNullOrEmpty(errorMessage) Then
                 MessageBox.Show("An error occurred while executing the model. " & errorMessage & vbCrLf, "Error message", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Return BA_ReturnCode.UnknownError

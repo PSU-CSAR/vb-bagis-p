@@ -27,19 +27,39 @@ Public Class FrmDataManager
         ' This call is required by the designer.
         InitializeComponent()
 
+        Dim pStepProg As IStepProgressor = Nothing
+        ' Create/configure the ProgressDialog. This automatically displays the dialog
+        Dim progressDialog2 As IProgressDialog2 = Nothing
+        pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
+
         ' Add any initialization after the InitializeComponent() call.
         If pMode = BA_BAGISP_MODE_PUBLIC Then
-            Me.Height = DataGridView1.Height + 100
-            Dim pnt1 As System.Drawing.Point = New System.Drawing.Point(2, 2)
-            PnlMain.Location = pnt1
-            m_settingsPath = BA_GetBagisPSettingsPath()
-            m_dataTable = BA_LoadAllDataSources(m_settingsPath)
-            BA_AppendUnitsToDataSources(m_dataTable, Nothing)
-            BtnAdd.Enabled = True
-            Me.Text = "Data Manager (Public)"
-            'Enable admin capabilities if user has entered the admin password
-            Dim bExt As BagisPExtension = BagisPExtension.GetExtension
-            If bExt.ProfileAdministrator = True Then EnableAdminButtons()
+            Try
+                Me.Height = DataGridView1.Height + 100
+                Dim pnt1 As System.Drawing.Point = New System.Drawing.Point(2, 2)
+                PnlMain.Location = pnt1
+                m_settingsPath = BA_GetBagisPSettingsPath()
+                ' Create/configure the ProgressDialog. This automatically displays the dialog
+                progressDialog2 = BA_GetProgressDialog(pStepProg, "Loading and verifying data sources...", "Data manager loading")
+                pStepProg.Step()
+                m_dataTable = BA_LoadAllDataSources(m_settingsPath)
+                pStepProg.Step()
+                BA_AppendUnitsToDataSources(m_dataTable, Nothing)
+                BtnAdd.Enabled = True
+                Me.Text = "Data Manager (Public)"
+                'Enable admin capabilities if user has entered the admin password
+                Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+                If bExt.ProfileAdministrator = True Then EnableAdminButtons()
+                progressDialog2.HideDialog()
+            Catch ex As Exception
+                ' Clean up step progressor
+                If progressDialog2 IsNot Nothing Then
+                    progressDialog2.HideDialog()
+                End If
+                ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pStepProg)
+                ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(progressDialog2)
+                MessageBox.Show("Error loading data sources. Exception: " & ex.Message)
+            End Try
         Else
             PnlAoi.Visible = True
             BtnClip.Visible = False
@@ -55,10 +75,6 @@ Public Class FrmDataManager
             If aoi Is Nothing Then
                 Me.Text = "Data Manager (AOI: Not selected)"
             Else
-                Dim pStepProg As IStepProgressor = Nothing
-                ' Create/configure the ProgressDialog. This automatically displays the dialog
-                Dim progressDialog2 As IProgressDialog2 = Nothing
-                pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
                 ' Create/configure the ProgressDialog. This automatically displays the dialog
                 progressDialog2 = BA_GetProgressDialog(pStepProg, "Loading local data sources...", "Data manager loading")
                 pStepProg.Step()
