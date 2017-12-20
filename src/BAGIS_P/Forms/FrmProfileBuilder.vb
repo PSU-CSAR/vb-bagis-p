@@ -973,6 +973,8 @@ Public Class FrmProfileBuilder
                                 LblStatus.Text = "Calculating " & mName
                                 Dim errorMessage As String = Nothing
                                 Dim warningMessage As String = Nothing
+                                'Create Default.gdb in aoi if it doesn't exist
+                                success = BA_CheckDefaultWorkspace(m_aoi.FilePath)
                                 Dim scratchDir As String = m_aoi.FilePath & BA_EnumDescription(PublicPath.BagisPDefaultWorkspace)
                                 success = BA_RunModelFromMethodFilledParameters(pMethod, scratchDir, errorMessage, warningMessage)
                                 'Display any warning messages to the user in a MessageBox

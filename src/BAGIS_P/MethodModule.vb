@@ -90,7 +90,7 @@ Module MethodModule
                     For Each pInnerText As String In tagsList
                         'This is our BAGIS tag
                         If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                             If strUnits IsNot Nothing Then
                                 pUnit = BA_GetMeasurementUnit(strUnits)
                             End If
@@ -119,7 +119,7 @@ Module MethodModule
                     For Each pInnerText As String In tagsList
                         'This is our BAGIS tag
                         If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                             If strUnits IsNot Nothing Then
                                 pUnit = BA_GetMeasurementUnit(strUnits)
                             End If
@@ -138,7 +138,7 @@ Module MethodModule
                     For Each pInnerText As String In tagsList
                         'This is our BAGIS tag
                         If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                            Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                             If strUnits IsNot Nothing Then
                                 pUnit = BA_GetMeasurementUnit(strUnits)
                             End If
@@ -316,8 +316,12 @@ Module MethodModule
                 If pDataSource.AoiLayer = False AndAlso pDataSource.IsValid = True Then
                     If String.IsNullOrEmpty(aoiPath) Then
                         'This is a public data source
-                        inputFolder = "PleaseReturn"
-                        inputFile = BA_GetBareName(pDataSource.Source, inputFolder)
+                        If BA_GetWorkspaceTypeFromPath(pDataSource.Source) = WorkspaceType.ImageServer Then
+                            inputFolder = pDataSource.Source
+                        Else
+                            inputFolder = "PleaseReturn"
+                            inputFile = BA_GetBareName(pDataSource.Source, inputFolder)
+                        End If
                     Else
                         'Otherwise it's a local data source
                         inputFolder = BA_GetDataBinPath(aoiPath)
@@ -330,12 +334,16 @@ Module MethodModule
                         For Each pInnerText As String In tagsList
                             'This is our BAGIS tag
                             If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                                Dim strCategory As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_CATEGORY_TAG)
+                                Dim strSplit As String = ";"
+                                If pDataSource.LayerType = LayerType.ImageService Then
+                                    strSplit = "!"
+                                End If
+                                Dim strCategory As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_CATEGORY_TAG, strSplit)
                                 If Not String.IsNullOrEmpty(strCategory) Then
                                     Dim pUnitType As MeasurementUnitType = BA_GetMeasurementUnitType(strCategory)
                                     pDataSource.MeasurementUnitType = pUnitType
                                 End If
-                                Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                                Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, strSplit)
                                 If Not String.IsNullOrEmpty(strUnits) Then
                                     Dim pUnits As MeasurementUnit = BA_GetMeasurementUnit(strUnits)
                                     If pUnits <> MeasurementUnit.Missing Then
@@ -384,7 +392,7 @@ Module MethodModule
             For Each pInnerText As String In tagsList
                 'This is our BAGIS tag
                 If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                     If strUnits IsNot Nothing Then
                         slopeUnit = BA_GetSlopeUnit(strUnits)
                     End If
@@ -401,7 +409,7 @@ Module MethodModule
             For Each pInnerText As String In tagsList
                 'This is our BAGIS tag
                 If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                     If strUnits IsNot Nothing Then
                         elevUnit = BA_GetMeasurementUnit(strUnits)
                     End If
@@ -421,7 +429,7 @@ Module MethodModule
                 For Each pInnerText As String In tagsList
                     'This is our BAGIS tag
                     If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                        Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                        Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                         If strUnits IsNot Nothing Then
                             depthUnit = BA_GetMeasurementUnit(strUnits)
                         End If
@@ -446,10 +454,10 @@ Module MethodModule
                         For Each pInnerText As String In tagsList
                             'This is our BAGIS tag
                             If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                                Dim strCategory As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_CATEGORY_TAG)
+                                Dim strCategory As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_CATEGORY_TAG, ";")
                                 Dim unitCategory As MeasurementUnitType = BA_GetMeasurementUnitType(strCategory)
                                 If unitCategory = MeasurementUnitType.Temperature Then
-                                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG)
+                                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, ";")
                                     If strUnits IsNot Nothing Then
                                         degreeUnit = BA_GetMeasurementUnit(strUnits)
                                     End If
@@ -573,6 +581,8 @@ Module MethodModule
             If Not String.IsNullOrEmpty(dSource.JH_Coeff) Then
                 Dim jhRole As String = dSource.JH_Coeff
                 Dim fileName As String = BA_GetBareName(dSource.Source)
+                If dSource.LayerType = LayerType.ImageService Then _
+                    fileName = BA_GetBareNameImageService(dSource.Source)
                 Dim lclPath As String = BA_GetDataBinPath(aoiPath) & "\" & fileName
                 If BA_File_Exists(lclPath, WorkspaceType.Geodatabase, ESRI.ArcGIS.Geodatabase.esriDatasetType.esriDTRasterDataset) Then
                     returnDictionary.Add(jhRole, lclPath)
@@ -621,8 +631,10 @@ Module MethodModule
 
             Dim errorMessage As String = Nothing
             Dim warningMessage As String = Nothing
+            'Create Default.gdb in aoi if it doesn't exist
+            Dim success As BA_ReturnCode = BA_CheckDefaultWorkspace(aoiPath)
             Dim scratchDir As String = aoiPath & BA_EnumDescription(PublicPath.BagisPDefaultWorkspace)
-            Dim success As BA_ReturnCode = BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage, warningMessage)
+            success = BA_ExecuteModel(pModel.Toolbox.PathName, pModel.Name, pParamArray, scratchDir, errorMessage, warningMessage)
             If Not String.IsNullOrEmpty(errorMessage) Then
                 MessageBox.Show("An error occurred while executing the model. " & errorMessage & vbCrLf, "Error message", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Return BA_ReturnCode.UnknownError
@@ -769,6 +781,48 @@ Module MethodModule
             Debug.Print("BA_SaveAOIParameters exception: " & ex.Message)
             Return BA_ReturnCode.UnknownError
         End Try
+    End Function
+
+    Public Sub BA_CopyMeasurementUnits(ByVal aoiPath As String, ByVal sourceDataSource As DataSource, _
+                                       ByVal targetDataSource As DataSource)
+        Dim errorSb As StringBuilder = New StringBuilder()
+        errorSb.Append("An error occurred while trying to update the measurement units ")
+        errorSb.Append("in the layer metadata. The measurement units could not be updated.")
+ 
+        'We need to add a new tag at "/metadata/dataIdInfo/searchKeys/keyword"
+        Dim bagisTag As String = BA_CreateBagisTag(sourceDataSource)
+        Dim inputFolder As String = Nothing
+        Dim inputFile As String = Nothing
+        If String.IsNullOrEmpty(aoiPath) Then
+            'This is a public data source
+            inputFolder = "PleaseReturn"
+            inputFile = BA_GetBareName(targetDataSource.Source, inputFolder)
+        Else
+            'Otherwise it's a local data source
+            inputFolder = BA_GetDataBinPath(aoiPath)
+            inputFile = targetDataSource.Source
+        End If
+
+        Dim success As BA_ReturnCode = BA_UpdateMetadata(inputFolder, inputFile, targetDataSource.LayerType, _
+                                    BA_XPATH_TAGS, bagisTag, BA_BAGIS_TAG_PREFIX.Length)
+        If success <> BA_ReturnCode.Success Then
+            MessageBox.Show(errorSb.ToString, "Update error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+    End Sub
+
+    Public Function BA_CreateBagisTag(ByVal sourceDataSource As DataSource) As String
+        Dim sb As StringBuilder = New StringBuilder
+        sb.Append(BA_BAGIS_TAG_PREFIX)
+        sb.Append(BA_ZUNIT_CATEGORY_TAG & sourceDataSource.MeasurementUnitType.ToString & "; ")
+        If sourceDataSource.MeasurementUnitType = MeasurementUnitType.Slope Then
+            sb.Append(BA_ZUNIT_VALUE_TAG & BA_EnumDescription(sourceDataSource.SlopeUnit) & ";")
+        Else
+            sb.Append(BA_ZUNIT_VALUE_TAG & sourceDataSource.MeasurementUnit.ToString & ";")
+        End If
+        sb.Append(BA_BAGIS_TAG_SUFFIX)
+        Return sb.ToString
     End Function
 
 End Module

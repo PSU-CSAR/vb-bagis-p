@@ -27,24 +27,45 @@ Public Class FrmDataManager
         ' This call is required by the designer.
         InitializeComponent()
 
+        Dim pStepProg As IStepProgressor = Nothing
+        ' Create/configure the ProgressDialog. This automatically displays the dialog
+        Dim progressDialog2 As IProgressDialog2 = Nothing
+        pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
+
         ' Add any initialization after the InitializeComponent() call.
         If pMode = BA_BAGISP_MODE_PUBLIC Then
-            Me.Height = DataGridView1.Height + 100
-            Dim pnt1 As System.Drawing.Point = New System.Drawing.Point(2, 2)
-            PnlMain.Location = pnt1
-            m_settingsPath = BA_GetBagisPSettingsPath()
-            m_dataTable = BA_LoadAllDataSources(m_settingsPath)
-            BA_AppendUnitsToDataSources(m_dataTable, Nothing)
-            BtnAdd.Enabled = True
-            Me.Text = "Data Manager (Public)"
-            'Enable admin capabilities if user has entered the admin password
-            Dim bExt As BagisPExtension = BagisPExtension.GetExtension
-            If bExt.ProfileAdministrator = True Then EnableAdminButtons()
+            Try
+                Me.Height = DataGridView1.Height + 100
+                Dim pnt1 As System.Drawing.Point = New System.Drawing.Point(2, 2)
+                PnlMain.Location = pnt1
+                m_settingsPath = BA_GetBagisPSettingsPath()
+                ' Create/configure the ProgressDialog. This automatically displays the dialog
+                progressDialog2 = BA_GetProgressDialog(pStepProg, "Loading and verifying data sources...", "Data manager loading")
+                pStepProg.Step()
+                m_dataTable = BA_LoadAllDataSources(m_settingsPath)
+                pStepProg.Step()
+                BA_AppendUnitsToDataSources(m_dataTable, Nothing)
+                BtnAdd.Enabled = True
+                Me.Text = "Data Manager (Public)"
+                'Enable admin capabilities if user has entered the admin password
+                Dim bExt As BagisPExtension = BagisPExtension.GetExtension
+                If bExt.ProfileAdministrator = True Then EnableAdminButtons()
+                progressDialog2.HideDialog()
+            Catch ex As Exception
+                ' Clean up step progressor
+                If progressDialog2 IsNot Nothing Then
+                    progressDialog2.HideDialog()
+                End If
+                ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pStepProg)
+                ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(progressDialog2)
+                MessageBox.Show("Error loading data sources. Exception: " & ex.Message)
+            End Try
         Else
             PnlAoi.Visible = True
             BtnClip.Visible = False
             BtnAdd.Visible = False
             BtnEdit.Visible = False
+            BtnDefaultSettings.Visible = False
             BtnDelete.Location = New System.Drawing.Point(4, 329)
             'Delete button always visible for local data manager
             BtnDelete.Visible = True
@@ -54,10 +75,6 @@ Public Class FrmDataManager
             If aoi Is Nothing Then
                 Me.Text = "Data Manager (AOI: Not selected)"
             Else
-                Dim pStepProg As IStepProgressor = Nothing
-                ' Create/configure the ProgressDialog. This automatically displays the dialog
-                Dim progressDialog2 As IProgressDialog2 = Nothing
-                pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
                 ' Create/configure the ProgressDialog. This automatically displays the dialog
                 progressDialog2 = BA_GetProgressDialog(pStepProg, "Loading local data sources...", "Data manager loading")
                 pStepProg.Step()
@@ -430,4 +447,92 @@ Public Class FrmDataManager
         End If
     End Sub
 
+    Private Function QueryDefaultDataSources() As IList(Of BagisImageService)
+        Dim webserviceUrl As String = BA_WebServerName & "/api/rest/desktop/settings/bagis-p/"
+        Dim req As System.Net.WebRequest = System.Net.WebRequest.Create(webserviceUrl & "?f=pjson")
+        Try
+            Dim mySettings As ServerSettings = New ServerSettings()
+            Using resp As System.Net.WebResponse = req.GetResponse()
+                Dim ser As System.Runtime.Serialization.Json.DataContractJsonSerializer = New System.Runtime.Serialization.Json.DataContractJsonSerializer(mySettings.[GetType]())
+                mySettings = CType(ser.ReadObject(resp.GetResponseStream), ServerSettings)
+            End Using
+            Dim count As Integer = mySettings.datasources.Count
+            Return mySettings.datasources
+        Catch ex As Exception
+            Debug.Print("QueryDefaultDataSources Exception: " + ex.Message)
+            Return Nothing
+        End Try
+    End Function
+
+    Private Sub BtnDefaultSettings_Click(sender As System.Object, e As System.EventArgs) Handles BtnDefaultSettings.Click
+        If Not String.IsNullOrEmpty(m_settingsPath) Then
+            Dim overwriteSettings As Boolean = False
+            If System.IO.File.Exists(m_settingsPath) Then
+                Dim res As DialogResult = MessageBox.Show("The default data sources will overwrite your current data sources. " + _
+                                                          "This action cannot be undone. Do you wish to continue ?", "BAGIS-P", _
+                                                          MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+                If res <> Windows.Forms.DialogResult.Yes Then
+                    Exit Sub
+                End If
+            End If
+            overwriteSettings = True
+            ' Create/configure a step progressor
+            Dim pStepProg As IStepProgressor = Nothing
+            Dim progressDialog2 As IProgressDialog2 = Nothing
+            Try
+                pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
+                progressDialog2 = BA_GetProgressDialog(pStepProg, "Working ...", "Configuring default data sources ")
+                pStepProg.Show()
+                progressDialog2.ShowDialog()
+                pStepProg.Step()
+                BtnDefaultSettings.Enabled = False
+                Dim imageServiceList As IList(Of BagisImageService) = QueryDefaultDataSources()
+                If imageServiceList.Count > 0 Then
+                    pStepProg.Step()
+                    ' Delete all datasources from the underlying datatable except for aoi
+                    Dim keysToDelete As IList(Of String) = New List(Of String)
+                    For Each strKey As String In m_dataTable.Keys
+                        Dim dSource As DataSource = m_dataTable(strKey)
+                        If Not dSource.AoiLayer Then
+                            keysToDelete.Add(strKey)
+                        End If
+                    Next
+                    For Each strKey As String In keysToDelete
+                        m_dataTable.Remove(strKey)
+                    Next
+                    ' Read and add the default data sources
+                    For Each iService As BagisImageService In imageServiceList
+                        Dim dSource As DataSource = New DataSource(iService)
+                        dSource.IsValid = BA_File_ExistsImageServer(dSource.Source)
+                        m_dataTable.Add(dSource.Name, dSource)
+                    Next
+                    pStepProg.Step()
+                    Dim success As BA_ReturnCode = BA_AppendUnitsToDataSources(m_dataTable, Nothing)
+                    pStepProg.Step()
+                    If success = BA_ReturnCode.Success AndAlso overwriteSettings = True Then
+                        System.IO.File.Delete(m_settingsPath)
+                        Dim dataLayerList As List(Of DataSource) = New List(Of DataSource)
+                        For Each key As String In m_dataTable.Keys
+                            dataLayerList.Add(m_dataTable(key))
+                        Next
+                        success = BA_SaveDataLayers(dataLayerList, m_settingsPath)
+                        ReloadGrid()
+                    Else
+                        MessageBox.Show("An error occurred while trying to load the default data sources", "BAGIS-P", _
+                                        MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    End If
+                End If
+            Catch ex As Exception
+                Debug.Print("BtnDefaultSettings_Click Exception: " + ex.Message)
+            Finally
+                BtnDefaultSettings.Enabled = True
+                If pStepProg IsNot Nothing Then
+                    pStepProg.Hide()
+                    pStepProg = Nothing
+                    progressDialog2.HideDialog()
+                    progressDialog2 = Nothing
+                End If
+            End Try
+        End If
+    End Sub
 End Class

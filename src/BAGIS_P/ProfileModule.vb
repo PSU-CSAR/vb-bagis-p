@@ -151,6 +151,8 @@ Module ProfileModule
             validDatum = BA_VectorDatumMatch(dataSource.Source, pExt.Datum)
         ElseIf dataSource.LayerType = LayerType.Raster Then
             validDatum = BA_DatumMatch(dataSource.Source, pExt.Datum)
+        ElseIf dataSource.LayerType = LayerType.ImageService Then
+            validDatum = BA_ImageDatumMatch(dataSource.Source, pExt.Datum)
         End If
         If validDatum = False Then
             Dim sb As StringBuilder = New StringBuilder()
@@ -163,12 +165,25 @@ Module ProfileModule
         End If
         Dim response As Integer = 1
         Dim outputFileName As String = BA_GetBareName(dataSource.Source)
+        If dataSource.LayerType = LayerType.ImageService Then
+            outputFileName = BA_GetBareNameImageService(dataSource.Source)
+        End If
         Dim msg As StringBuilder = New StringBuilder()
         Dim strAoi As String = BA_GetBareName(aoiPath)
         msg.Append("An error occurred while trying to clip" & vbCrLf)
         msg.Append("the data source: '" & dataSource.Name & "' to" & vbCrLf)
         msg.Append("AOI: '" & strAoi & "'")
         Dim outputFullPath As String = dataBinPath & "\" & outputFileName
+
+        'Create new data source object
+        Dim id As Integer = BA_GetNextDataSourceId(BA_GetLocalSettingsPath(aoiPath))
+        Dim newLayerType As LayerType = dataSource.LayerType
+        'Reset layerType to raster for image sources; Local layers cannot be image service
+        If dataSource.LayerType = LayerType.ImageService Then _
+            newLayerType = LayerType.Raster
+        Dim localDS As DataSource = New DataSource(id, dataSource.Name, dataSource.Description, outputFileName, _
+                                                   dataSource.AoiLayer, newLayerType)
+
         If dataSource.LayerType = LayerType.Vector Then
             If BA_File_Exists(outputFullPath, WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
                 response = BA_Remove_ShapefileFromGDB(dataBinPath, outputFileName)
@@ -186,30 +201,45 @@ Module ProfileModule
             End If
             If response > 0 Then
                 Dim demPath As String = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Surfaces, True) & BA_EnumDescription(MapsFileName.filled_dem_gdb)
-                Dim clipKey As AOIClipFile = BA_SelectRasterClipFile(demPath, dataSource.Source)
+                Dim clipKey As AOIClipFile = BA_SelectRasterClipFile(demPath, dataSource.Source, dataSource.LayerType)
                 response = BA_ClipAOIRaster(aoiPath, dataSource.Source, outputFileName, dataBinPath, clipKey)
                 If response <= 0 Then
                     MessageBox.Show(msg.ToString, "Clipping error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Exit Function
                 End If
             End If
+        ElseIf dataSource.LayerType = LayerType.ImageService Then
+            If BA_File_Exists(outputFullPath, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
+                response = BA_RemoveRasterFromGDB(dataBinPath, outputFileName)
+            End If
+            If response > 0 Then
+                Dim demPath As String = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Surfaces, True) & BA_EnumDescription(MapsFileName.filled_dem_gdb)
+                Dim clipKey As AOIClipFile = BA_SelectRasterClipFile(demPath, dataSource.Source, dataSource.LayerType)
+                response = BA_ClipAOIImageServer(aoiPath, dataSource.Source, dataBinPath + "\" + outputFileName, clipKey)
+            End If
+            If response > 0 Then
+                ' Copy metadata from source datasource for image services; It doesn't copy like it does for FGDB
+                BA_CopyMeasurementUnits(aoiPath, dataSource, localDS)
+            End If
         End If
 
-        'Create new data source object
-        Dim id As Integer = BA_GetNextDataSourceId(BA_GetLocalSettingsPath(aoiPath))
-        Dim localDS As DataSource = New DataSource(id, dataSource.Name, dataSource.Description, outputFileName, _
-                                                   dataSource.AoiLayer, dataSource.LayerType)
         Dim success As BA_ReturnCode = BA_SaveNewDataSource(localDS, BA_GetLocalSettingsPath(aoiPath))
         Return success
     End Function
 
-    Public Function BA_SelectRasterClipFile(ByVal aoiRasterPath As String, ByVal clipRasterPath As String) As AOIClipFile
+    Public Function BA_SelectRasterClipFile(ByVal aoiRasterPath As String, ByVal clipRasterPath As String,
+                                            ByVal layerType As LayerType) As AOIClipFile
         Dim aoiFolder As String = "PleaseReturn"
         Dim aoiFile As String = BA_GetBareName(aoiRasterPath, aoiFolder)
         Dim aoiCellSize As Double = BA_CellSize(aoiFolder, aoiFile)
-        Dim clipFolder As String = "PleaseReturn"
-        Dim clipFile As String = BA_GetBareName(clipRasterPath, clipFolder)
-        Dim clipCellSize As Double = BA_CellSize(clipFolder, clipFile)
+        Dim clipCellSize As Double = -1
+        If layerType = BAGIS_ClassLibrary.LayerType.Raster Then
+            Dim clipFolder As String = "PleaseReturn"
+            Dim clipFile As String = BA_GetBareName(clipRasterPath, clipFolder)
+            clipCellSize = BA_CellSize(clipFolder, clipFile)
+        ElseIf layerType = BAGIS_ClassLibrary.LayerType.ImageService Then
+            clipCellSize = BA_CellSizeImageService(clipRasterPath)
+        End If
         Dim retVal As AOIClipFile = AOIClipFile.BufferedAOIExtentCoverage
         If clipCellSize > (aoiCellSize * 10) Then
             retVal = AOIClipFile.PrismClipAOIExtentCoverage

@@ -71,6 +71,10 @@ Public Class FrmAddData
         TxtDescription.Text = m_selDataSource.Description
         TxtSource.Text = m_selDataSource.Source
         m_layerType = m_selDataSource.LayerType
+        If m_layerType = LayerType.ImageService Then
+            CboDataType.Enabled = False
+            CboUnits.Enabled = False
+        End If
 
         InitJHCoeff()
         LoadMeasurementUnitTypes()
@@ -118,9 +122,13 @@ Public Class FrmAddData
     Private Sub BtnSelectSource_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSelectSource.Click
         'Declare ArcObjects outside of Try/Catch so we can dispose of them in Finally
         Dim bObjectSelected As Boolean
-        Dim pGxDialog As IGxDialog = New GxDialog
-        'Only show shapefiles
+        Dim filterCollection As IGxObjectFilterCollection = New GxDialogClass()
         Dim pFilter As IGxObjectFilter = New GxFilterGeoDatasets
+        filterCollection.AddFilter(pFilter, True)
+        Dim imageFilter As IGxObjectFilter = New GxFilterImageServers
+        filterCollection.AddFilter(imageFilter, False)
+        Dim pGxDialog As IGxDialog = CType(filterCollection, IGxDialog)
+
         'Collection of layers to be assigned here
         Dim pGxObjects As IEnumGxObject = Nothing
         Dim pGxDataset As IGxDataset
@@ -130,25 +138,37 @@ Public Class FrmAddData
                 .AllowMultiSelect = False
                 .ButtonCaption = "Select"
                 .Title = "Select data source"
-                'using shapefile filter
-                .ObjectFilter = pFilter
                 'open dialog passing handle to Application from AddIn
                 bObjectSelected = .DoModalOpen(My.ArcMap.Application.hWnd, pGxObjects)
             End With
             'no file selected; exit
             If bObjectSelected = Nothing Then Exit Sub
-            'get first dataset
-            pGxDataset = pGxObjects.Next
-            'no dataset has been selected
-            If pGxDataset Is Nothing Then Exit Sub
-            Dim folderPath As String = pGxDataset.Dataset.Workspace.PathName
-            'Folder path may have trailing backslash if it is a grid
-            folderPath = BA_StandardizePathString(folderPath)
-            Dim fileName As String = pGxDataset.DatasetName.Name
-            TxtSource.Text = folderPath & "\" & fileName
-            '24-APR-2012 As of this date we aren't saving the data field
-            'PopulateCboDataField(pGxDataset.Dataset, pGxDataset.Type, Nothing)
-            SetLayerType(pGxDataset.Type)
+
+            'Enable combo boxes in case they were disabled previously
+            CboDataType.Enabled = True
+            CboUnits.Enabled = True
+
+            Dim pGxObj As IGxObject = pGxObjects.Next
+            If pGxObj.Category.Equals(BA_EnumDescription(GxFilterCategory.ImageService)) Then
+                'get the url of the selected image service
+                Dim agsObj As IGxAGSObject = CType(pGxObj, IGxAGSObject)
+                TxtSource.Text = agsObj.AGSServerObjectName.URL
+                m_layerType = LayerType.ImageService
+                ' Set the units, if applicable
+
+            Else
+                'get first dataset
+                pGxDataset = CType(pGxObj, IGxDataset)
+                'no dataset has been selected
+                If pGxDataset Is Nothing Then Exit Sub
+                Dim folderPath As String = pGxDataset.Dataset.Workspace.PathName
+                'Folder path may have trailing backslash if it is a grid
+                folderPath = BA_StandardizePathString(folderPath)
+                Dim fileName As String = pGxDataset.DatasetName.Name
+                TxtSource.Text = folderPath & "\" & fileName
+                SetLayerType(pGxDataset.Type)
+            End If
+
             'Appends the units (if applicable) and sets the UI
             AppendUnitsToDataSource()
         Catch ex As Exception
@@ -248,29 +268,46 @@ Public Class FrmAddData
         'Check to see if > 1 layer in the data manager has the same file name
         'If so, warn user that it may not be able to be clipped to an aoi with another file of the same name
         Dim source As String = Trim(TxtSource.Text) 'This is the full path
-        Dim newFileName As String = BA_GetBareName(source)
+        Dim newFileName As String = Nothing
+        If m_layerType <> LayerType.ImageService Then
+            newFileName = BA_GetBareName(source)
+        Else
+            newFileName = source
+        End If
         Dim sb1 As StringBuilder = New StringBuilder
         For Each key As String In m_layerTable.Keys
             Dim nextDataSource As DataSource = m_layerTable(key)
             'Only need to check custom layers and layers that are NOT the selected layer
             If nextDataSource.AoiLayer = False AndAlso layerName <> m_selLayerName Then
-                Dim fileName2 As String = BA_GetBareName(nextDataSource.Source)
-                If fileName2.ToUpper = newFileName.ToUpper Then
-                    'Add prefix to warning message; The stringbuilder hasn't been initialized yet
-                    If sb1.Length < 1 Then
-                        sb1.Append("The data source you are trying to add" & vbCrLf)
-                        sb1.Append("has the same file name as the following" & vbCrLf)
-                        sb1.Append("data source(s):" & vbCrLf & vbCrLf)
+                If m_layerType <> LayerType.ImageService Then
+                    Dim fileName2 As String = BA_GetBareName(nextDataSource.Source)
+                    If fileName2.ToUpper = newFileName.ToUpper Then
+                        'Add prefix to warning message; The stringbuilder hasn't been initialized yet
+                        If sb1.Length < 1 Then
+                            sb1.Append("The data source you are trying to add" & vbCrLf)
+                            sb1.Append("has the same file name as the following" & vbCrLf)
+                            sb1.Append("data source(s):" & vbCrLf & vbCrLf)
+                        End If
+                        sb1.Append("Name: " & nextDataSource.Name & " Path:" & nextDataSource.Source & vbCrLf)
                     End If
-                    sb1.Append("Name: " & nextDataSource.Name & " Path:" & nextDataSource.Source & vbCrLf)
+                Else
+                    If newFileName.Trim.ToUpper = nextDataSource.Source.Trim.ToUpper Then
+                        'Add prefix to warning message; The stringbuilder hasn't been initialized yet
+                        If sb1.Length < 1 Then
+                            sb1.Append("The data source you are trying to add" & vbCrLf)
+                            sb1.Append("is trying to use the same image service as the following" & vbCrLf)
+                            sb1.Append("data source(s):" & vbCrLf & vbCrLf)
+                        End If
+                        sb1.Append("Name: " & nextDataSource.Name & " Path:" & nextDataSource.Source & vbCrLf)
+                    End If
                 End If
             End If
         Next
         'Add suffix to warning message if there were any conflicts and pop message
         If sb1.Length > 0 Then
             sb1.Append(vbCrLf & "You may not clip data sources with the" & vbCrLf)
-            sb1.Append("same name to an AOI. If you plan to use this data" & vbCrLf)
-            sb1.Append("source with the data source(s) listed above, rename " & vbCrLf)
+            sb1.Append("same file name or image service to an AOI. If you plan to use this data" & vbCrLf)
+            sb1.Append("source with the data source(s) listed above and it is a file, you can rename " & vbCrLf)
             sb1.Append("the file with a unique name before adding it in " & vbCrLf)
             sb1.Append("the Data Manager." & vbCrLf & vbCrLf)
             sb1.Append("Do you still wish to add this data source ?")
@@ -326,8 +363,6 @@ Public Class FrmAddData
             pLayer.Name = layerName
             pLayer.Source = Trim(TxtSource.Text)
             pLayer.Description = TxtDescription.Text
-            '24-APR-2012 As of this date we aren't saving the data field
-            'pLayer.DataField = CStr(CboDataField.SelectedItem)
             pLayer.LayerType = pLayerType
             pLayer.MeasurementUnitType = selUnitType
             If CboDataType.SelectedIndex > 0 Then
@@ -415,7 +450,9 @@ Public Class FrmAddData
                 srcList.Add(pDS)
             Next
             BA_SaveDataLayers(srcList, m_settingsPath)
-            UpdateMeasurementUnits()
+            If m_layerType <> LayerType.ImageService Then
+                UpdateMeasurementUnits()
+            End If
         End If
         m_DirtyFlag = True
         Me.Close()
@@ -706,7 +743,7 @@ Public Class FrmAddData
             Next
             'We had existing "keyword" tags but no BAGIS tag; Need to add
             If updateBagisTag = False Then
-                Dim bagisTag As String = CreateBagisTag()
+                Dim bagisTag As String = BA_CreateBagisTag(m_selDataSource)
                 Dim success As BA_ReturnCode = BA_UpdateMetadata(inputFolder, inputFile, m_selDataSource.LayerType, _
                                                                  BA_XPATH_TAGS, bagisTag, BA_BAGIS_TAG_PREFIX.Length)
                 If success <> BA_ReturnCode.Success Then
@@ -716,7 +753,7 @@ Public Class FrmAddData
             End If
         Else
             'We need to add a new tag at "/metadata/dataIdInfo/searchKeys/keyword"
-            Dim bagisTag As String = CreateBagisTag()
+            Dim bagisTag As String = BA_CreateBagisTag(m_selDataSource)
             Dim success As BA_ReturnCode = BA_UpdateMetadata(inputFolder, inputFile, m_selDataSource.LayerType, _
                                                              BA_XPATH_TAGS, bagisTag, BA_BAGIS_TAG_PREFIX.Length)
             If success <> BA_ReturnCode.Success Then
@@ -727,24 +764,13 @@ Public Class FrmAddData
 
     End Sub
 
-    Private Function CreateBagisTag() As String
-        Dim sb As StringBuilder = New StringBuilder
-        sb.Append(BA_BAGIS_TAG_PREFIX)
-        sb.Append(BA_ZUNIT_CATEGORY_TAG & m_selDataSource.MeasurementUnitType.ToString & "; ")
-        If m_selDataSource.MeasurementUnitType = MeasurementUnitType.Slope Then
-            sb.Append(BA_ZUNIT_VALUE_TAG & BA_EnumDescription(m_selDataSource.SlopeUnit) & ";")
-        Else
-            sb.Append(BA_ZUNIT_VALUE_TAG & m_selDataSource.MeasurementUnit.ToString & ";")
-        End If
-        sb.Append(BA_BAGIS_TAG_SUFFIX)
-        Return sb.ToString
-    End Function
-
     Public Sub EnableAdminActions()
         TxtName.ReadOnly = False
         TxtDescription.ReadOnly = False
-        CboDataType.Enabled = True
-        CboUnits.Enabled = True
+        If m_layerType <> LayerType.ImageService Then
+            CboDataType.Enabled = True
+            CboUnits.Enabled = True
+        End If
         PnlJhCoeff.Enabled = True
     End Sub
 
@@ -821,8 +847,33 @@ Public Class FrmAddData
         PnlJhCoeff.Visible = False
     End Sub
 
+    'This method carries forward the units of the data source being edited, if there is one
     Private Sub AppendUnitsToDataSource()
-        If m_selDataSource IsNot Nothing Then
+        If m_layerType = LayerType.ImageService Then
+            CboDataType.Enabled = False
+            CboUnits.Enabled = False
+            Dim tempDataSource As DataSource = New DataSource(1, "tempName", "", TxtSource.Text, False, m_layerType)
+            tempDataSource.IsValid = True
+            Dim dataDict As IDictionary(Of String, DataSource) = New Dictionary(Of String, DataSource)
+            dataDict.Add("tempName", tempDataSource)
+            Dim success As BA_ReturnCode = BA_AppendUnitsToDataSources(dataDict, Nothing)
+            If success = BA_ReturnCode.Success Then
+                If tempDataSource.MeasurementUnitType <> MeasurementUnitType.Missing Then
+                    For Each strItem As String In CboDataType.Items
+                        If strItem = tempDataSource.MeasurementUnitType.ToString Then
+                            CboDataType.SelectedItem = strItem
+                        End If
+                    Next
+                Else
+                    CboDataType.SelectedIndex = 0
+                End If
+            End If
+            MessageBox.Show("Units for ImageService layers are read-only! The units for this " + _
+                            "data source will be set by the ImageService, if applicable.", "BAGIS-P", _
+                            MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ElseIf m_selDataSource IsNot Nothing Then
+            'Can't update units for image server data sources; Warn user
+
             m_selDataSource.Source = TxtSource.Text
             m_selDataSource.IsValid = True      'Required by BA_AppendUnitsToDataSources
             Dim dataDict As IDictionary(Of String, DataSource) = New Dictionary(Of String, DataSource)

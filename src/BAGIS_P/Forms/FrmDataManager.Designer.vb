@@ -29,6 +29,11 @@ Partial Class FrmDataManager
         Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.DataGridView1 = New System.Windows.Forms.DataGridView()
+        Me.AoiData = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.IsValid = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.SourceName = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.Description = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.DataLayerSource = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.BtnAdd = New System.Windows.Forms.Button()
         Me.BtnEdit = New System.Windows.Forms.Button()
         Me.BtnDelete = New System.Windows.Forms.Button()
@@ -39,11 +44,7 @@ Partial Class FrmDataManager
         Me.BtnSelectAoi = New System.Windows.Forms.Button()
         Me.PnlAoi = New System.Windows.Forms.Panel()
         Me.PnlMain = New System.Windows.Forms.Panel()
-        Me.AoiData = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.IsValid = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.SourceName = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.Description = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.DataLayerSource = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.BtnDefaultSettings = New System.Windows.Forms.Button()
         CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PnlAoi.SuspendLayout()
         Me.PnlMain.SuspendLayout()
@@ -71,114 +72,6 @@ Partial Class FrmDataManager
         Me.DataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
         Me.DataGridView1.Size = New System.Drawing.Size(829, 319)
         Me.DataGridView1.TabIndex = 0
-        '
-        'BtnAdd
-        '
-        Me.BtnAdd.Enabled = False
-        Me.BtnAdd.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnAdd.Location = New System.Drawing.Point(6, 329)
-        Me.BtnAdd.Name = "BtnAdd"
-        Me.BtnAdd.Size = New System.Drawing.Size(75, 25)
-        Me.BtnAdd.TabIndex = 5
-        Me.BtnAdd.Text = "Add"
-        Me.BtnAdd.UseVisualStyleBackColor = True
-        Me.BtnAdd.Visible = False
-        '
-        'BtnEdit
-        '
-        Me.BtnEdit.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnEdit.Location = New System.Drawing.Point(92, 329)
-        Me.BtnEdit.Name = "BtnEdit"
-        Me.BtnEdit.Size = New System.Drawing.Size(75, 25)
-        Me.BtnEdit.TabIndex = 6
-        Me.BtnEdit.Text = "Edit"
-        Me.BtnEdit.UseVisualStyleBackColor = True
-        '
-        'BtnDelete
-        '
-        Me.BtnDelete.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnDelete.Location = New System.Drawing.Point(177, 329)
-        Me.BtnDelete.Name = "BtnDelete"
-        Me.BtnDelete.Size = New System.Drawing.Size(75, 25)
-        Me.BtnDelete.TabIndex = 7
-        Me.BtnDelete.Text = "Delete"
-        Me.BtnDelete.UseVisualStyleBackColor = True
-        Me.BtnDelete.Visible = False
-        '
-        'BtnClose
-        '
-        Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnClose.Location = New System.Drawing.Point(767, 330)
-        Me.BtnClose.Name = "BtnClose"
-        Me.BtnClose.Size = New System.Drawing.Size(64, 25)
-        Me.BtnClose.TabIndex = 25
-        Me.BtnClose.Text = "Close"
-        Me.BtnClose.UseVisualStyleBackColor = True
-        '
-        'BtnClip
-        '
-        Me.BtnClip.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnClip.Location = New System.Drawing.Point(270, 329)
-        Me.BtnClip.Name = "BtnClip"
-        Me.BtnClip.Size = New System.Drawing.Size(194, 25)
-        Me.BtnClip.TabIndex = 26
-        Me.BtnClip.Text = "Clip selected layer(s) to AOI"
-        Me.BtnClip.UseVisualStyleBackColor = True
-        '
-        'TxtAoiPath
-        '
-        Me.TxtAoiPath.BackColor = System.Drawing.SystemColors.ButtonFace
-        Me.TxtAoiPath.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtAoiPath.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
-        Me.TxtAoiPath.Location = New System.Drawing.Point(183, 4)
-        Me.TxtAoiPath.Name = "TxtAoiPath"
-        Me.TxtAoiPath.ReadOnly = True
-        Me.TxtAoiPath.Size = New System.Drawing.Size(512, 22)
-        Me.TxtAoiPath.TabIndex = 59
-        '
-        'Label5
-        '
-        Me.Label5.AutoSize = True
-        Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label5.Location = New System.Drawing.Point(114, 7)
-        Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(63, 16)
-        Me.Label5.TabIndex = 58
-        Me.Label5.Text = "AOI Path:"
-        '
-        'BtnSelectAoi
-        '
-        Me.BtnSelectAoi.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnSelectAoi.Location = New System.Drawing.Point(3, 1)
-        Me.BtnSelectAoi.Name = "BtnSelectAoi"
-        Me.BtnSelectAoi.Size = New System.Drawing.Size(105, 28)
-        Me.BtnSelectAoi.TabIndex = 57
-        Me.BtnSelectAoi.Text = "Select AOI"
-        Me.BtnSelectAoi.UseVisualStyleBackColor = True
-        '
-        'PnlAoi
-        '
-        Me.PnlAoi.Controls.Add(Me.TxtAoiPath)
-        Me.PnlAoi.Controls.Add(Me.BtnSelectAoi)
-        Me.PnlAoi.Controls.Add(Me.Label5)
-        Me.PnlAoi.Location = New System.Drawing.Point(2, 2)
-        Me.PnlAoi.Name = "PnlAoi"
-        Me.PnlAoi.Size = New System.Drawing.Size(701, 30)
-        Me.PnlAoi.TabIndex = 60
-        Me.PnlAoi.Visible = False
-        '
-        'PnlMain
-        '
-        Me.PnlMain.Controls.Add(Me.BtnClip)
-        Me.PnlMain.Controls.Add(Me.BtnAdd)
-        Me.PnlMain.Controls.Add(Me.DataGridView1)
-        Me.PnlMain.Controls.Add(Me.BtnEdit)
-        Me.PnlMain.Controls.Add(Me.BtnClose)
-        Me.PnlMain.Controls.Add(Me.BtnDelete)
-        Me.PnlMain.Location = New System.Drawing.Point(2, 36)
-        Me.PnlMain.Name = "PnlMain"
-        Me.PnlMain.Size = New System.Drawing.Size(834, 360)
-        Me.PnlMain.TabIndex = 61
         '
         'AoiData
         '
@@ -232,6 +125,125 @@ Partial Class FrmDataManager
         Me.DataLayerSource.ReadOnly = True
         Me.DataLayerSource.Width = 119
         '
+        'BtnAdd
+        '
+        Me.BtnAdd.Enabled = False
+        Me.BtnAdd.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnAdd.Location = New System.Drawing.Point(6, 329)
+        Me.BtnAdd.Name = "BtnAdd"
+        Me.BtnAdd.Size = New System.Drawing.Size(75, 25)
+        Me.BtnAdd.TabIndex = 5
+        Me.BtnAdd.Text = "Add"
+        Me.BtnAdd.UseVisualStyleBackColor = True
+        Me.BtnAdd.Visible = False
+        '
+        'BtnEdit
+        '
+        Me.BtnEdit.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnEdit.Location = New System.Drawing.Point(92, 329)
+        Me.BtnEdit.Name = "BtnEdit"
+        Me.BtnEdit.Size = New System.Drawing.Size(75, 25)
+        Me.BtnEdit.TabIndex = 6
+        Me.BtnEdit.Text = "Edit"
+        Me.BtnEdit.UseVisualStyleBackColor = True
+        '
+        'BtnDelete
+        '
+        Me.BtnDelete.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnDelete.Location = New System.Drawing.Point(177, 329)
+        Me.BtnDelete.Name = "BtnDelete"
+        Me.BtnDelete.Size = New System.Drawing.Size(75, 25)
+        Me.BtnDelete.TabIndex = 7
+        Me.BtnDelete.Text = "Delete"
+        Me.BtnDelete.UseVisualStyleBackColor = True
+        Me.BtnDelete.Visible = False
+        '
+        'BtnClose
+        '
+        Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnClose.Location = New System.Drawing.Point(767, 330)
+        Me.BtnClose.Name = "BtnClose"
+        Me.BtnClose.Size = New System.Drawing.Size(64, 25)
+        Me.BtnClose.TabIndex = 25
+        Me.BtnClose.Text = "Close"
+        Me.BtnClose.UseVisualStyleBackColor = True
+        '
+        'BtnClip
+        '
+        Me.BtnClip.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnClip.Location = New System.Drawing.Point(392, 329)
+        Me.BtnClip.Name = "BtnClip"
+        Me.BtnClip.Size = New System.Drawing.Size(194, 25)
+        Me.BtnClip.TabIndex = 26
+        Me.BtnClip.Text = "Clip selected layer(s) to AOI"
+        Me.BtnClip.UseVisualStyleBackColor = True
+        '
+        'TxtAoiPath
+        '
+        Me.TxtAoiPath.BackColor = System.Drawing.SystemColors.ButtonFace
+        Me.TxtAoiPath.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TxtAoiPath.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
+        Me.TxtAoiPath.Location = New System.Drawing.Point(183, 4)
+        Me.TxtAoiPath.Name = "TxtAoiPath"
+        Me.TxtAoiPath.ReadOnly = True
+        Me.TxtAoiPath.Size = New System.Drawing.Size(512, 22)
+        Me.TxtAoiPath.TabIndex = 59
+        '
+        'Label5
+        '
+        Me.Label5.AutoSize = True
+        Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label5.Location = New System.Drawing.Point(114, 7)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(63, 16)
+        Me.Label5.TabIndex = 58
+        Me.Label5.Text = "AOI Path:"
+        '
+        'BtnSelectAoi
+        '
+        Me.BtnSelectAoi.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnSelectAoi.Location = New System.Drawing.Point(3, 1)
+        Me.BtnSelectAoi.Name = "BtnSelectAoi"
+        Me.BtnSelectAoi.Size = New System.Drawing.Size(105, 28)
+        Me.BtnSelectAoi.TabIndex = 57
+        Me.BtnSelectAoi.Text = "Select AOI"
+        Me.BtnSelectAoi.UseVisualStyleBackColor = True
+        '
+        'PnlAoi
+        '
+        Me.PnlAoi.Controls.Add(Me.TxtAoiPath)
+        Me.PnlAoi.Controls.Add(Me.BtnSelectAoi)
+        Me.PnlAoi.Controls.Add(Me.Label5)
+        Me.PnlAoi.Location = New System.Drawing.Point(2, 2)
+        Me.PnlAoi.Name = "PnlAoi"
+        Me.PnlAoi.Size = New System.Drawing.Size(701, 30)
+        Me.PnlAoi.TabIndex = 60
+        Me.PnlAoi.Visible = False
+        '
+        'PnlMain
+        '
+        Me.PnlMain.Controls.Add(Me.BtnDefaultSettings)
+        Me.PnlMain.Controls.Add(Me.BtnClip)
+        Me.PnlMain.Controls.Add(Me.BtnAdd)
+        Me.PnlMain.Controls.Add(Me.DataGridView1)
+        Me.PnlMain.Controls.Add(Me.BtnEdit)
+        Me.PnlMain.Controls.Add(Me.BtnClose)
+        Me.PnlMain.Controls.Add(Me.BtnDelete)
+        Me.PnlMain.Location = New System.Drawing.Point(2, 36)
+        Me.PnlMain.Name = "PnlMain"
+        Me.PnlMain.Size = New System.Drawing.Size(834, 360)
+        Me.PnlMain.TabIndex = 61
+        '
+        'BtnDefaultSettings
+        '
+        Me.BtnDefaultSettings.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.BtnDefaultSettings.Location = New System.Drawing.Point(261, 329)
+        Me.BtnDefaultSettings.Name = "BtnDefaultSettings"
+        Me.BtnDefaultSettings.Size = New System.Drawing.Size(123, 25)
+        Me.BtnDefaultSettings.TabIndex = 27
+        Me.BtnDefaultSettings.Text = "Default Settings"
+        Me.BtnDefaultSettings.UseVisualStyleBackColor = True
+        '
         'FrmDataManager
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -265,4 +277,5 @@ Partial Class FrmDataManager
     Friend WithEvents SourceName As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents Description As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents DataLayerSource As System.Windows.Forms.DataGridViewTextBoxColumn
+    Friend WithEvents BtnDefaultSettings As System.Windows.Forms.Button
 End Class

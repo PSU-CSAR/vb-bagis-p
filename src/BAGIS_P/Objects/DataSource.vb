@@ -39,6 +39,17 @@ Public Class DataSource
         m_layerType = layerType
     End Sub
 
+    Public Sub New(ByVal pImageService As BagisImageService)
+        m_id = pImageService.id
+        m_name = pImageService.name
+        m_description = pImageService.description
+        m_source = pImageService.source
+        m_aoiLayer = False
+        m_isValid = m_aoiLayer
+        m_jh_coeff = pImageService.jhCoeff
+        m_layerType = BAGIS_ClassLibrary.LayerType.ImageService
+    End Sub
+
     Public Property Id() As Integer
         Set(ByVal value As Integer)
             m_id = value

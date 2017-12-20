@@ -68,11 +68,13 @@ Public Class FrmClipDataSource
                         If dataSource.LayerType = LayerType.Raster Then
                             Dim folderPath As String = "PleaseReturn"
                             Dim fileName As String = BA_GetBareName(dataSource.Source, folderPath)
-                            clipCellSize = BA_CellSize(folderPath, FileName)
+                            clipCellSize = BA_CellSize(folderPath, fileName)
+                        ElseIf dataSource.LayerType = LayerType.ImageService Then
+                            clipCellSize = BA_CellSizeImageService(dataSource.Source)
                         End If
                         'If the cell size is different
                         Dim clipDataSet As Boolean = True
-                        If aoiCellSize <> clipCellSize Then
+                        If dataSource.LayerType <> LayerType.Vector AndAlso aoiCellSize <> clipCellSize Then
                             Dim sb As StringBuilder = New StringBuilder
                             sb.Append("The default cell size of AOI '" & aoiName & "'" & vbCrLf)
                             sb.Append("does not match the cell size of data source" & vbCrLf)
@@ -224,6 +226,9 @@ Public Class FrmClipDataSource
                                     End If
                                     If layerAlreadyExists = False Then
                                         Dim clipFileName As String = BA_GetBareName(pDS.Source)
+                                        If pDS.LayerType = LayerType.ImageService Then
+                                            clipFileName = BA_GetBareNameImageService(pDS.Source)
+                                        End If
                                         Dim clipFullPath As String = dataBinPath & "\" & clipFileName
                                         Dim success As BA_ReturnCode = BA_ClipLayerToAoi(aoiPath, dataBinPath, pDS)
                                         If pDS.MeasurementUnitType = MeasurementUnitType.Slope And pDS.SlopeUnit <> SlopeUnit.Missing Then
@@ -275,9 +280,13 @@ Public Class FrmClipDataSource
                                         Dim aoiCellSize As Double = BA_CellSize(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Surfaces), BA_EnumDescription(MapsFileName.filled_dem_gdb))
                                         Dim clipCellSize As Double
                                         'check the cell size of the aoi against the clip data source if the clip is a raster
-                                        If pDS.LayerType = LayerType.Raster Then
+                                        If pDS.LayerType = LayerType.Raster Or pDS.LayerType = LayerType.ImageService Then
                                             Dim folderPath As String = "PleaseReturn"
                                             Dim fileName As String = BA_GetBareName(pDS.Source, folderPath)
+                                            If pDS.LayerType = LayerType.ImageService Then
+                                                folderPath = dataBinPath
+                                                fileName = BA_GetBareNameImageService(pDS.Source)
+                                            End If
                                             clipCellSize = BA_CellSize(folderPath, fileName)
                                         End If
                                         'If the cell sizes are different, we need to resample the result of the clip
