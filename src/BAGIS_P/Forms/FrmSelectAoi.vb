@@ -51,8 +51,10 @@ Public Class FrmSelectAoi
 
             'check AOI/BASIN status
             Dim success As BA_ReturnCode = BA_CheckAoiStatus(DataPath, My.ArcMap.Application.hWnd, My.ArcMap.Document)
+
+            'attempt to set default projection to Albers
+            success = BA_SetDefaultProjection(My.ArcMap.Application)
             If success = BA_ReturnCode.Success Then
-                BA_SetDefaultProjection(My.ArcMap.Application)
                 Dim aoiName As String = BA_GetBareName(DataPath)
                 If AlreadyOnList(DataPath) = False Then
                     Dim pAoi As Aoi = New Aoi(aoiName, DataPath, Nothing, bagisPExt.version)

@@ -90,8 +90,10 @@ Public Class FrmParameterViewer
 
             'check AOI/BASIN status
             Dim success As BA_ReturnCode = BA_CheckAoiStatus(DataPath, My.ArcMap.Application.hWnd, My.ArcMap.Document)
+
+            'attempt to set default projection to Albers
+            success = BA_SetDefaultProjection(My.ArcMap.Application)
             If success = BA_ReturnCode.Success Then
-                BA_SetDefaultProjection(My.ArcMap.Application)
                 Dim aoiName As String = BA_GetBareName(DataPath)
                 m_aoi = New Aoi(aoiName, DataPath, Nothing, bagisPExt.version)
                 TxtAoiPath.Text = m_aoi.FilePath

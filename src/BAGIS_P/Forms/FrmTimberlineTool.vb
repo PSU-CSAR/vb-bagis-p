@@ -45,7 +45,6 @@ Public Class FrmTimberlineTool
                 ' Create/configure the ProgressDialog. This automatically displays the dialog
                 progressDialog2 = BA_GetProgressDialog(pStepProg, "Loading timberline tool...", "Timberline tool initializing")
                 pStepProg.Step()
-                BA_SetDefaultProjection(My.ArcMap.Application)
                 TxtAoiPath.Text = aoi.FilePath
                 RdoMeters.Enabled = True
                 RdoFeet.Enabled = True
@@ -705,8 +704,10 @@ Public Class FrmTimberlineTool
 
             'check AOI/BASIN status
             Dim success As BA_ReturnCode = BA_CheckAoiStatus(DataPath, My.ArcMap.Application.hWnd, My.ArcMap.Document)
+
+            'attempt to set default projection to Albers
+            success = BA_SetDefaultProjection(My.ArcMap.Application)
             If success = BA_ReturnCode.Success Then
-                BA_SetDefaultProjection(My.ArcMap.Application)
                 Dim aoiName As String = BA_GetBareName(DataPath)
                 Dim pAoi As Aoi = New Aoi(aoiName, DataPath, Nothing, bagisPExt.version)
                 TxtAoiPath.Text = pAoi.FilePath

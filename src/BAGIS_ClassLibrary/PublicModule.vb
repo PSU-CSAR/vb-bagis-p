@@ -934,7 +934,7 @@ Public Module PublicModule
     'Datum:  D_North_American_1983
     'Prime Meridian:     Greenwich
     'Angular Unit:   Degree
-    Public Sub BA_SetDefaultProjection(ByVal application As ESRI.ArcGIS.Framework.IApplication)
+    Public Function BA_SetDefaultProjection(ByVal application As ESRI.ArcGIS.Framework.IApplication) As BA_ReturnCode
         Dim pMxDoc As IMxDocument = application.Document
         Dim pMap As IMap = pMxDoc.FocusMap
         Dim ApplyProjection As Boolean = False
@@ -965,10 +965,12 @@ Public Module PublicModule
                 pMap.SpatialReference = albersCoordSystem
                 pMxDoc.ActivatedView.Refresh()
             End If
+            Return BA_ReturnCode.Success
         Catch ex As Exception
-            MessageBox.Show("Exception: " + ex.Message + vbCrLf + "Could not reproject to USA Contiguous Albers Equal Area Conic USGS! Please make sure your data are in this projection.")
+            MessageBox.Show("Exception: " + ex.Message + vbCrLf + "Could not reproject to USA Contiguous Albers Equal Area Conic USGS! Please open a new map document and try again.")
+            Return BA_ReturnCode.NotSupportedOperation
         End Try
-    End Sub
+    End Function
 
     'check if a shapefile exists
     Public Function BA_Shapefile_Exists(ByRef shapefilepath_name As String) As Boolean
