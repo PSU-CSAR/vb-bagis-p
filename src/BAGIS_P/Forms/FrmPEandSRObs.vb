@@ -28,8 +28,6 @@ Public Class FrmPEandSRObs
         If aoi IsNot Nothing Then
             Try
                 TxtAoiPath.Text = aoi.FilePath
-                BA_SetDefaultProjection(My.ArcMap.Application)
-                BA_SetDatumInExtension(TxtAoiPath.Text)
                 Me.Text = "Calculate PE and SR Obs parameters (AOI: " & aoi.Name & aoi.ApplicationVersion & " )"
                 PopulateForm()
             Catch ex As Exception
@@ -67,8 +65,10 @@ Public Class FrmPEandSRObs
 
             'check AOI/BASIN status
             Dim success As BA_ReturnCode = BA_CheckAoiStatus(DataPath, My.ArcMap.Application.hWnd, My.ArcMap.Document)
+
+            'attempt to set default projection to Albers
+            success = BA_SetDefaultProjection(My.ArcMap.Application)
             If success = BA_ReturnCode.Success Then
-                BA_SetDefaultProjection(My.ArcMap.Application)
                 Dim aoiName As String = BA_GetBareName(DataPath)
                 Dim pAoi As Aoi = New Aoi(aoiName, DataPath, Nothing, bagisPExt.version)
                 TxtAoiPath.Text = pAoi.FilePath

@@ -1,7 +1,7 @@
 ﻿Public Module ConstantsModule
 
     'Class library version; Update with each change to class library
-    Public Const BA_CLASS_LIBRARY_VERSION As String = "L038"
+    Public Const BA_CLASS_LIBRARY_VERSION As String = "L039"
 
     ' Used with BA_QueryAttributeTable to customize query
     Public Const BA_STRING_ATTRIBUTE As String = "string_attribute"
@@ -84,6 +84,10 @@
     Public Const BA_FIELD_SHAPE_AREA As String = "Shape_Area"
     Public Const BA_FIELD_AOI_NAME As String = "AOINAME"
     Public Const BA_FIELD_PSITE As String = "PSITE"
+    Public Const BA_FIELD_RASTERVALU = "RASTERVALU"   'Field generated when using BA_ExtractValuesToPoints to populate BA_SELEV from DEM
+    Public Const BA_FIELD_PRECIP = "BA_PRECIP"
+    Public Const BA_FIELD_ASPECT = "BA_ASPECT"
+
 
     'mapframe
     Public Const BA_MAPS_DEFAULT_MAP_NAME As String = "Basin Analysis"
@@ -174,6 +178,8 @@
     Public Const BA_BAGIS_TAG_SUFFIX As String = " > End Tag"
     Public Const BA_ZUNIT_CATEGORY_TAG As String = "ZUnitCategory|"
     Public Const BA_ZUNIT_VALUE_TAG As String = "ZUnit|"
+    Public Const BA_BUFFER_DISTANCE_TAG As String = "BufferDistance|"
+    Public Const BA_XUNIT_VALUE_TAG As String = "XUnit|"
 
     'Excel chart
     Public Const BA_ChartWidth = 600
@@ -239,6 +245,12 @@
     Public Const BA_Url_MapServer As String = "MapServer"
     Public Const BA_Url_ImageServer As String = "ImageServer"
     Public Const BA_Url_FeatureServer As String = "FeatureServer"
+
+    'AOI snotel site, snow course site, and pseudo-site attributes
+    Public Const BA_SiteSnotel = "stel"
+    Public Const BA_SiteSnowCourse = "scos"
+    Public Const BA_SitePseudo = "psite"
+
 
 End Module
 

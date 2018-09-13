@@ -41,5 +41,9 @@ Public Enum MapsFileName
     <Description("s2_snotel_b")> S2SnotelBuffers
     <Description("s2_snowCourse_b")> S2SnowCourseBuffers
     <Description("s2_pseudo_b")> S2PseudoBuffers
-
+    <Description("timber_r")> timber_r
+    <Description("s1_stelzone")> S1SnotelZone
+    <Description("s1_scoszone")> S1SnowCourseZone
+    <Description("s1_psitezone")> S1PseudoZone
+    <Description("psite_prec_v")> PsitePrecVector
 End Enum

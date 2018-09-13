@@ -30,7 +30,6 @@ Public Class FrmDataManager
         Dim pStepProg As IStepProgressor = Nothing
         ' Create/configure the ProgressDialog. This automatically displays the dialog
         Dim progressDialog2 As IProgressDialog2 = Nothing
-        pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
 
         ' Add any initialization after the InitializeComponent() call.
         If pMode = BA_BAGISP_MODE_PUBLIC Then
@@ -40,6 +39,7 @@ Public Class FrmDataManager
                 PnlMain.Location = pnt1
                 m_settingsPath = BA_GetBagisPSettingsPath()
                 ' Create/configure the ProgressDialog. This automatically displays the dialog
+                pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
                 progressDialog2 = BA_GetProgressDialog(pStepProg, "Loading and verifying data sources...", "Data manager loading")
                 pStepProg.Step()
                 m_dataTable = BA_LoadAllDataSources(m_settingsPath)
@@ -76,6 +76,7 @@ Public Class FrmDataManager
                 Me.Text = "Data Manager (AOI: Not selected)"
             Else
                 ' Create/configure the ProgressDialog. This automatically displays the dialog
+                pStepProg = BA_GetStepProgressor(My.ArcMap.Application.hWnd, 5)
                 progressDialog2 = BA_GetProgressDialog(pStepProg, "Loading local data sources...", "Data manager loading")
                 pStepProg.Step()
                 Try
@@ -374,8 +375,10 @@ Public Class FrmDataManager
 
             'check AOI/BASIN status
             Dim success As BA_ReturnCode = BA_CheckAoiStatus(DataPath, My.ArcMap.Application.hWnd, My.ArcMap.Document)
+
+            'attempt to set default projection to Albers
+            success = BA_SetDefaultProjection(My.ArcMap.Application)
             If success = BA_ReturnCode.Success Then
-                BA_SetDefaultProjection(My.ArcMap.Application)
                 Dim aoiName As String = BA_GetBareName(DataPath)
                 m_aoi = New Aoi(aoiName, DataPath, Nothing, bagisPExt.version)
                 TxtAoiPath.Text = m_aoi.FilePath

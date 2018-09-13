@@ -7,6 +7,7 @@ Imports ESRI.ArcGIS.SpatialAnalyst
 Imports Microsoft.Office.Interop
 Imports Microsoft.Office.Core
 Imports ESRI.ArcGIS.GeoAnalyst
+Imports ESRI.ArcGIS.DataSourcesGDB
 
 Public Module ExcelModule
 
@@ -18,15 +19,17 @@ Public Module ExcelModule
     'aspect, slope, snotel, and snow course tables have a beginning_row value of 2
     'other tables have a value of 3.
     Public Function BA_Excel_CountRecords(ByVal pworksheet As Worksheet, ByVal beginning_row As Integer) As Long
-        Dim count As Long = pworksheet.UsedRange.Rows.Count
         Dim validRow As Long = 0
-        For i = beginning_row To count
-            Dim cell As Range = pworksheet.UsedRange.Cells(i, 1)
-            Dim strCell As String = cell.ToString
-            If Not String.IsNullOrEmpty(strCell) Then
-                validRow = validRow + 1
-            End If
-        Next
+        If pworksheet IsNot Nothing Then
+            Dim count As Long = pworksheet.UsedRange.Rows.Count
+            For i = beginning_row To count
+                Dim cell As Range = pworksheet.UsedRange.Cells(i, 1)
+                Dim strCell As String = cell.ToString
+                If Not String.IsNullOrEmpty(strCell) Then
+                    validRow = validRow + 1
+                End If
+            Next
+        End If
         Return validRow
     End Function
 
@@ -134,6 +137,10 @@ Public Module ExcelModule
 
         Dim pTempRaster As IGeoDataset
         Dim pExtractOp As IExtractionOp2 = New RasterExtractionOp
+        'Explicitly set workspace
+        Dim pEnv As IRasterAnalysisEnvironment = CType(pExtractOp, IRasterAnalysisEnvironment)
+        Dim pWSF As IWorkspaceFactory = New FileGDBWorkspaceFactory()
+        pEnv.OutWorkspace = pWSF.OpenFromFile(ZInputPath, 0)
         pTempRaster = pExtractOp.Raster(pZoneRaster, pAOIRaster)
         pExtractOp = Nothing
         pZoneRaster = Nothing
@@ -145,6 +152,8 @@ Public Module ExcelModule
         Dim ZonalOp As IZonalOp
         Dim ZonalTable As ITable
         ZonalOp = New RasterZonalOp
+        pEnv = CType(ZonalOp, IRasterAnalysisEnvironment)
+        pEnv.OutWorkspace = pWSF.OpenFromFile(ZInputPath, 0)
         ZonalTable = ZonalOp.ZonalStatisticsAsTable(pTempRaster, pValueRaster, True)
         ZonalOp = Nothing
         pZoneRaster = Nothing
@@ -1342,9 +1351,10 @@ Public Module ExcelModule
     Public Function BA_Excel_CreateCombinedChart(ByRef pPRISMWorkSheet As Worksheet, ByRef pElvWorksheet As Worksheet, ByRef pChartsWorksheet As Worksheet, _
                                                  ByRef pSnowCourseWorksheet As Worksheet, ByRef pSNOTELWorksheet As Worksheet, ByVal Y_Min As Double, _
                                                  ByVal Y_Max As Double, ByVal Y_Unit As Double, ByVal MaxPRISMValue As Double, ByVal optZMetersValue As Boolean, _
-                                                 ByVal optZFeetValue As Boolean, ByVal aoiHasSnotel As Boolean, ByVal aoiHasSnowCourse As Boolean)
+                                                 ByVal optZFeetValue As Boolean, ByVal aoiHasSnotel As Boolean, ByVal aoiHasSnowCourse As Boolean, _
+                                                 ByVal pPseudoWorkSheet As Worksheet, ByVal aoiHasPseudo As Boolean, ByVal topPosition As Integer)
 
-        Dim ElevReturn As Long, PRISMReturn As Long, SNOTELReturn As Long, SnowCourseReturn As Long
+        Dim ElevReturn As Long, PRISMReturn As Long, SNOTELReturn As Long, SnowCourseReturn As Long, PseudoReturn As Long
 
         Dim nrecords As Long = BA_Excel_CountRecords(pElvWorksheet, 2)
         ElevReturn = nrecords + 2
@@ -1357,6 +1367,10 @@ Public Module ExcelModule
 
         nrecords = BA_Excel_CountRecords(pSnowCourseWorksheet, 1)
         SnowCourseReturn = nrecords - 1 'not counting the last record, i.e., not presented
+
+        nrecords = BA_Excel_CountRecords(pPseudoWorkSheet, 1)
+        PseudoReturn = nrecords - 1 'not counting the last record, i.e., not presented
+
 
         Dim myChart As Chart = pChartsWorksheet.Shapes.AddChart.Chart
 
@@ -1382,6 +1396,14 @@ Public Module ExcelModule
         If aoiHasSnowCourse Then
             xSnowCourseValueRange = "A2:A" & SnowCourseReturn
             vSnowCourseValueRange = "K2:K" & SnowCourseReturn
+        End If
+
+        'Set Pseudo-site Ranges
+        Dim vPseudoValueRange As String = Nothing
+        Dim xPseudoValueRange As String = Nothing
+        If aoiHasPseudo Then
+            xPseudoValueRange = "A2:A" & PseudoReturn
+            vPseudoValueRange = "K2:K" & PseudoReturn
         End If
 
         'Set PRISM Data Ranges
@@ -1414,8 +1436,8 @@ Public Module ExcelModule
             'Set Chart Position
             .Parent.Left = BA_ChartSpacing
             .Parent.Width = BA_ChartWidth
-            .Parent.Top = BA_ChartHeight + BA_ChartSpacing + BA_ChartSpacing
             .Parent.Height = BA_ChartHeight
+            .Parent.Top = topPosition
         End With
 
         'Clear Previous Series
@@ -1456,6 +1478,24 @@ Public Module ExcelModule
                 .MarkerStyle = Excel.XlMarkerStyle.xlMarkerStyleTriangle
                 .MarkerForegroundColor = RGB(0, 0, 0)
                 .MarkerBackgroundColor = RGB(0, 0, 0)
+                'Set Axis Group
+                .AxisGroup = Excel.XlAxisGroup.xlPrimary
+            End With
+        End If
+
+        'SNOTEL Series
+        Dim PseudoSeries As Series
+        If aoiHasPseudo Then
+            PseudoSeries = myChart.SeriesCollection.NewSeries
+            With PseudoSeries
+                .Name = "Pseudo Site"
+                'Set Series Values
+                .Values = pPseudoWorkSheet.Range(xPseudoValueRange)
+                .XValues = pPseudoWorkSheet.Range(vPseudoValueRange)
+                'Set Series Formats
+                .MarkerStyle = Excel.XlMarkerStyle.xlMarkerStyleDiamond
+                .MarkerForegroundColor = RGB(255, 170, 0)
+                .MarkerBackgroundColor = RGB(255, 170, 0)
                 'Set Axis Group
                 .AxisGroup = Excel.XlAxisGroup.xlPrimary
             End With
@@ -2147,7 +2187,7 @@ Public Module ExcelModule
                                           ByVal elevFieldName As String, ByVal nameFieldName As String, ByVal typeFieldName As String, _
                                           ByVal aspectFieldName As String, ByVal partitionFieldName As String, ByVal pStelElvWorksheet As Worksheet, _
                                           ByVal precipUnit As MeasurementUnit, ByVal partitionColName As String, ByVal zonesFieldName As String, _
-                                          ByVal demConversionFactor As Double) As BA_ReturnCode
+                                          ByVal demConversionFactor As Double, ByVal lstSelectedSites As IList(Of Site)) As BA_ReturnCode
         Dim pFClass As IFeatureClass = Nothing
         Dim pCursor As IFeatureCursor
         Dim pFeature As IFeature
@@ -2205,32 +2245,56 @@ Public Module ExcelModule
                     If pCursor IsNot Nothing Then
                         pFeature = pCursor.NextFeature
                         Do While pFeature IsNot Nothing
-                            pStelElvWorksheet.Cells(idxRow, idxPrecipExcelCol) = Convert.ToDouble(pFeature.Value(idxPrecipCol))
-                            pStelElvWorksheet.Cells(idxRow, idxElevExcelCol) = Convert.ToDouble(pFeature.Value(idxElevCol)) * demConversionFactor
-                            pStelElvWorksheet.Cells(idxRow, idxNameExcelCol) = Convert.ToString(pFeature.Value(idxNameCol))
-                            pStelElvWorksheet.Cells(idxRow, idxTypeExcelCol) = Convert.ToString(pFeature.Value(idxTypeCol))
-                            If IsDBNull(pFeature.Value(idxAspectCol)) Then
-                                pStelElvWorksheet.Cells(idxRow, idxAspectExcelCol) = BA_UNKNOWN
-                            Else
-                                pStelElvWorksheet.Cells(idxRow, idxAspectExcelCol) = Convert.ToString(pFeature.Value(idxAspectCol))
+                            Dim bAddRow As Boolean = True
+                            If lstSelectedSites IsNot Nothing Then
+                                bAddRow = False
+                                Dim strName As String = Convert.ToString(pFeature.Value(idxNameCol))
+                                Dim dblElevation As Double = Convert.ToDouble(pFeature.Value(idxElevCol))
+                                Dim strSiteType As String = Convert.ToString(pFeature.Value(idxTypeCol))
+                                For Each aSite As Site In lstSelectedSites
+                                    If strName.Equals(aSite.Name) Then
+                                        If dblElevation = aSite.Elevation Then
+                                            If aSite.SiteType = SiteType.Snotel AndAlso strSiteType.Equals(BA_SiteSnotel) Then
+                                                bAddRow = True
+                                                Exit For
+                                            ElseIf aSite.SiteType = SiteType.SnowCourse AndAlso strSiteType.Equals(BA_SiteSnowCourse) Then
+                                                bAddRow = True
+                                                Exit For
+                                            ElseIf aSite.SiteType = SiteType.Pseudo AndAlso strSiteType.Equals(BA_SitePseudo) Then
+                                                bAddRow = True
+                                                Exit For
+                                            End If
+                                        End If
+                                    End If
+                                Next
                             End If
-                            If idxPartitionCol > 0 Then
-                                If IsDBNull(pFeature.Value(idxPartitionCol)) Then
-                                    pStelElvWorksheet.Cells(idxRow, idxPartitionExcelCol) = BA_UNKNOWN
+                            If bAddRow = True Then
+                                pStelElvWorksheet.Cells(idxRow, idxPrecipExcelCol) = Convert.ToDouble(pFeature.Value(idxPrecipCol))
+                                pStelElvWorksheet.Cells(idxRow, idxElevExcelCol) = Convert.ToDouble(pFeature.Value(idxElevCol)) * demConversionFactor
+                                pStelElvWorksheet.Cells(idxRow, idxNameExcelCol) = Convert.ToString(pFeature.Value(idxNameCol))
+                                pStelElvWorksheet.Cells(idxRow, idxTypeExcelCol) = Convert.ToString(pFeature.Value(idxTypeCol))
+                                If IsDBNull(pFeature.Value(idxAspectCol)) Then
+                                    pStelElvWorksheet.Cells(idxRow, idxAspectExcelCol) = BA_UNKNOWN
                                 Else
-                                    pStelElvWorksheet.Cells(idxRow, idxPartitionExcelCol) = Convert.ToString(pFeature.Value(idxPartitionCol))
+                                    pStelElvWorksheet.Cells(idxRow, idxAspectExcelCol) = Convert.ToString(pFeature.Value(idxAspectCol))
                                 End If
-                            End If
-                            If idxZonesCol > 0 Then
-                                If IsDBNull(pFeature.Value(idxZonesCol)) Then
-                                    pStelElvWorksheet.Cells(idxRow, idxZonesExcelCol) = BA_UNKNOWN
-                                Else
-                                    pStelElvWorksheet.Cells(idxRow, idxZonesExcelCol) = Convert.ToString(pFeature.Value(idxZonesCol))
+                                If idxPartitionCol > 0 Then
+                                    If IsDBNull(pFeature.Value(idxPartitionCol)) Then
+                                        pStelElvWorksheet.Cells(idxRow, idxPartitionExcelCol) = BA_UNKNOWN
+                                    Else
+                                        pStelElvWorksheet.Cells(idxRow, idxPartitionExcelCol) = Convert.ToString(pFeature.Value(idxPartitionCol))
+                                    End If
                                 End If
+                                If idxZonesCol > 0 Then
+                                    If IsDBNull(pFeature.Value(idxZonesCol)) Then
+                                        pStelElvWorksheet.Cells(idxRow, idxZonesExcelCol) = BA_UNKNOWN
+                                    Else
+                                        pStelElvWorksheet.Cells(idxRow, idxZonesExcelCol) = Convert.ToString(pFeature.Value(idxZonesCol))
+                                    End If
+                                End If
+                                idxRow += 1
                             End If
-
                             pFeature = pCursor.NextFeature
-                            idxRow += 1
                         Loop
                     End If
                 End If

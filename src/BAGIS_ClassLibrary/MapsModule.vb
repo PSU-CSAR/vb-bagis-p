@@ -998,8 +998,8 @@ Public Module MapsModule
     ' Zoom map display to AOI envelope
     ' No unit tests since this interacts with user interface
     Public Sub BA_ZoomToAOI(ByVal pmxDoc As IMxDocument, ByVal aoipathname As String)
-        Dim pActiveView As IActiveView
-        Dim pEnv As IEnvelope
+
+
 
         If String.IsNullOrEmpty(aoipathname) Then Exit Sub
 
@@ -1012,14 +1012,14 @@ Public Module MapsModule
             Exit Sub
         End If
 
-        pEnv = BA_GetBasinEnvelope(aoipathname)
-        pmxDoc.ActiveView.Extent = pEnv
-
-        pActiveView = pmxDoc.ActivatedView
+        Dim pEnv As IEnvelope = BA_GetBasinEnvelope(aoipathname)
+        Dim pActiveView As IActiveView = pmxDoc.ActivatedView
         If Not TypeOf pActiveView Is IPageLayout Then
             pmxDoc.ActiveView = pmxDoc.PageLayout
             pmxDoc.PageLayout.ZoomToWhole()
         End If
+
+        pActiveView.Extent = pEnv
     End Sub
 
     Public Function BA_GetRasterMapSymbology(ByVal fileName As String) As BA_Map_Symbology
@@ -1545,7 +1545,7 @@ Public Module MapsModule
             ''** use the name of the color ramp you selected.
             pUniqueValueRenderer.ColorScheme = "Black and White"
             Dim isString As Boolean = pTable.Fields.Field(fieldIndex).Type = esriFieldType.esriFieldTypeString
-            pUniqueValueRenderer.FieldType(0) = isString
+            'pUniqueValueRenderer.FieldType(0) = isString
             pGeoFeatureLayer.Renderer = pUniqueValueRenderer
 
             'This makes the layer properties symbology tab
@@ -3287,6 +3287,172 @@ Public Module MapsModule
         pMap = Nothing
         pMaps = Nothing
         Return return_value
+    End Function
+
+    Public Function BA_CreatePseudoSitesLayer(ByVal aoiPath As String, ByVal siteTypeField As String, _
+                                              ByVal fullPrecipPath As String, ByVal partitionRasterPath As String, _
+                                              ByVal rasterPartPrefix As String, ByVal zonesRasterPath As String, _
+                                              ByVal zonesRasterPrefix As String, ByVal aspectLayerPath As String, _
+                                              ByVal aspectDirectionsNum As Short) As BA_ReturnCode
+        Dim layersGdbPath As String = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Layers, True)
+        Dim hasPSites As Boolean = BA_File_Exists(layersGdbPath + BA_EnumDescription(MapsFileName.Pseudo), WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass)
+        Dim pFClass As IFeatureClass = Nothing
+        Dim pCursor As IFeatureCursor = Nothing
+        Dim pCursorScos As IFeatureCursor = Nothing
+        Dim pFeature As IFeature = Nothing
+        Dim pField As IField = New Field
+        Dim pFld As IFieldEdit2 = CType(pField, IFieldEdit2)
+        Dim success As BA_ReturnCode = BA_ReturnCode.UnknownError
+        Try
+            'Append layer type attribute to pseudo-site file file
+            pFClass = BA_OpenFeatureClassFromGDB(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Layers), BA_EnumDescription(MapsFileName.Pseudo))
+            If pFClass IsNot Nothing Then
+                Dim idxLayerType As Short = pFClass.FindField(siteTypeField)
+                'Field doesn't exist yet, we need to add it
+                If idxLayerType < 0 Then
+                    pFld.Name_2 = siteTypeField
+                    pFld.Type_2 = esriFieldType.esriFieldTypeString
+                    pFld.Length_2 = 5
+                    pFld.Required_2 = False
+                    ' Add field
+                    pFClass.AddField(pFld)
+                    idxLayerType = pFClass.FindField(siteTypeField)
+                End If
+                pCursor = pFClass.Update(Nothing, False)
+                pFeature = pCursor.NextFeature
+                Do While pFeature IsNot Nothing
+                    pFeature.Value(idxLayerType) = BA_SitePseudo
+                    pCursor.UpdateFeature(pFeature)
+                    pFeature = pCursor.NextFeature
+                Loop
+            End If
+            Dim sitesPath As String = layersGdbPath + BA_EnumDescription(MapsFileName.Pseudo)
+
+            'Extract values to sites; DEM comes from BA_SELEV
+            Dim pSitesPrecipPath As String = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis, True) + BA_EnumDescription(MapsFileName.PsitePrecVector)
+            Dim tempSitesPrecipPath As String = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis, True) + "tmpPsiteExtract"
+            'Extract PRISM values to sites
+            success = BA_ExtractValuesToPoints(sitesPath, fullPrecipPath, tempSitesPrecipPath, _
+                                               fullPrecipPath, True)
+            If success = BA_ReturnCode.Success Then
+                'Rename extracted precip field
+                Dim tempfileName As String = BA_GetBareName(tempSitesPrecipPath)
+                BA_RenameRasterValuesField(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis), tempfileName, BA_FIELD_RASTERVALU, _
+                                           BA_FIELD_PRECIP, esriFieldType.esriFieldTypeDouble)
+                Dim aspectValuesInputPath As String = tempSitesPrecipPath
+                Dim partitionFileName As String = "tmpPartition"
+                If Not String.IsNullOrEmpty(partitionRasterPath) Then
+                    'Extract PARTITION values to sites
+                    success = BA_ExtractValuesToPoints(tempSitesPrecipPath, partitionRasterPath, _
+                                                       BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis, True) + partitionFileName, _
+                                                       fullPrecipPath, True)
+                    If success = BA_ReturnCode.Success Then
+                        'Rename extracted partition field
+                        Dim partFileName As String = BA_GetBareName(partitionRasterPath)
+                        Dim partitionFieldName As String = partFileName.Substring(rasterPartPrefix.Length)
+                        BA_RenameRasterValuesField(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis), partitionFileName, BA_FIELD_RASTERVALU, _
+                                                partitionFieldName, esriFieldType.esriFieldTypeDouble)
+                        aspectValuesInputPath = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis, True) + partitionFileName
+                    End If
+                End If
+                Dim tmpZonesFileName As String = "tmpZones"
+                If Not String.IsNullOrEmpty(zonesRasterPath) Then
+                    'Extract ZONES values to sites
+                    success = BA_ExtractValuesToPoints(aspectValuesInputPath, zonesRasterPath, _
+                          BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis, True) + tmpZonesFileName, _
+                          fullPrecipPath, True)
+                    If success = BA_ReturnCode.Success Then
+                        'Rename extracted partition field
+                        Dim zonesFileName As String = BA_GetBareName(zonesRasterPath)
+                        Dim zonesFieldName As String = zonesFileName.Substring(zonesRasterPrefix.Length)
+                        BA_RenameRasterValuesField(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis), tmpZonesFileName, BA_FIELD_RASTERVALU, _
+                                                zonesFieldName, esriFieldType.esriFieldTypeInteger)
+                        aspectValuesInputPath = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis, True) + tmpZonesFileName
+                    End If
+                End If
+                'Extract ASPECT values to sites
+                success = BA_ExtractValuesToPoints(aspectValuesInputPath, aspectLayerPath, pSitesPrecipPath, _
+                                                   fullPrecipPath, True)
+                If Not String.IsNullOrEmpty(partitionRasterPath) Then
+                    BA_Remove_ShapefileFromGDB(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis), partitionFileName)
+                End If
+                If Not String.IsNullOrEmpty(zonesRasterPath) Then
+                    BA_Remove_ShapefileFromGDB(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis), tmpZonesFileName)
+                End If
+                BA_Remove_ShapefileFromGDB(BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis), tempfileName)
+                Dim AspIntervalList() As BA_IntervalList = Nothing
+                BA_SetAspectClasses(AspIntervalList, aspectDirectionsNum)
+
+                If success = BA_ReturnCode.Success Then
+                    success = BA_UpdateFeatureClassAttributes(AspIntervalList, BA_GeodatabasePath(aoiPath, GeodatabaseNames.Analysis), _
+                                                              BA_EnumDescription(MapsFileName.PsitePrecVector), BA_FIELD_ASPECT, BA_FIELD_RASTERVALU, esriFieldType.esriFieldTypeString)
+
+                Else
+                    MessageBox.Show("An error occurred while trying to process the site layers for represented precipitation!")
+                End If
+            Else
+                MessageBox.Show("An error occurred while trying to process the site layers for represented precipitation!")
+            End If
+            success = BA_ReturnCode.Success
+            Return success
+        Catch ex As Exception
+            Debug.Print("BA_CreatePseudoSitesLayer Exception: " & ex.Message)
+            Return success
+        Finally
+            pFClass = Nothing
+            pCursor = Nothing
+            pCursorScos = Nothing
+            pField = Nothing
+            pFld = Nothing
+            pFeature = Nothing
+            GC.WaitForPendingFinalizers()
+            GC.Collect()
+        End Try
+    End Function
+
+    'sourceField = BA_RasterValu
+    'targetField = BA_Precip
+    'fieldType - esriFieldType.esriFieldTypeDouble
+    Public Function BA_RenameRasterValuesField(ByVal filePath As String, ByVal fileName As String, ByVal sourceField As String,
+                                               ByVal targetField As String, ByVal fieldType As esriFieldType) As BA_ReturnCode
+
+        'open raster attribute table
+        Dim pFClass As IFeatureClass
+        Dim pFld As IFieldEdit
+        Dim success As BA_ReturnCode = BA_ReturnCode.OtherError
+
+        'add field
+        Try
+            pFClass = BA_OpenFeatureClassFromGDB(filePath, fileName)
+            If pFClass IsNot Nothing Then
+                Dim idxTarget = pFClass.FindField(targetField)
+                If idxTarget < 0 Then
+                    pFld = New Field
+                    pFld.Name_2 = targetField
+                    pFld.Type_2 = fieldType
+                    pFld.Required_2 = False
+
+                    ' Add field
+                    pFClass.AddField(pFld)
+                End If
+
+                Dim expressType As String = "VB"
+                Dim expression As String = "[" + sourceField + "]"
+                Dim outPointFeatures As String = filePath & "\" & fileName
+                success = BA_CalculateField(outPointFeatures, targetField, expression, expressType)
+                If success = BA_ReturnCode.Success Then
+                    success = BA_DeleteFieldFromFeatureClass(filePath, fileName, sourceField)
+                End If
+            End If
+            Return success
+        Catch ex As Exception
+            Debug.Print("RenamePrecipValuesField: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        Finally
+            pFClass = Nothing
+            pFld = Nothing
+        End Try
+
     End Function
 
 End Module
