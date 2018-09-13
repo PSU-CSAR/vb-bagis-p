@@ -1170,20 +1170,16 @@ Public Module GeodatabaseModule
             sourceFile = BA_StandardizeShapefileName(sourceFile, True)
 
             ' Create a name object for the source workspace and open it.
-            Dim sourceWorkspaceName As IWorkspaceName = New WorkspaceName With _
-                                                        { _
-                                                        .WorkspaceFactoryProgID = "esriDataSourcesFile.ShapefileWorkspaceFactory", _
-                                                        .PathName = sourcePath _
-                                                        }
+            Dim sourceWorkspaceName As IWorkspaceName = New WorkspaceName()
+            sourceWorkspaceName.WorkspaceFactoryProgID = "esriDataSourcesFile.ShapefileWorkspaceFactory"
+            sourceWorkspaceName.PathName = sourcePath
             Dim sourceWorkspaceIName As IName = CType(sourceWorkspaceName, IName)
             Dim sourceWorkspace As IWorkspace = CType(sourceWorkspaceIName.Open(), IWorkspace)
 
             ' Create a name object for the target workspace and open it.
-            Dim targetWorkspaceName As IWorkspaceName = New WorkspaceName With _
-                                                        { _
-                                                        .WorkspaceFactoryProgID = "esriDataSourcesGDB.FileGDBWorkspaceFactory", _
-                                                        .PathName = targetGDB _
-                                                        }
+            Dim targetWorkspaceName As IWorkspaceName = New WorkspaceName()
+            targetWorkspaceName.WorkspaceFactoryProgID = "esriDataSourcesGDB.FileGDBWorkspaceFactory"
+            targetWorkspaceName.PathName = targetGDB
             Dim targetWorkspaceIName As IName = CType(targetWorkspaceName, IName)
             Dim targetWorkspace As IWorkspace = CType(targetWorkspaceIName.Open(), IWorkspace)
 
@@ -1288,20 +1284,18 @@ Public Module GeodatabaseModule
             targetFile = BA_StandardizeShapefileName(targetFile, True)
 
             ' Create a name object for the source workspace and open it.
-            Dim sourceWorkspaceName As IWorkspaceName = New WorkspaceName With _
-                                                        { _
-                                                        .WorkspaceFactoryProgID = "esriDataSourcesFile.FileGDBWorkspaceFactory", _
-                                                        .PathName = sourceGDB _
-                                                        }
+            Dim sourceWorkspaceName As IWorkspaceName = New WorkspaceName()
+            sourceWorkspaceName.WorkspaceFactoryProgID = "esriDataSourcesFile.FileGDBWorkspaceFactory"
+            sourceWorkspaceName.PathName = sourceGDB
+
             Dim sourceWorkspaceIName As IName = CType(sourceWorkspaceName, IName)
             Dim sourceWorkspace As IWorkspace = CType(sourceWorkspaceIName.Open(), IWorkspace)
 
             ' Create a name object for the target workspace and open it.
-            Dim targetWorkspaceName As IWorkspaceName = New WorkspaceName With _
-                                                        { _
-                                                        .WorkspaceFactoryProgID = "esriDataSourcesGDB.ShapefileWorkspaceFactory", _
-                                                        .PathName = targetFolder _
-                                                        }
+            Dim targetWorkspaceName As IWorkspaceName = New WorkspaceName()
+            targetWorkspaceName.WorkspaceFactoryProgID = "esriDataSourcesGDB.ShapefileWorkspaceFactory"
+            targetWorkspaceName.PathName = targetFolder
+
             Dim targetWorkspaceIName As IName = CType(targetWorkspaceName, IName)
             Dim targetWorkspace As IWorkspace = CType(targetWorkspaceIName.Open(), IWorkspace)
 
@@ -1857,7 +1851,7 @@ Public Module GeodatabaseModule
             End If
             If targetFC IsNot Nothing Then
                 ' Create the new field.
-                Dim newField As IField = New FieldClass()
+                Dim newField As IField = New Field()
                 Dim newFieldEdit As IFieldEdit = CType(newField, IFieldEdit)
                 If fieldLength > -1 Then newFieldEdit.Length_2 = fieldLength ' Only string fields require that you set the length.
                 newFieldEdit.Name_2 = fieldName
@@ -1930,7 +1924,7 @@ Public Module GeodatabaseModule
         Dim pFeatureClass As IFeatureClass = Nothing
         Dim pFeatureCursor As IFeatureCursor = Nothing
         Dim pFeature As IFeature = Nothing
-        Dim pQueryFilter As IQueryFilter = New QueryFilterClass()
+        Dim pQueryFilter As IQueryFilter = New QueryFilter()
         Dim deleteFeatureCount As Int32 = 0
         Try
             pGeoDataSet = BA_OpenFeatureClassFromGDB(pFolder, pFile)

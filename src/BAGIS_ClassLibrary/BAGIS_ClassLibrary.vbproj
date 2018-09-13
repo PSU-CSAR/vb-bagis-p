@@ -209,6 +209,7 @@
     <Compile Include="enumerations\GxFilterCategory.vb" />
     <Compile Include="enumerations\MethodStatus.vb" />
     <Compile Include="enumerations\MeasurementUnitType.vb" />
+    <Compile Include="enumerations\SiteType.vb" />
     <Compile Include="enumerations\SystemModelParameterName.vb" />
     <Compile Include="enumerations\LayerType.vb" />
     <Compile Include="enumerations\GeodatabaseNames.vb" />
@@ -279,10 +280,12 @@
     <Compile Include="Objects\ReclassItem.vb" />
     <Compile Include="Objects\ReclassTextItem.vb" />
     <Compile Include="Objects\SerializableData.vb" />
+    <Compile Include="Objects\Site.vb" />
     <Compile Include="Objects\StoredAoi.vb" />
     <Compile Include="Objects\StoredAoiArray.vb" />
     <Compile Include="Objects\TemplateAction.vb" />
     <Compile Include="Objects\TemplateRule.vb" />
+    <Compile Include="Objects\WebExceptionDetail.vb" />
     <Compile Include="Objects\Zone.vb" />
     <Compile Include="PathsModule.vb" />
     <Compile Include="ProgressIndicatorModule.vb" />

@@ -27,7 +27,7 @@ Public Class MultipartFormHelper
     End Sub
 
     Public Shared Function WriteMultipartFormData(ByRef file As System.IO.FileInfo, ByVal stream As System.IO.Stream, ByVal mimeBoundary As String, _
-                                      ByVal mimeType As String, ByVal formKey As String) As Long
+                                                  ByVal mimeType As String, ByVal formKey As String) As Long
         If file Is Nothing Then
             Throw New ArgumentNullException("file")
         End If
@@ -88,6 +88,30 @@ Public Class MultipartFormHelper
         Next
         'The web service wants the hash in lower-case
         Return sb.ToString.ToLower
+    End Function
+
+    Public Shared Function WriteAChunk(ByVal chunkBytes As Byte(), ByVal fileName As String, ByVal stream As System.IO.Stream, _
+                                           ByVal mimeBoundary As String, ByVal mimeType As String, ByVal formKey As String) As BA_ReturnCode
+        If stream Is Nothing Then
+            Throw New ArgumentException("stream")
+        End If
+        If String.IsNullOrEmpty(mimeBoundary) Then
+            Throw New ArgumentException("mimeBoundary")
+        End If
+        If String.IsNullOrEmpty(mimeType) Then
+            Throw New ArgumentException("mimeType")
+        End If
+        If String.IsNullOrEmpty(formKey) Then
+            Throw New ArgumentException("formKey")
+        End If
+        Dim header As String = String.Format(HeaderTemplate, mimeBoundary, formKey, fileName, mimeType)
+        Dim headerBytes As Byte() = Encoding.UTF8.GetBytes(header)
+        stream.Write(headerBytes, 0, headerBytes.Length)
+        stream.Write(chunkBytes, 0, chunkBytes.Length)
+
+        Dim newLineBytes As Byte() = Encoding.UTF8.GetBytes(vbCrLf)
+        stream.Write(newLineBytes, 0, newLineBytes.Length)
+        Return BA_ReturnCode.Success
     End Function
 
 

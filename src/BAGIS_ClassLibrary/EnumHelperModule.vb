@@ -218,7 +218,7 @@ Public Module EnumHelperModule
     End Function
 
     'Returns the esriUnits object from the String for the esri units that we use in BAGIS
-    Public Function BA_GetEsriUnits(ByVal unitsText) As esriUnits
+    Public Function BA_GetEsriUnits(ByVal unitsText As String) As esriUnits
         Select Case unitsText
             Case "Feet"
                 Return esriUnits.esriFeet
@@ -231,6 +231,29 @@ Public Module EnumHelperModule
             Case Else
                 Return esriUnits.esriUnknownUnits
         End Select
+    End Function
+
+    'Returns the AoiClipFile enum from the file name represented as a string
+    Public Function BA_GetAoiClipFile(ByVal fileName As String) As esriUnits
+        For Each cFile In [Enum].GetValues(GetType(AOIClipFile))
+            Dim fi As Reflection.FieldInfo = cFile.GetType().GetField(cFile.ToString())
+            Dim aattr() As DescriptionAttribute = DirectCast(fi.GetCustomAttributes(GetType(DescriptionAttribute), False), DescriptionAttribute())
+            Dim compareText As String = aattr(0).Description
+            If String.Compare(compareText, fileName) = 0 Then
+                Return cFile
+            End If
+        Next
+        Return AOIClipFile.Missing
+    End Function
+
+    'Returns the Site entry associated with the Site's String representation
+    Public Function BA_GetSiteType(ByVal siteText As String) As SiteType
+        For Each pType As SiteType In [Enum].GetValues(GetType(SiteType))
+            If pType.ToString = siteText Then
+                Return pType
+            End If
+        Next
+        Return Nothing
     End Function
 
 End Module

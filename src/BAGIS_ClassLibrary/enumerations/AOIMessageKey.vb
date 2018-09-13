@@ -9,4 +9,5 @@ Public Enum AOIMessageKey
     <Description("Aspect")> Aspect
     <Description("Slope")> Slope
     <Description("Non-represented")> NonRepresented
+    <Description("Pseudo Site Elevation")> Pseudo
 End Enum
