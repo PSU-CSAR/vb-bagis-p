@@ -8,9 +8,9 @@
   <Company>Portland State University</Company>
   <Date>12/20/2017</Date>
   <Targets>
-    <Target name="Desktop" version="10.2" />
+    <Target name="Desktop" version="10.5" />
   </Targets>
-  <AddIn language="CLR4.0" library="BAGIS_P.dll" namespace="BAGIS_P">
+  <AddIn language="CLR" library="BAGIS_P.dll" namespace="BAGIS_P">
     <ArcMap>
       <Commands>
         <!-- <Button id="Portland_State_University_BAGIS_P_BtnModel" class="BtnModel" message="Execute model" caption="Execute model" tip="Execute model" category="BAGIS-P" image="Images\BtnModel.png" /> -->
