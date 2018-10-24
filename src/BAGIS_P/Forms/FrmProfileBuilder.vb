@@ -1540,8 +1540,12 @@ Public Class FrmProfileBuilder
                             End If
                         End If
                     Else
-                        MessageBox.Show("No valid methods are associated with this HRU", "No valid methods", MessageBoxButtons.OK, _
+                        MessageBox.Show("No valid methods are associated with this HRU", "No valid methods", MessageBoxButtons.OK,
                                         MessageBoxIcon.Error)
+                        ManageVerifyButton()
+                        LblVerifyMethods.Visible = False
+                        ManageRecalculateButton()
+                        LblStatus.Text = "Verification complete"
                         Exit Sub
                     End If
                     ManageVerifyButton()
