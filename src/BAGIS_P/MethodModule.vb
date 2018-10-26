@@ -314,52 +314,51 @@ Module MethodModule
                 Dim inputFolder As String = Nothing
                 Dim inputFile As String = Nothing
                 If pDataSource.AoiLayer = False AndAlso pDataSource.IsValid = True Then
-                    If String.IsNullOrEmpty(aoiPath) Then
+                    If BA_GetWorkspaceTypeFromPath(pDataSource.Source) = WorkspaceType.ImageServer Then
+                        'There is no such thing as a local image service data source
+                        inputFolder = pDataSource.Source
+                    ElseIf String.IsNullOrEmpty(aoiPath) Then
                         'This is a public data source
-                        If BA_GetWorkspaceTypeFromPath(pDataSource.Source) = WorkspaceType.ImageServer Then
-                            inputFolder = pDataSource.Source
-                        Else
-                            inputFolder = "PleaseReturn"
-                            inputFile = BA_GetBareName(pDataSource.Source, inputFolder)
-                        End If
+                        inputFolder = "PleaseReturn"
+                        inputFile = BA_GetBareName(pDataSource.Source, inputFolder)
                     Else
                         'Otherwise it's a local data source
                         inputFolder = BA_GetDataBinPath(aoiPath)
                         inputFile = BA_GetBareName(pDataSource.Source)
                     End If
                     Dim tagsList As IList(Of String) = BA_ReadMetaData(inputFolder, inputFile, _
-                                                                       pDataSource.LayerType, _
-                                                                       BA_XPATH_TAGS)
-                    If tagsList IsNot Nothing AndAlso tagsList.Count > 0 Then
-                        For Each pInnerText As String In tagsList
-                            'This is our BAGIS tag
-                            If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
-                                Dim strSplit As String = ";"
-                                If pDataSource.LayerType = LayerType.ImageService Then
-                                    strSplit = "!"
-                                End If
-                                Dim strCategory As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_CATEGORY_TAG, strSplit)
-                                If Not String.IsNullOrEmpty(strCategory) Then
-                                    Dim pUnitType As MeasurementUnitType = BA_GetMeasurementUnitType(strCategory)
-                                    pDataSource.MeasurementUnitType = pUnitType
-                                End If
-                                Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, strSplit)
-                                If Not String.IsNullOrEmpty(strUnits) Then
-                                    Dim pUnits As MeasurementUnit = BA_GetMeasurementUnit(strUnits)
-                                    If pUnits <> MeasurementUnit.Missing Then
-                                        pDataSource.MeasurementUnit = pUnits
-                                    Else
-                                        'Some special treatment here in case it is a slope unit
-                                        Dim slopeUnits As SlopeUnit = BA_GetSlopeUnit(strUnits)
-                                        If slopeUnits <> SlopeUnit.Missing Then
-                                            pDataSource.SlopeUnit = slopeUnits
+                                                                           pDataSource.LayerType, _
+                                                                           BA_XPATH_TAGS)
+                        If tagsList IsNot Nothing AndAlso tagsList.Count > 0 Then
+                            For Each pInnerText As String In tagsList
+                                'This is our BAGIS tag
+                                If pInnerText.IndexOf(BA_BAGIS_TAG_PREFIX) = 0 Then
+                                    Dim strSplit As String = ";"
+                                    If pDataSource.LayerType = LayerType.ImageService Then
+                                        strSplit = "!"
+                                    End If
+                                    Dim strCategory As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_CATEGORY_TAG, strSplit)
+                                    If Not String.IsNullOrEmpty(strCategory) Then
+                                        Dim pUnitType As MeasurementUnitType = BA_GetMeasurementUnitType(strCategory)
+                                        pDataSource.MeasurementUnitType = pUnitType
+                                    End If
+                                    Dim strUnits As String = BA_GetValueForKey(pInnerText, BA_ZUNIT_VALUE_TAG, strSplit)
+                                    If Not String.IsNullOrEmpty(strUnits) Then
+                                        Dim pUnits As MeasurementUnit = BA_GetMeasurementUnit(strUnits)
+                                        If pUnits <> MeasurementUnit.Missing Then
+                                            pDataSource.MeasurementUnit = pUnits
+                                        Else
+                                            'Some special treatment here in case it is a slope unit
+                                            Dim slopeUnits As SlopeUnit = BA_GetSlopeUnit(strUnits)
+                                            If slopeUnits <> SlopeUnit.Missing Then
+                                                pDataSource.SlopeUnit = slopeUnits
+                                            End If
                                         End If
                                     End If
                                 End If
-                            End If
-                        Next
+                            Next
+                        End If
                     End If
-                End If
             Next
         End If
     End Function

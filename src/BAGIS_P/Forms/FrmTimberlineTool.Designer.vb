@@ -92,7 +92,7 @@ Partial Class FrmTimberlineTool
         Me.TextBox2.Margin = New System.Windows.Forms.Padding(2)
         Me.TextBox2.Name = "TextBox2"
         Me.TextBox2.ReadOnly = True
-        Me.TextBox2.Size = New System.Drawing.Size(178, 15)
+        Me.TextBox2.Size = New System.Drawing.Size(190, 15)
         Me.TextBox2.TabIndex = 121
         Me.TextBox2.Text = "Elevation for selected AOI"
         '
@@ -264,7 +264,7 @@ Partial Class FrmTimberlineTool
         Me.BtnViewHru.Location = New System.Drawing.Point(326, 58)
         Me.BtnViewHru.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnViewHru.Name = "BtnViewHru"
-        Me.BtnViewHru.Size = New System.Drawing.Size(110, 23)
+        Me.BtnViewHru.Size = New System.Drawing.Size(130, 23)
         Me.BtnViewHru.TabIndex = 99
         Me.BtnViewHru.Text = "View HRU Layer"
         Me.BtnViewHru.UseVisualStyleBackColor = True
@@ -286,7 +286,7 @@ Partial Class FrmTimberlineTool
         Me.DataGridView1.Location = New System.Drawing.Point(2, 214)
         Me.DataGridView1.Margin = New System.Windows.Forms.Padding(2)
         Me.DataGridView1.Name = "DataGridView1"
-        Me.DataGridView1.Size = New System.Drawing.Size(214, 131)
+        Me.DataGridView1.Size = New System.Drawing.Size(281, 131)
         Me.DataGridView1.TabIndex = 103
         '
         'HruId
@@ -318,7 +318,7 @@ Partial Class FrmTimberlineTool
         'BtnClose
         '
         Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnClose.Location = New System.Drawing.Point(534, 349)
+        Me.BtnClose.Location = New System.Drawing.Point(611, 349)
         Me.BtnClose.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnClose.Name = "BtnClose"
         Me.BtnClose.Size = New System.Drawing.Size(53, 23)
@@ -330,7 +330,7 @@ Partial Class FrmTimberlineTool
         '
         Me.BtnSave.Enabled = False
         Me.BtnSave.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnSave.Location = New System.Drawing.Point(475, 349)
+        Me.BtnSave.Location = New System.Drawing.Point(552, 349)
         Me.BtnSave.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnSave.Name = "BtnSave"
         Me.BtnSave.Size = New System.Drawing.Size(53, 23)
@@ -384,7 +384,7 @@ Partial Class FrmTimberlineTool
         'BtnAbout
         '
         Me.BtnAbout.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnAbout.Location = New System.Drawing.Point(463, 6)
+        Me.BtnAbout.Location = New System.Drawing.Point(576, 6)
         Me.BtnAbout.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnAbout.Name = "BtnAbout"
         Me.BtnAbout.Size = New System.Drawing.Size(97, 23)
@@ -428,17 +428,17 @@ Partial Class FrmTimberlineTool
         Me.Pnl1.Controls.Add(Me.TxtElev)
         Me.Pnl1.Controls.Add(Me.Label7)
         Me.Pnl1.Controls.Add(Me.Label6)
-        Me.Pnl1.Location = New System.Drawing.Point(220, 215)
+        Me.Pnl1.Location = New System.Drawing.Point(292, 215)
         Me.Pnl1.Margin = New System.Windows.Forms.Padding(2)
         Me.Pnl1.Name = "Pnl1"
-        Me.Pnl1.Size = New System.Drawing.Size(367, 131)
+        Me.Pnl1.Size = New System.Drawing.Size(381, 131)
         Me.Pnl1.TabIndex = 115
         '
         'BtnUpdate
         '
         Me.BtnUpdate.Enabled = False
         Me.BtnUpdate.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BtnUpdate.Location = New System.Drawing.Point(282, 47)
+        Me.BtnUpdate.Location = New System.Drawing.Point(301, 47)
         Me.BtnUpdate.Margin = New System.Windows.Forms.Padding(2)
         Me.BtnUpdate.Name = "BtnUpdate"
         Me.BtnUpdate.Size = New System.Drawing.Size(67, 23)
@@ -450,7 +450,7 @@ Partial Class FrmTimberlineTool
         '
         Me.TxtSelElev.Enabled = False
         Me.TxtSelElev.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtSelElev.Location = New System.Drawing.Point(215, 48)
+        Me.TxtSelElev.Location = New System.Drawing.Point(234, 48)
         Me.TxtSelElev.Margin = New System.Windows.Forms.Padding(2)
         Me.TxtSelElev.Name = "TxtSelElev"
         Me.TxtSelElev.Size = New System.Drawing.Size(55, 22)
@@ -465,7 +465,7 @@ Partial Class FrmTimberlineTool
         Me.TextBox4.Margin = New System.Windows.Forms.Padding(2)
         Me.TextBox4.Name = "TextBox4"
         Me.TextBox4.ReadOnly = True
-        Me.TextBox4.Size = New System.Drawing.Size(347, 15)
+        Me.TextBox4.Size = New System.Drawing.Size(355, 15)
         Me.TextBox4.TabIndex = 124
         Me.TextBox4.Text = "Note: an elevation of 0 indicates the HRU is below timberline"
         '
@@ -567,7 +567,7 @@ Partial Class FrmTimberlineTool
         Me.Controls.Add(Me.PnlTimberline)
         Me.Margin = New System.Windows.Forms.Padding(2)
         Me.Name = "FrmTimberlineTool"
-        Me.Size = New System.Drawing.Size(593, 378)
+        Me.Size = New System.Drawing.Size(690, 378)
         Me.PnlTimberline.ResumeLayout(False)
         Me.PnlTimberline.PerformLayout()
         CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()

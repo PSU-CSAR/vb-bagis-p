@@ -798,7 +798,13 @@ Public Class FrmTimberlineTool
         If bObjectSelected = False Then Exit Sub
 
         'get the name of the selected folder
-        Dim pGxDataset As IGxDataset = pGxObject.Next
+        Dim pGxDataset As IGxDataset = Nothing
+        pGxDataset = TryCast(pGxObject.Next, IGxDataset)
+        If IsNothing(pGxDataset) Then
+            MessageBox.Show("The data layer you selected is not yet supported by BAGIS-P", _
+                            "BAGIS-P", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Exit Sub
+        End If
         Dim pDatasetName As IDatasetName = pGxDataset.DatasetName
         Dim Data_Path As String = pDatasetName.WorkspaceName.PathName
         Dim Data_Name As String = pDatasetName.Name
