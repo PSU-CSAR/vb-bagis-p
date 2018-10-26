@@ -523,10 +523,9 @@ Public Class FrmExportParametersEwsf
                         End If
                     End If
                 End If
-
-                If Not String.IsNullOrEmpty(warning) Then
-                    MessageBox.Show(warning, "Invalid jh_coeff calculation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                End If
+            End If
+            If Not String.IsNullOrEmpty(warning) Then
+                MessageBox.Show(warning, "Invalid jh_coeff calculation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             End If
         End If
 
