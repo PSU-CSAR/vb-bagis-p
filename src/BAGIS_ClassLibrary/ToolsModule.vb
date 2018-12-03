@@ -1577,20 +1577,20 @@ Public Module ToolsModule
         End Try
     End Function
 
-    Public Function BA_Times(ByVal inRasterPath1 As String, ByVal inRasterPath2 As String, _
-                             ByVal outRasterPath As String) As BA_ReturnCode
-        Dim tool As Times = New Times
+    Public Function BA_Raster2ASCII(ByVal inRasterPath As String, ByVal outRasterPath As String) As BA_ReturnCode
+        Dim tool As RasterToASCII = New RasterToASCII
         Try
-            tool.in_raster_or_constant1 = inRasterPath1
-            tool.in_raster_or_constant2 = inRasterPath2
-            tool.out_raster = outRasterPath
+            tool.in_raster = inRasterPath
+            tool.out_ascii_file = outRasterPath
             Execute_Geoprocessing(tool, False, Nothing)
             Return BA_ReturnCode.Success
         Catch ex As Exception
-            MessageBox.Show("BA_Times Exception: " + ex.Message)
+            MessageBox.Show("BA_Raster2ASCII Exception: " + ex.Message)
             Return BA_ReturnCode.UnknownError
         End Try
     End Function
+
+
 
 End Module
 
