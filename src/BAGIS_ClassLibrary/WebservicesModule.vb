@@ -7,9 +7,7 @@ Imports ESRI.ArcGIS.DataSourcesGDB
 Imports ESRI.ArcGIS.Carto
 Imports ESRI.ArcGIS.DataSourcesRaster
 Imports ESRI.ArcGIS.GISClient
-Imports ESRI.ArcGIS.Server
 Imports System.Net
-Imports System.Timers
 Imports System.Windows.Forms
 
 Public Module WebservicesModule
