@@ -1592,6 +1592,58 @@ Public Module ToolsModule
         End Try
     End Function
 
+    Public Function BA_SnapPourPoint(ByVal inAccumulationRaster As String, ByVal inPourPointData As String, _
+                                     ByVal snapDistance As String, ByVal outRasterPath As String) As BA_ReturnCode
+        Dim tool As SnapPourPoint = New SnapPourPoint
+        Try
+            tool.in_accumulation_raster = inAccumulationRaster
+            tool.in_pour_point_data = inPourPointData
+            tool.snap_distance = snapDistance
+            tool.out_raster = outRasterPath
+            Dim retVal As Short = Execute_Geoprocessing(tool, False, Nothing)
+            If retVal = 1 Then
+                Return BA_ReturnCode.Success
+            Else
+                Return BA_ReturnCode.UnknownError
+            End If
+        Catch ex As Exception
+            MessageBox.Show("BA_SnapPourPoint Exception: " + ex.Message)
+            Return BA_ReturnCode.UnknownError
+        End Try
+    End Function
+
+    Public Function BA_Watershed(ByVal inFlowDirectionRaster As String, ByVal inPourPointData As String, _
+                                 ByVal outRasterPath As String) As BA_ReturnCode
+        Dim tool As Watershed = New Watershed
+        Try
+            tool.in_flow_direction_raster = inFlowDirectionRaster
+            tool.in_pour_point_data = inPourPointData
+            tool.out_raster = outRasterPath
+            Dim retVal As Short = Execute_Geoprocessing(tool, False, Nothing)
+            If retVal = 1 Then
+                Return BA_ReturnCode.Success
+            Else
+                Return BA_ReturnCode.UnknownError
+            End If
+        Catch ex As Exception
+            MessageBox.Show("BA_Watershed Exception: " + ex.Message)
+            Return BA_ReturnCode.UnknownError
+        End Try
+    End Function
+
+    Public Function BA_Raster2ASCII(ByVal inRasterPath As String, ByVal outRasterPath As String) As BA_ReturnCode
+        Dim tool As RasterToASCII = New RasterToASCII
+        Try
+            tool.in_raster = inRasterPath
+            tool.out_ascii_file = outRasterPath
+            Execute_Geoprocessing(tool, False, Nothing)
+            Return BA_ReturnCode.Success
+        Catch ex As Exception
+            MessageBox.Show("BA_Raster2ASCII Exception: " + ex.Message)
+            Return BA_ReturnCode.UnknownError
+        End Try
+    End Function
+
 End Module
 
 
