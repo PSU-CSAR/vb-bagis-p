@@ -970,7 +970,15 @@ Public Module ToolsModule
         tool.out_raster = outRasterDataset
         tool.neighborhood = neighborhood
         tool.statistics_type = statisticsType
-        Return Execute_GeoprocessingWithMask(tool, maskDataset, False, snapRasterPath)
+        If Not String.IsNullOrEmpty(maskDataset) Then
+            Return Execute_GeoprocessingWithMask(tool, maskDataset, False, snapRasterPath)
+        Else
+            If Execute_Geoprocessing(tool, False, Nothing) = 1 Then
+                Return BA_ReturnCode.Success
+            Else
+                Return BA_ReturnCode.UnknownError
+            End If
+        End If
     End Function
 
     'Delete data from disk
