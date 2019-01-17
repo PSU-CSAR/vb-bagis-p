@@ -245,6 +245,7 @@
     Public Const BA_Url_MapServer As String = "MapServer"
     Public Const BA_Url_ImageServer As String = "ImageServer"
     Public Const BA_Url_FeatureServer As String = "FeatureServer"
+    Public Const BA_Url_RestServices As String = "/rest/services"
 
     'AOI snotel site, snow course site, and pseudo-site attributes
     Public Const BA_SiteSnotel = "stel"

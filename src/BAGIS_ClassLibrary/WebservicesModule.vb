@@ -819,10 +819,22 @@ Public Module WebservicesModule
         Dim checkedUrl As String = inputPath
         Try
             Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(inputPath)
-            If wType = WorkspaceType.FeatureServer Or _
-                wType = WorkspaceType.ImageServer Then
+            If wType = WorkspaceType.ImageServer Then
                 Dim idxServices As Integer = inputPath.IndexOf(BA_Url_Services)
                 checkedUrl = inputPath.Substring(0, idxServices + BA_Url_Services.Length)
+                If checkedUrls.ContainsKey(checkedUrl) Then
+                    Return checkedUrls(checkedUrl)
+                Else
+                    connectionProps.SetProperty("URL", checkedUrl)
+                    AGSConnection = AGSConnectionFactory.Open(connectionProps, 0)
+                    If Not checkedUrls.ContainsKey(checkedUrl) Then
+                        checkedUrls.Add(checkedUrl, True)
+                    End If
+                    Return True
+                End If
+            ElseIf wType = WorkspaceType.FeatureServer Then
+                Dim idxServices As Integer = inputPath.IndexOf(BA_Url_RestServices)
+                checkedUrl = inputPath.Substring(0, idxServices + BA_Url_RestServices.Length)
                 If checkedUrls.ContainsKey(checkedUrl) Then
                     Return checkedUrls(checkedUrl)
                 Else
