@@ -453,7 +453,7 @@ Public Module PublicModule
     End Function
 
     'Opens and returns a IGeoDataset (raster) object
-    Public Function BA_OpenRasterFromFile(ByRef filepath As String, ByRef FileName As String) As IGeoDataset
+    Public Function BA_OpenRasterFromFile(ByVal filepath As String, ByVal FileName As String) As IGeoDataset
         Dim directoryInfo_check As DirectoryInfo = New DirectoryInfo(filepath)
         If directoryInfo_check.Exists Then
             'We have a valid directory, proceed
@@ -2432,6 +2432,31 @@ Optional ByVal hasPaddingBackSlach As Boolean = False) As String
             GC.WaitForPendingFinalizers()
             GC.Collect()
         End Try
+    End Function
+
+    Public Function BA_RemoveTempRasters(ByVal folderPath As String) As BA_ReturnCode
+        Dim success As BA_ReturnCode = BA_ReturnCode.UnknownError
+        Dim AOIVectorList() As String = Nothing
+        Dim AOIRasterList() As String = Nothing
+        BA_ListLayersinAOI(folderPath, AOIRasterList, AOIVectorList)
+        If AOIRasterList.Length > 0 Then
+            For Each rasterLayer As String In AOIRasterList
+                If Not String.IsNullOrEmpty(rasterLayer) Then
+                    success = BA_DeleteLayer_GP(folderPath + "\" + rasterLayer)
+                End If
+            Next
+        End If
+        Return success
+    End Function
+
+    Public Function BA_Smooth(ByVal inRaster As String, ByVal outRaster As String, ByVal neighborhoodWidth As String,
+                              ByVal neighborhoodHeight As String) As BA_ReturnCode
+        Dim success As BA_ReturnCode = BA_ReturnCode.UnknownError
+        'Sample neighborhood (width first then height): "Rectangle 5 5 Cell" 
+        Dim strNeighborhood As String = "Rectangle " + neighborhoodWidth + " " + neighborhoodHeight + " Cell"
+        success = BA_FocalStatistics_GP(inRaster, outRaster, Nothing,
+                                        strNeighborhood, "MEAN", Nothing)
+        Return success
     End Function
 
 End Module

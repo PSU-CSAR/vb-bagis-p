@@ -945,7 +945,7 @@ Public Module AOIModule
             ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pDSName)
             ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pEnumDSName)
             ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pWorkspace)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pWSF)
+            'ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pWSF)
         End Try
     End Sub
 
