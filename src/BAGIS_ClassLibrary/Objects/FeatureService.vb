@@ -3,6 +3,7 @@
     Private m_name As String
     Private m_featureServiceFields As FeatureServiceField()
     Public extent As Extent
+    Public objectIdField As String
 
     Property name As String
         Get

@@ -1968,6 +1968,7 @@ Public Module GeodatabaseModule
                 pBandCol = CType(pRDataset, IRasterBandCollection)
                 pRasterBand = pBandCol.Item(0)
                 pTable = pRasterBand.AttributeTable
+                If pTable Is Nothing Then Return True
                 Dim rCount As Integer = pTable.RowCount(Nothing)
                 If rCount > 0 Then
                     Return False

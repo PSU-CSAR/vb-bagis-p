@@ -16,11 +16,12 @@ Imports ESRI.ArcGIS.Geometry
 Imports ESRI.ArcGIS.ArcMapUI
 Imports ESRI.ArcGIS.SpatialAnalyst
 Imports ESRI.ArcGIS.DataSourcesGDB
+Imports System.Text
 
 Public Module AOIModule
 
     ' Add name, lbound, ubound attributes to raster. These attributes are used when displaying/symbolizing the raster
-    Public Function BA_ReadReclassRasterAttributeGDB(ByRef IntervalList() As BA_IntervalList, ByRef filepath As String, _
+    Public Function BA_ReadReclassRasterAttributeGDB(ByRef IntervalList() As BA_IntervalList, ByRef filepath As String,
                                                      ByRef FileName As String) As BA_ReturnCode
         'fields to be read:
         'NAME - esriFieldTypeString: for labeling purpose
@@ -283,7 +284,7 @@ Public Module AOIModule
     '2: PRISM buffer - i.e., P_AOI_V
 
     ' Clip raster to an AOI vector. Options are no buffer, standard buffer, and PRISM buffer
-    Public Function BA_ClipAOIRaster(ByVal AOIFolder As String, ByVal InputRaster As String, ByVal OutputRasterName As String, _
+    Public Function BA_ClipAOIRaster(ByVal AOIFolder As String, ByVal InputRaster As String, ByVal OutputRasterName As String,
                                      ByVal outputFolder As String, ByVal AOIClipKey As AOIClipFile, Optional ByVal RebuildATT As Boolean = True) As Short
         'prepare for data clipping
         'get vector clipping mask, raster clipping mask is created earlier, i.e., pWaterRDS
@@ -320,20 +321,32 @@ Public Module AOIModule
                 OutputName = outputFolder & "\" & Data_Name
             Else
                 'Took out full qualification to solve error message
-                If workspaceType = workspaceType.Raster And OutputRasterName.Length > BA_GRID_NAME_MAX_LENGTH Then
+                If workspaceType = WorkspaceType.Raster And OutputRasterName.Length > BA_GRID_NAME_MAX_LENGTH Then
                     Throw New Exception("Output raster name cannot exceed " + CStr(BA_GRID_NAME_MAX_LENGTH) + " characters")
                 End If
                 OutputName = outputFolder & "\" & OutputRasterName
             End If
 
             'check if a layer of the same name exists in the AOI
-            If BA_File_Exists(OutputName, workspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
+            If BA_File_Exists(OutputName, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
                 Return -2
             End If
 
             'checking overlap between input and clip layers
             Dim pClipFClassPath As String = BA_GeodatabasePath(AOIFolder, GeodatabaseNames.Aoi, True) & ClipShapeFile
             pClipFClass = BA_OpenFeatureClassFromGDB(BA_GeodatabasePath(AOIFolder, GeodatabaseNames.Aoi), ClipShapeFile)
+            'check for multiple buffer polygons and buffer AOI if we need to
+            Dim tempClipFile As String = "tmpClipBuffer"
+            Dim tempClipName As String = BA_GeodatabasePath(AOIFolder, GeodatabaseNames.Analysis, True) + tempClipFile
+            If AOIClipKey = AOIClipFile.AOIExtentCoverage Then
+                Dim featureCount As Integer = pClipFClass.FeatureCount(Nothing)
+                If featureCount > 1 Then
+                    Dim success As BA_ReturnCode = BA_Buffer(pClipFClassPath, tempClipName, "0.5 Meters", "ALL")
+                    If success = BA_ReturnCode.Success Then
+                        pClipFClass = BA_OpenFeatureClassFromGDB(BA_GeodatabasePath(AOIFolder, GeodatabaseNames.Analysis, True), tempClipFile)
+                    End If
+                End If
+            End If
             'retrieve IFeature from FeatureClass
             pClipFeatureLayer.FeatureClass = pClipFClass
             pClipFCursor = pClipFeatureLayer.Search(Nothing, False)
@@ -353,17 +366,22 @@ Public Module AOIModule
             tool.in_template_dataset = pClipFClassPath
             tool.clipping_geometry = "ClippingGeometry"  ' clip the raster to the boundary of the aoi_b vector
             GP.AddOutputsToMap = False
+            Dim snapRasterPath As String = BA_GeodatabasePath(AOIFolder, GeodatabaseNames.Surfaces, True) + BA_EnumDescription(MapsFileName.filled_dem_gdb)
+            GP.SetEnvironmentValue("snapRaster", snapRasterPath)
             Dim res As Object = GP.Execute(tool, Nothing)
 
             If res Is Nothing Then
                 'Clip did not complete successfully
                 Return 0
             Else
+                If BA_File_Exists(tempClipName, WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
+                    BA_Remove_ShapefileFromGDB(BA_GeodatabasePath(AOIFolder, GeodatabaseNames.Analysis, True), tempClipFile)
+                End If
                 'If source and target are both in a File GDB, need to rebuild the attribute
                 'table. Otherwise it will be corrupted if source and target GDB are different
                 If RebuildATT Then
-                    If BA_GetWorkspaceTypeFromPath(InputRaster) = workspaceType.Geodatabase And _
-                        BA_GetWorkspaceTypeFromPath(OutputName) = workspaceType.Geodatabase Then
+                    If BA_GetWorkspaceTypeFromPath(InputRaster) = WorkspaceType.Geodatabase And
+                    BA_GetWorkspaceTypeFromPath(OutputName) = WorkspaceType.Geodatabase Then
                         'Check to be sure the target is a single-band thematic raster; Cannot build an attribute table otherwise
                         Dim inputFolder As String = "PleaseReturn"
                         Dim inputFile As String = BA_GetBareName(InputRaster, inputFolder)
@@ -389,7 +407,7 @@ Public Module AOIModule
                 Else
                     Return 1
                 End If
-                End If
+            End If
         Catch ex As Exception
             If GP.MessageCount > 0 Then
                 MessageBox.Show("Geoprocessor error: " + GP.GetMessages(Type.Missing))
@@ -419,7 +437,7 @@ Public Module AOIModule
     '0: no intersect between the input and the clip layers
     '1: clipping is done successfully
     'Clip vector to an AOI vector. Options are no buffer or standard buffer buffer
-    Public Function BA_ClipAOIVector(ByVal AOIFolder As String, ByVal InputShapefile As String, ByVal OutputVectorName As String, _
+    Public Function BA_ClipAOIVector(ByVal AOIFolder As String, ByVal InputShapefile As String, ByVal OutputVectorName As String,
                                      ByVal outputFolder As String, ByVal WithBuffer As Boolean) As Short
         Dim Data_Path As String = ""
         Dim Data_Name As String = ""
@@ -446,12 +464,30 @@ Public Module AOIModule
 
         Dim workspaceType As WorkspaceType = BA_GetWorkspaceTypeFromPath(Data_Path)
 
-        If WithBuffer Then 'use bufferred AOI
+        If WithBuffer Then 'use buffered AOI
             ClipShapeFile = BA_EnumDescription(AOIClipFile.BufferedAOIExtentCoverage)
         Else 'use un-bufferred AOI
             ClipShapeFile = BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
         End If
         ClipName = AOIFolder & "\" & BA_EnumDescription(GeodatabaseNames.Aoi) & "\" & ClipShapeFile
+
+        ' Open the feature class here so we can test for > 1 polygon
+        pClipFClass = BA_OpenFeatureClassFromGDB(AOIFolder & "\" & BA_EnumDescription(GeodatabaseNames.Aoi), ClipShapeFile)
+        Dim tempClipFile As String = "tmpClipBuffer"
+        Dim tempClipName As String = BA_GeodatabasePath(AOIFolder, GeodatabaseNames.Analysis, True) + tempClipFile
+        If pClipFClass IsNot Nothing AndAlso Not WithBuffer Then
+            Dim featureCount As Integer = pClipFClass.FeatureCount(Nothing)
+            If featureCount > 1 Then
+                Dim success As BA_ReturnCode = BA_Buffer(ClipName, tempClipName, "0.5 Meters", "ALL")
+                If success = BA_ReturnCode.Success Then
+                    pClipFClass = BA_OpenFeatureClassFromGDB(BA_GeodatabasePath(AOIFolder, GeodatabaseNames.Analysis, True), tempClipFile)
+                    If pClipFClass IsNot Nothing Then
+                        ClipName = tempClipName
+                    End If
+                End If
+            End If
+        End If
+
 
         If Not BA_Workspace_Exists(outputFolder) Then
             Throw New Exception("Output folder " + outputFolder + " does not exist.")
@@ -464,7 +500,7 @@ Public Module AOIModule
 
         'check if the input shapefile has a .shp file extension
         Dim InputName As String = InputShapefile
-        If workspaceType = workspaceType.Raster Then
+        If workspaceType = WorkspaceType.Raster Then
             Dim tmpPath As String = ""
             Dim tmpName As String = ""
             tmpName = BA_GetBareName(InputShapefile, tmpPath)
@@ -473,7 +509,7 @@ Public Module AOIModule
         End If
 
         'check if a layer of the same name exists in the AOI
-        If BA_File_Exists(OutputName, workspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
+        If BA_File_Exists(OutputName, WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
             Return -2
         End If
 
@@ -487,7 +523,6 @@ Public Module AOIModule
             Dim pSFilter As ISpatialFilter
 
             'get the clip geometry
-            pClipFClass = BA_OpenFeatureClassFromGDB(AOIFolder & "\" & BA_EnumDescription(GeodatabaseNames.Aoi), ClipShapeFile)
             pClipFeatureLayer = New FeatureLayer
             pClipFeatureLayer.FeatureClass = pClipFClass
 
@@ -503,9 +538,9 @@ Public Module AOIModule
                 .SpatialRel = esriSpatialRelEnum.esriSpatialRelIntersects
             End With
 
-            If workspaceType = workspaceType.Geodatabase Then
+            If workspaceType = WorkspaceType.Geodatabase Then
                 pInputFClass = BA_OpenFeatureClassFromGDB(Data_Path, Data_Name)
-            ElseIf workspaceType = workspaceType.Raster Then
+            ElseIf workspaceType = WorkspaceType.Raster Then
                 pInputFClass = BA_OpenFeatureClassFromFile(Data_Path, Data_Name)
             End If
 
@@ -522,6 +557,9 @@ Public Module AOIModule
                 tool.out_feature_class = OutputName 'feature class to be created
                 GP.AddOutputsToMap = False
                 GP.Execute(tool, Nothing)
+                If BA_File_Exists(tempClipName, WorkspaceType.Geodatabase, esriDatasetType.esriDTFeatureClass) Then
+                    BA_Remove_ShapefileFromGDB(BA_GeodatabasePath(AOIFolder, GeodatabaseNames.Analysis), tempClipName)
+                End If
                 Return 1
             Else
                 Return 0
@@ -572,8 +610,8 @@ Public Module AOIModule
     'n: the number of intervals
     '-1: error
     '0: input attribute out of bound
-    Public Function BA_GetUniqueSortedValues(ByRef FilePath As String, ByRef shapefilename As String, ByRef NameFieldName As String, _
-                                             ByRef valuefieldname As String, ByRef lowerbnd As Double, ByRef upperbnd As Double, _
+    Public Function BA_GetUniqueSortedValues(ByRef FilePath As String, ByRef shapefilename As String, ByRef NameFieldName As String,
+                                             ByRef valuefieldname As String, ByRef lowerbnd As Double, ByRef upperbnd As Double,
                                              ByRef IntervalList() As BA_IntervalList) As Short
         Dim return_value As Short = -1
         Dim pFClass As IFeatureClass
@@ -583,7 +621,7 @@ Public Module AOIModule
         Dim pCursor As IFeatureCursor
 
         Try
-             Dim pFeature As IFeature
+            Dim pFeature As IFeature
 
             'open shapefile
             pFClass = BA_OpenFeatureClassFromGDB(FilePath, shapefilename)
@@ -650,7 +688,7 @@ Public Module AOIModule
                     nuniquevalue = nuniquevalue - 1
                 End If
             Next
- 
+
             ncount = i + 2
             ReDim Preserve valuelist(ncount)
             ReDim Preserve namelist(ncount)
@@ -981,7 +1019,7 @@ Public Module AOIModule
             Dim layers_removed As Short = 0
             For i = nlayers To 1 Step -1
                 pTempLayer = pMap.Layer(i - 1)
-                If TypeOf pTempLayer Is IFeatureLayer Or _
+                If TypeOf pTempLayer Is IFeatureLayer Or
                    TypeOf pTempLayer Is IRasterLayer Then
                     If pTempLayer.Valid Then
                         pDSet = pTempLayer
@@ -1136,8 +1174,9 @@ Public Module AOIModule
     ' OutputPath: Folder to write output
     ' Vector name: file name for output
     ' Message key: 
-    Public Function BA_MakeZoneDatasets(ByVal pMxDoc As ESRI.ArcGIS.ArcMapUI.IMxDocument, ByVal pInputRaster As IGeoDataset, _
-                                        ByRef IntervalList() As BA_IntervalList, ByVal OutputPath As String, ByVal RasterName As String, _
+    Public Function BA_MakeZoneDatasets(ByVal pMxDoc As ESRI.ArcGIS.ArcMapUI.IMxDocument, ByVal inputFolderPath As String,
+                                        ByRef IntervalList() As BA_IntervalList, ByVal reclassField As String,
+                                        ByVal OutputPath As String, ByVal RasterName As String, ByVal maskFilePath As String,
                                         ByVal VectorName As String, ByVal MessageKey As AOIMessageKey) As Short
         Dim response As Short
         Dim pZoneRaster As String
@@ -1156,7 +1195,8 @@ Public Module AOIModule
 
         'reclassify and save the reclassified raster and
         'propogate interval list data to the attribute table of the grid
-        response = BA_ReclassRasterFromIntervalList(IntervalList, pInputRaster, OutputPath, RasterName)
+        Dim success As BA_ReturnCode = BA_ReclassRasterFromIntervalListGP(IntervalList, inputFolderPath, reclassField,
+                                       OutputPath + "\" + RasterName, maskFilePath)
         'Set pInputRaster = Nothing
         response = BA_UpdateReclassRasterAttributes(IntervalList, OutputPath, RasterName)
 
@@ -1453,8 +1493,8 @@ Public Module AOIModule
     End Sub
 
     ' Uses Geoanalyst IReclassOp tool to slice a raster
-    Public Function BA_SliceRaster(ByVal inputFolderPath As String, ByVal outputFolderPath As String, _
-                                   ByVal outputLayerName As String, ByVal sliceType As esriGeoAnalysisSliceEnum, _
+    Public Function BA_SliceRaster(ByVal inputFolderPath As String, ByVal outputFolderPath As String,
+                                   ByVal outputLayerName As String, ByVal sliceType As esriGeoAnalysisSliceEnum,
                                    ByVal zoneCount As Long, ByVal baseZone As Integer) As BA_ReturnCode
         Dim pGeoDataset As IGeoDataset = Nothing
         Dim pReclassOp As IReclassOp = New RasterReclassOp
@@ -1477,7 +1517,7 @@ Public Module AOIModule
         End Try
     End Function
 
-    Public Function BA_GetEqualAreaIntervals(ByVal inputPath As String, ByVal inputRaster As String, _
+    Public Function BA_GetEqualAreaIntervals(ByVal inputPath As String, ByVal inputRaster As String,
                                              ByVal numClasses As Integer, Optional ByVal aoiFolder As String = "") As ReclassItem()
         Dim pGeoDS As IGeoDataset = Nothing
         Dim pRasterDataset As IRasterDataset3 = Nothing
@@ -1490,9 +1530,9 @@ Public Module AOIModule
 
         Try
             Dim workspaceType As WorkspaceType = BA_GetWorkspaceTypeFromPath(inputPath)
-            If workspaceType = workspaceType.Geodatabase Then
+            If workspaceType = WorkspaceType.Geodatabase Then
                 pGeoDS = BA_OpenRasterFromGDB(inputPath, inputRaster)
-            ElseIf workspaceType = workspaceType.Raster Then
+            ElseIf workspaceType = WorkspaceType.Raster Then
                 pGeoDS = BA_OpenRasterFromFile(inputPath, inputRaster)
             End If
 
@@ -1548,10 +1588,10 @@ Public Module AOIModule
 
     End Function
 
-    Public Sub BA_BuildEqualAreaReclassTable(ByVal grid As DataGridView, ByVal aoiFolder As String, ByVal inputPath As String, _
-                                             ByVal inputRaster As String, ByVal txtClasses As TextBox, _
-                                             ByVal idxToValue As Integer, ByVal styleCell As DataGridViewCell, _
-                                             ByVal decimalPlaces As Int32, ByVal displayUnits As MeasurementUnit, _
+    Public Sub BA_BuildEqualAreaReclassTable(ByVal grid As DataGridView, ByVal aoiFolder As String, ByVal inputPath As String,
+                                             ByVal inputRaster As String, ByVal txtClasses As TextBox,
+                                             ByVal idxToValue As Integer, ByVal styleCell As DataGridViewCell,
+                                             ByVal decimalPlaces As Int32, ByVal displayUnits As MeasurementUnit,
                                              ByVal dataUnits As MeasurementUnit)
         ' Ensure # classes is numeric
         If Not IsNumeric(txtClasses.Text) Then
@@ -1606,7 +1646,7 @@ Public Module AOIModule
     'Join two rasters and save to an output file
     'Rows that don't exist in the target table aren't added
     'Subroutine works with File GDB only
-    Public Function BA_JoinRasters(ByVal targetRasterPath As String, ByVal sourceRasterPath As String, _
+    Public Function BA_JoinRasters(ByVal targetRasterPath As String, ByVal sourceRasterPath As String,
                                    ByVal combinedRasterPath As String) As BA_ReturnCode
         'Need to check ane make sure both are from a geodatabase
         Dim pTargetRasterDS As IRasterDataset = Nothing
@@ -1643,7 +1683,7 @@ Public Module AOIModule
                 If pTargetAttTable IsNot Nothing And pSourceAttTable IsNot Nothing Then
 
                     ' ++ Create the MemoryRelationshipClass that defines what is to be joined
-                    pRelClass = pMemRelClassFact.Open("join_vat", pTargetAttTable, _
+                    pRelClass = pMemRelClassFact.Open("join_vat", pTargetAttTable,
                             "value", pSourceAttTable, "value", "forward", "backward", esriRelCardinality.esriRelCardinalityOneToOne)
 
                     ' ++ Perform the join
@@ -1732,7 +1772,7 @@ Public Module AOIModule
     'check if the save target location exists first. If it exists, remove it
     'return value: 0 error occurred
     '              1 successfully saved the raster
-    Public Function BA_ReclassRasterFromIntervalList(ByVal IntervalList() As BA_IntervalList, ByVal RasterToReclass As IGeoDataset, _
+    Public Function BA_ReclassRasterFromIntervalList(ByVal IntervalList() As BA_IntervalList, ByVal RasterToReclass As IGeoDataset,
                                                      ByVal SavePath As String, ByVal SaveName As String) As Integer
         Dim NumOfClasses As Long
         Dim i As Integer
@@ -1964,7 +2004,7 @@ Public Module AOIModule
 
     ' Accepts a List of raster filepaths as input; Add the raster bands together and persist
     ' in the output path/file provided by the caller
-    Public Function BA_SumRasterBands(ByVal filePaths As List(Of String), ByVal aoiPath As String, _
+    Public Function BA_SumRasterBands(ByVal filePaths As List(Of String), ByVal aoiPath As String,
                                       ByVal pOutPath As String, ByVal pOutFile As String) As BA_ReturnCode
         Dim pRasterDataset As IGeoDataset = Nothing
         Dim pTempBandCol As IRasterBandCollection = Nothing
@@ -1993,7 +2033,7 @@ Public Module AOIModule
             BA_SaveRasterDataset(pOutRaster, aoiPath, pOutFile)
 
             Dim workspaceType As WorkspaceType = BA_GetWorkspaceTypeFromPath(pOutPath)
-            If workspaceType = workspaceType.Geodatabase Then
+            If workspaceType = WorkspaceType.Geodatabase Then
                 pOutRaster = BA_OpenRasterFromFile(aoiPath, pOutFile)
                 BA_SaveRasterDatasetGDB(pOutRaster, pOutPath, BA_RASTER_FORMAT, pOutFile)
                 BA_Remove_Raster(aoiPath, pOutFile)
@@ -2040,13 +2080,42 @@ Public Module AOIModule
         Dim success As BA_ReturnCode = BA_ClipImageServiceToVector(clipFilePath, strDEMDataSet, newFolderPath + tempOutputName)
         If success = BA_ReturnCode.Success Then
             'BA_ClipImageServiceToVector returns a rectangle; We have to reclip to clip to the AOI boundary
-            response = BA_ClipAOIRaster(AoiFolder, newFolderPath + tempOutputName, newFileName, _
+            response = BA_ClipAOIRaster(AoiFolder, newFolderPath + tempOutputName, newFileName,
                                         newFolderPath, clipFile)
             If response = 1 Then
                 BA_RemoveRasterFromGDB(newFolderPath, tempOutputName)
             End If
         End If
         Return response
+    End Function
+
+    Public Function BA_ReclassRasterFromIntervalListGP(ByVal IntervalList() As BA_IntervalList, ByVal inputFolderPath As String,
+                                                       ByVal reclassField As String, ByVal outputFolderPath As String, ByVal maskFilePath As String) As BA_ReturnCode
+        Dim NumOfClasses As Long = UBound(IntervalList)
+        Dim i As Integer
+
+        'Set Remap
+        Dim sb As StringBuilder = New StringBuilder()
+
+        Try
+            For i = 1 To NumOfClasses
+                sb.Append(CDbl(IntervalList(i).LowerBound) & " " & CDbl(IntervalList(i).UpperBound) &
+                          " " & CLng(IntervalList(i).Value) & "; ")
+            Next
+
+            'Reclass by Remap
+            Dim success As BA_ReturnCode = BA_ReclassifyRasterFromStringWithMask(inputFolderPath, reclassField, sb.ToString,
+                                                                                 outputFolderPath, Nothing, maskFilePath)
+            Return success
+        Catch ex As Exception
+            Dim messagetext As String = "INTERVAL RANGE ERROR!"
+            For i = 1 To NumOfClasses
+                messagetext = messagetext & vbCrLf & IntervalList(i).Value & ": " & IntervalList(i).LowerBound & " - " & IntervalList(i).UpperBound
+            Next
+            MessageBox.Show(messagetext, "BAGIS")
+            Debug.Print("BA_ReclassRasterFromIntervalListGP Exception: " & ex.Message)
+            Return BA_ReturnCode.UnknownError
+        End Try
     End Function
 
 End Module

@@ -26,6 +26,11 @@ Public Module WebservicesModule
             Debug.Print("BA_ClipFeatureService can only write to FileGeodatabase format. Please supply an output path to a FileGeodatabase folder.")
             Return BA_ReturnCode.WriteError
         End If
+        Dim objectIdField As String = BA_FeatureServiceObjectIdField(webServiceUrl)
+        If String.IsNullOrEmpty(objectIdField) Then
+            Debug.Print("BA_ClipFeatureService cannot determine the object id field. Clipping stopped!")
+            Return BA_ReturnCode.WriteError
+        End If
         Dim sb As StringBuilder = New StringBuilder()
         'url base for query
         sb.Append(webServiceUrl)
@@ -33,7 +38,7 @@ Public Module WebservicesModule
         If Right(webServiceUrl, 1) <> "/" Then sb.Append("/")
         'append the query; where clause is required; This one returns all records
         Dim whereClause As String = "query?&where={0}"
-        sb.Append(String.Format(whereClause, HttpUtility.UrlEncode(String.Format("OBJECTID>{0}", 0))))
+        sb.Append(String.Format(whereClause, HttpUtility.UrlEncode(String.Format("{0}>{1}", objectIdField, 0))))
         'return all fields
         sb.Append("&outFields=*")
         'return the geometries
@@ -180,7 +185,7 @@ Public Module WebservicesModule
     End Function
 
     'http://resources.arcgis.com/en/help/arcobjects-net/conceptualhelp/index.html#/How_to_create_an_image_server_layer/00010000047t000000/
-    Public Function BA_ClipImageService(ByVal clipFilePath As String, ByVal webServiceUrl As String, _
+    Public Function BA_ClipImageService(ByVal clipFilePath As String, ByVal webServiceUrl As String,
                                         ByVal newFilePath As String) As BA_ReturnCode
 
         Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(newFilePath)
@@ -275,7 +280,7 @@ Public Module WebservicesModule
 
     End Function
 
-    Public Function BA_ClipImageServiceToVector(ByVal clipFilePath As String, ByVal webServiceUrl As String, _
+    Public Function BA_ClipImageServiceToVector(ByVal clipFilePath As String, ByVal webServiceUrl As String,
                                                 ByVal newFilePath As String) As BA_ReturnCode
         Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(newFilePath)
         If wType = WorkspaceType.Raster Then
@@ -437,8 +442,8 @@ Public Module WebservicesModule
 
     'End Function
 
-    Public Function BA_UploadMultiPart(ByVal webserviceUrl As String, ByVal strToken As String, _
-                                        ByVal fileName As String, ByVal filePath As String, _
+    Public Function BA_UploadMultiPart(ByVal webserviceUrl As String, ByVal strToken As String,
+                                        ByVal fileName As String, ByVal filePath As String,
                                         ByVal comment As String) As AoiTask
         Dim reqT As HttpWebRequest
         Dim anUpload As AoiTask = New AoiTask
@@ -856,7 +861,7 @@ Public Module WebservicesModule
             Else
                 checkedUrls(checkedUrl) = False
             End If
-            MessageBox.Show("BAGIS is unable to connect to " & checkedUrl & " data cannot currently be used from this server", "Invalid server", _
+            MessageBox.Show("BAGIS is unable to connect to " & checkedUrl & " data cannot currently be used from this server", "Invalid server",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return False
         Finally
@@ -865,7 +870,7 @@ Public Module WebservicesModule
         End Try
     End Function
 
-    Public Function BA_CancelUpload(ByVal serverUrl As String, ByVal taskId As String, ByVal strToken As String, _
+    Public Function BA_CancelUpload(ByVal serverUrl As String, ByVal taskId As String, ByVal strToken As String,
                                 ByRef taskStatus As String) As String
         Dim reqT As HttpWebRequest
         'Dim aDownload As AoiTask = New AoiTask
@@ -907,8 +912,8 @@ Public Module WebservicesModule
         End Try
     End Function
 
-    Public Function BA_WriteBodyChunk(ByVal webserviceUrl As String, ByVal strToken As String, ByVal nextChunk As Byte(), _
-                                      ByVal idxStart As Long, ByVal idxEnd As Long, ByVal fileSize As Long, _
+    Public Function BA_WriteBodyChunk(ByVal webserviceUrl As String, ByVal strToken As String, ByVal nextChunk As Byte(),
+                                      ByVal idxStart As Long, ByVal idxEnd As Long, ByVal fileSize As Long,
                                       ByVal fileName As String) As AoiTask
         Dim anUpload As AoiTask = New AoiTask
         Dim reqT As HttpWebRequest
@@ -932,7 +937,7 @@ Public Module WebservicesModule
             Using requestStream As System.IO.Stream = reqT.GetRequestStream
                 Dim fileMimeType As String = BA_Mime_Zip
                 Dim fileFormKey As String = "file"
-                Dim success As BA_ReturnCode = MultipartFormHelper.WriteAChunk(nextChunk, fileName, _
+                Dim success As BA_ReturnCode = MultipartFormHelper.WriteAChunk(nextChunk, fileName,
                                                                                requestStream, boundary, fileMimeType, fileFormKey)
                 Dim endBytes() As Byte = Encoding.UTF8.GetBytes("--" + boundary + "--")
                 requestStream.Write(endBytes, 0, endBytes.Length)
@@ -962,8 +967,8 @@ Public Module WebservicesModule
         End Try
     End Function
 
-    Public Function BA_WriteFirstChunk(ByVal webserviceUrl As String, ByVal strToken As String, _
-                                       ByVal fileInfo As System.IO.FileInfo, ByVal firstChunk As Byte(), _
+    Public Function BA_WriteFirstChunk(ByVal webserviceUrl As String, ByVal strToken As String,
+                                       ByVal fileInfo As System.IO.FileInfo, ByVal firstChunk As Byte(),
                                        ByVal strComment As String, ByRef idxEnd As Long) As AoiTask
         Dim reqT As HttpWebRequest
         Dim anAoiTask As AoiTask = New AoiTask
@@ -999,7 +1004,7 @@ Public Module WebservicesModule
                     '@ToDo: Remove hard-coding; write a dynamic function to determine mime type
                     Dim fileMimeType As String = BA_Mime_Zip
                     Dim fileFormKey As String = "file"
-                    Dim success As BA_ReturnCode = MultipartFormHelper.WriteAChunk(firstChunk, fileInfo.Name, _
+                    Dim success As BA_ReturnCode = MultipartFormHelper.WriteAChunk(firstChunk, fileInfo.Name,
                                                                                    requestStream, boundary, fileMimeType, fileFormKey)
                 End If
                 Dim endBytes() As Byte = Encoding.UTF8.GetBytes("--" + boundary + "--")
@@ -1242,6 +1247,21 @@ Public Module WebservicesModule
             GC.WaitForPendingFinalizers()
             GC.Collect()
         End Try
+    End Function
+
+    Public Function BA_FeatureServiceObjectIdField(ByVal url As String) As String
+        'read the JSON request
+        Dim req As System.Net.WebRequest = System.Net.WebRequest.Create(url & "?f=pjson")
+        Dim objectIdField = ""
+        Using resp As System.Net.WebResponse = req.GetResponse()
+            Dim fs As FeatureService = New FeatureService()
+            Dim ser As System.Runtime.Serialization.Json.DataContractJsonSerializer = New System.Runtime.Serialization.Json.DataContractJsonSerializer(fs.[GetType]())
+            fs = CType(ser.ReadObject(resp.GetResponseStream), FeatureService)
+            If fs IsNot Nothing Then
+                objectIdField = fs.objectIdField
+            End If
+        End Using
+        Return objectIdField
     End Function
 
 End Module
