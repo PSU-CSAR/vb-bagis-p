@@ -73,4 +73,5 @@ Public Enum PublicPath
     <Description("\BAGIS\bagis-h-settings.json")> BagisHSettings
     <Description("\pseudo_sites.xml")> PseudoSitesXml
     <Description("\PseudoSiteHelp.html")> PseudoSiteHelp
+    <Description("\title_page.xsl")> TitlePageXsl
 End Enum
