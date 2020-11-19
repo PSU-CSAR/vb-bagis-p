@@ -33,6 +33,8 @@ Module ParameterModule
     Public DATE_FORMAT As String = "date_format"
     Public NHRU As String = "nhru"
     Public NRADPL As String = "nradpl"
+    Public NGW As String = "ngw"
+    Public NSSR As String = "nssr"
     Public NMONTHS As String = "nmonths"
     Public BASIN_AREA As String = "basin_area"
     Public BASIN_LAT As String = "basin_lat"
