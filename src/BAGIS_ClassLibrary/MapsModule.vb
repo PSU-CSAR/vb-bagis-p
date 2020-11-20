@@ -2079,15 +2079,23 @@ Public Module MapsModule
             pGraphicsContainer = pPageLayout
             pActiveView = pPageLayout
 
-            'check if map elements were added
-            Dim i As Integer = 0
+            'Search for and delete the previous graphic if it's not a data frame
+            Dim lstDelete As IList(Of IElement) = New List(Of IElement)
             pGraphicsContainer.Reset()
             pMElem = pGraphicsContainer.Next
             Do While Not pMElem Is Nothing
-                i = i + 1
+                pElemProp = TryCast(pMElem, IElementProperties2)
+                If pElemProp IsNot Nothing Then
+                    Dim strType As String = pElemProp.Type
+                    If Not strType.Equals("Data Frame") Then
+                        lstDelete.Add(pMElem)
+                    End If
+                End If
                 pMElem = pGraphicsContainer.Next
             Loop
-            If i > 1 Then Exit Sub
+            For Each dElement As IElement In lstDelete
+                pGraphicsContainer.DeleteElement(dElement)
+            Next
 
             pMapFrame = pGraphicsContainer.FindFrame(pMxDoc.FocusMap)
             pElement = pMapFrame

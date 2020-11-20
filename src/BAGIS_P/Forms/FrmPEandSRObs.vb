@@ -105,6 +105,9 @@ Public Class FrmPEandSRObs
 
         If bObjectSelected = False Then Exit Sub
 
+        'Clear out the old value
+        TxtSrPath.Text = ""
+
         'get the name of the selected folder
         Dim pGxDataset As IGxDataset
         pGxDataset = pGxObject.Next
@@ -117,12 +120,14 @@ Public Class FrmPEandSRObs
         Dim aoi_v As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
         Dim validSpatialReference As Boolean = BA_VectorProjectionMatch(fullPath, aoiGdb & aoi_v, aoiProjection)
 
-        If validSpatialReference Then
-            TxtSrPath.Text = fullPath
-        Else
-            MessageBox.Show("The selected layer '" & pDatasetName.Name & "' cannot be used because the projection does not match the AOI projection '" & aoiProjection & _
-                            "'. Please reproject or select another data layer and try again.", "Invalid projection", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        If Not validSpatialReference Then
+            Dim res As DialogResult = MessageBox.Show("WARNING: The selected layer '" & pDatasetName.Name & "' datum does not match the AOI projection '" & aoiProjection &
+                            "'! Do you still want to use this layer for the SR calculation ?", "BAGIS-P", MessageBoxButtons.YesNo)
+            If res <> DialogResult.Yes Then
+                Exit Sub
+            End If
         End If
+        TxtSrPath.Text = fullPath
     End Sub
 
     Private Sub BtnSetPE_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnSetPE.Click
@@ -143,6 +148,9 @@ Public Class FrmPEandSRObs
 
         If bObjectSelected = False Then Exit Sub
 
+        'Clear out the old path
+        TxtPEPath.Text = ""
+
         'get the name of the selected folder
         Dim pGxDataset As IGxDataset = pGxObject.Next
         Dim pDatasetName As IDatasetName = pGxDataset.DatasetName
@@ -156,9 +164,11 @@ Public Class FrmPEandSRObs
         Dim validDatum As Boolean = BA_DatumMatchFiles(fullPath, esriDatasetType.esriDTRasterDataset, aoiGdb & aoi_v, esriDatasetType.esriDTFeatureClass, aoiDatum)
 
         If Not validDatum Then
-            MessageBox.Show("The selected layer '" & pDatasetName.Name & "' cannot be used because the datum does not match the AOI datum '" & aoiDatum & _
-                            "'. Please reproject or select another data layer and try again.", "Invalid datum", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Exit Sub
+            Dim res As DialogResult = MessageBox.Show("WARNING: The selected layer '" & pDatasetName.Name & "' datum does not match the AOI datum '" & aoiDatum &
+                            "'! Do you still want to use this layer for the PE calculation ?", "BAGIS-P", MessageBoxButtons.YesNo)
+            If res <> DialogResult.Yes Then
+                Exit Sub
+            End If
         End If
 
         Dim strSearch As String = m_january.Month.ToString("D2")

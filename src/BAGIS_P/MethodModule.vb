@@ -824,4 +824,20 @@ Module MethodModule
         Return sb.ToString
     End Function
 
+    Public Function BA_AddNRowsToParameterTable(ByVal sourceTable As ParameterTable, ByVal numRows As String) As ParameterTable
+        Dim rowCount As Integer = -1
+        Dim bSuccess As Boolean = Integer.TryParse(numRows, rowCount)
+        Dim updatedTable As ParameterTable = Nothing
+        If bSuccess Then
+            Dim updatedValues(rowCount - 1, sourceTable.Headers.GetUpperBound(0)) As String
+            For m As Short = 0 To rowCount - 1
+                For p As Short = 0 To sourceTable.Headers.GetUpperBound(0)
+                    updatedValues(m, p) = sourceTable.Values(0, p)
+                Next
+            Next
+            updatedTable = New ParameterTable(sourceTable.Name, sourceTable.Dimension1, updatedValues, sourceTable.Headers)
+        End If
+        Return updatedTable
+    End Function
+
 End Module

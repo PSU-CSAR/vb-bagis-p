@@ -6,8 +6,8 @@
   End Sub
 
   Protected Overrides Sub OnClick()
-        Process.Start("http://maps.geog.pdx.edu/BAGIS/")
-  End Sub
+        Process.Start("https://sites.google.com/site/nwccspatialservices/users-references/users-manuals/bagis-p-usersmanual/ewsf-prms-parameters")
+    End Sub
 
   Protected Overrides Sub OnUpdate()
 

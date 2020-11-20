@@ -185,6 +185,10 @@
     Public Const BA_ChartWidth = 600
     Public Const BA_ChartHeight = 330
     Public Const BA_ChartSpacing = 5
+    Public Const BA_ChartDescrHeight = 50
+    Public Const BA_LargeChartWidth = 800
+    Public Const BA_LargeChartHeight = 500
+
 
     'Resampling constants
     Public Const BA_Resample_Nearest = "NEAREST"
@@ -251,6 +255,31 @@
     Public Const BA_SiteSnotel = "stel"
     Public Const BA_SiteSnowCourse = "scos"
     Public Const BA_SitePseudo = "psite"
+
+    'File names for BAGIS .pdf exports
+    Public Const BA_ExportMapPackageFolder = "\maps_publish"
+    Public Const BA_ExportMapElevPdf = "map_elevation.pdf"
+    Public Const BA_ExportMapElevStelPdf = "map_elevation_snotel.pdf"
+    Public Const BA_ExportMapElevScPdf = "map_elevation_sc.pdf"
+    Public Const BA_ExportMapElevPrecipPdf = "map_precipitation.pdf"
+    Public Const BA_ExportMapAspectPdf = "map_aspect.pdf"
+    Public Const BA_ExportMapSlopePdf = "map_slope.pdf"
+    Public Const BA_ExportChartAreaElevPdf = "chart_area_elev.pdf"
+    Public Const BA_ExportChartAreaElevPrecipPdf = "chart_area_elev_precip.pdf"
+    Public Const BA_ExportChartAreaElevPrecipSitePdf = "chart_area_elev_precip_site.pdf"
+    Public Const BA_ExportChartAreaElevSnotelPdf = "chart_area_elev_snotel.pdf"
+    Public Const BA_ExportChartAreaElevScosPdf = "chart_area_elev_sc.pdf"
+    Public Const BA_ExportChartSlopePdf = "chart_slope.pdf"
+    Public Const BA_ExportChartAspectPdf = "chart_aspect.pdf"
+    Public Const BA_ExportChartPrecipitationPdf = "chart_precipitation.pdf"
+    Public Const BA_ExportChartElevPrecipCorrelPdf = "chart_elev_precip_correlation.pdf"
+    Public Const BA_TitlePagePdf = "title_page.pdf"
+    Public Const BA_ExportChartAreaElevSubrangePdf = "chart_area_elev_subrange.pdf"
+    Public Const BA_ExportChartAreaElevPrecipSubrangePdf = "chart_area_elev_precip_subrange.pdf"
+    Public Const BA_ExportChartAreaElevPrecipSiteSubrangePdf = "chart_area_elev_precip_site_subrange.pdf"
+    Public Const BA_ExportChartAreaElevSnotelSubrangePdf = "chart_area_elev_snotel_subrange.pdf"
+    Public Const BA_ExportChartAreaElevScosSubrangePdf = "chart_area_elev_sc_subrange.pdf"
+    Public Const BA_ExportAllMapsChartsPdf As String = "all_maps_charts.pdf"
 
 
 End Module

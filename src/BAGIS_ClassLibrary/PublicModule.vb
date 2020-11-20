@@ -2328,8 +2328,8 @@ Optional ByVal hasPaddingBackSlach As Boolean = False) As String
         End Try
     End Function
 
-    Public Function BA_DatumMatchFiles(ByVal path1 As String, ByVal type1 As esriDatasetType, ByVal path2 As String, ByVal type2 As esriDatasetType, _
-                                       ByVal aoiDatum As String) As Boolean
+    Public Function BA_DatumMatchFiles(ByVal path1 As String, ByVal type1 As esriDatasetType, ByVal path2 As String, ByVal type2 As esriDatasetType,
+                                       ByRef aoiDatum As String) As Boolean
         Dim pGeoDataset As IGeoDataset = Nothing
         Dim pGeoDataset2 As IGeoDataset = Nothing
         Dim spRef1 As ISpatialReference = Nothing
