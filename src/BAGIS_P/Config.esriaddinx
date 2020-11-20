@@ -6,7 +6,7 @@
   <Image>Images\BAGIS_P.png</Image>
   <Author>Lesley Bross and Geoffrey Duh</Author>
   <Company>Portland State University</Company>
-  <Date>11/7/2019</Date>
+  <Date>11/20/2020</Date>
   <Targets>
     <Target name="Desktop" version="10.5" />
   </Targets>

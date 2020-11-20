@@ -588,20 +588,21 @@ Public Class FrmExportParametersEwsf
             m_tablesTable(NMONTHS) = nmonthsTable
         End If
 
-        ' Add row to ngw table for each hru
+        ' Add row to ngw table for each hru with the same values as the first line
         Dim ngwTable As ParameterTable = m_tablesTable(NGW)
         If ngwTable IsNot Nothing Then
-            Dim ngwCount As Integer = -1
-            Dim bSuccess As Boolean = Integer.TryParse(TxtNHru.Text, ngwCount)
-            If bSuccess Then
-                Dim updatedValues(ngwCount - 1, ngwTable.Headers.GetUpperBound(0)) As String
-                For m As Short = 0 To ngwCount - 1
-                    For p As Short = 0 To ngwTable.Headers.GetUpperBound(0)
-                        updatedValues(m, p) = ngwTable.Values(0, p)
-                    Next
-                Next
-                Dim updatedTable As ParameterTable = New ParameterTable(ngwTable.Name, ngwTable.Dimension1, updatedValues, ngwTable.Headers)
+            Dim updatedTable As ParameterTable = BA_AddNRowsToParameterTable(ngwTable, nGwParam.value(0))
+            If updatedTable IsNot Nothing Then
                 m_tablesTable(NGW) = updatedTable
+            End If
+        End If
+
+        ' Add row to nssr table for each hru with the same values as the first line
+        Dim nssrTable As ParameterTable = m_tablesTable(NSSR)
+        If nssrTable IsNot Nothing Then
+            Dim updatedTable As ParameterTable = BA_AddNRowsToParameterTable(nssrTable, nSsrParam.value(0))
+            If updatedTable IsNot Nothing Then
+                m_tablesTable(NSSR) = updatedTable
             End If
         End If
 
