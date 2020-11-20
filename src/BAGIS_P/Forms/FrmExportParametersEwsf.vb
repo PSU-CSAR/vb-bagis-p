@@ -920,7 +920,7 @@ Public Class FrmExportParametersEwsf
             If Not String.IsNullOrEmpty(TxtDemResample.Text) Then
                 demCellSize = CDbl(TxtDemResample.Text)
             End If
-            Dim snapRasterPath As String = BA_GeodatabasePath(m_aoi.FilePath, GeodatabaseNames.Aoi, False) & BA_EnumDescription(PublicPath.AoiGrid)
+            Dim snapRasterPath As String = BA_GeodatabasePath(m_aoi.FilePath, GeodatabaseNames.Aoi, False) + BA_EnumDescription(PublicPath.AoiGrid)
 
             If demCellSize > 0 Then
                 'Need to resample
