@@ -417,9 +417,10 @@ Public Class FrmPEandSRObs
         Dim pCursor As ICursor = Nothing
         Dim pRow As IRow = Nothing
         Dim tableName As String = "tblPE"
+        'Make a change any change
         Dim zoneFilePath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi)
         Dim zoneFileName As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.AoiVector), False)
-        Dim snapRasterPath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi, True) & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
+        Dim snapRasterPath As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi, False) + BA_EnumDescription(PublicPath.AoiGrid)
         Dim peFolder As String = "PleaseReturn"
         Dim peFileName As String = BA_GetBareName(TxtPEPath.Text, peFolder)
         Dim wType As WorkspaceType = BA_GetWorkspaceTypeFromPath(peFolder)
