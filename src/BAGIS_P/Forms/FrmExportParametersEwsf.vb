@@ -452,6 +452,23 @@ Public Class FrmExportParametersEwsf
             nRadplParam.value = newValue
         End If
         m_paramsTable(NRADPL) = nRadplParam
+        'Replace ngw parameter with correct value
+        Dim nGwParam As Parameter = m_paramsTable(NGW)
+        If nGwParam Is Nothing Then
+            nGwParam = New Parameter(NGW, newValue, True)
+        Else
+            nGwParam.value = newValue
+        End If
+        m_paramsTable(NGW) = nGwParam
+        'Replace nssr parameter with correct value
+        Dim nSsrParam As Parameter = m_paramsTable(NSSR)
+        If nSsrParam Is Nothing Then
+            nSsrParam = New Parameter(NSSR, newValue, True)
+        Else
+            nSsrParam.value = newValue
+        End If
+        m_paramsTable(NSSR) = nSsrParam
+
 
         'Read log to extract missing data value
         Dim selItem As LayerListItem = CType(LstHruLayers.SelectedItem, LayerListItem)
@@ -569,6 +586,24 @@ Public Class FrmExportParametersEwsf
             End If
             nmonthsTable = BA_UpdateParametersInNmonthsTable(nmonthsTable, m_aoiParamTable, paramNamesToUpdate)
             m_tablesTable(NMONTHS) = nmonthsTable
+        End If
+
+        ' Add row to ngw table for each hru with the same values as the first line
+        Dim ngwTable As ParameterTable = m_tablesTable(NGW)
+        If ngwTable IsNot Nothing Then
+            Dim updatedTable As ParameterTable = BA_AddNRowsToParameterTable(ngwTable, nGwParam.value(0))
+            If updatedTable IsNot Nothing Then
+                m_tablesTable(NGW) = updatedTable
+            End If
+        End If
+
+        ' Add row to nssr table for each hru with the same values as the first line
+        Dim nssrTable As ParameterTable = m_tablesTable(NSSR)
+        If nssrTable IsNot Nothing Then
+            Dim updatedTable As ParameterTable = BA_AddNRowsToParameterTable(nssrTable, nSsrParam.value(0))
+            If updatedTable IsNot Nothing Then
+                m_tablesTable(NSSR) = updatedTable
+            End If
         End If
 
         m_exportMessage = "Reading spatial parameters calculated by BAGIS-P .........."
