@@ -268,9 +268,9 @@ Public Class FrmSubAoiId
                                                                                   BA_FIELD_AWDB_ID)
                         pSubAoi.GaugeNumber = gaugeNumber
                         subAoiTable(displayName) = pSubAoi
-                        success = BA_ReplaceNoDataCellsGDB(inputFolder, BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)), _
-                                                           subAoiPath, pSubAoi.TempLayerName, -1, maskFolder, _
-                                                           BA_EnumDescription(AOIClipFile.AOIExtentCoverage))
+                        success = BA_ReplaceNoDataCells(inputFolder, BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)),
+                                                           subAoiPath, pSubAoi.TempLayerName, "-1", maskFolder,
+                                                           BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)))
                         If success = BA_ReturnCode.Success Then
                             pSubAoi.TempFilePath = subAoiPath & "\" & pSubAoi.TempLayerName
                             subAoiTable(displayName) = pSubAoi
@@ -284,7 +284,7 @@ Public Class FrmSubAoiId
                     BA_CalculateSubAoiId(subAoiTable)
                     progressDialog2.Description = "Generating combined subAOI layer"
                     pStepProg.Step()
-                    Dim maskFilePath As String = maskFolder & "\" & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
+                    Dim maskFilePath As String = maskFolder & BA_EnumDescription(PublicPath.AoiGrid)
                     Dim combineList As IList(Of String) = New List(Of String)
                     For Each pKey As String In subAoiTable.Keys
                         Dim sAoi As SubAOI = subAoiTable(pKey)
@@ -367,12 +367,8 @@ Public Class FrmSubAoiId
                             valuesEnum = Nothing
                             'Recode noData value to noData
                             If Not String.IsNullOrEmpty(whereClause) Then
-                                'Delete raster if it exists before creating new one
-                                'If BA_File_Exists(subAoiPath & "\" & outputFile, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
-                                '    BA_RemoveRasterFromGDB(subAoiPath, outputFile)
-                                'End If
-                                success = BA_SetNullSelectedCellsGDB(subAoiPath, fileCombine, subAoiPath, outputFile, _
-                                                                    maskFolder, BA_EnumDescription(AOIClipFile.AOIExtentCoverage), _
+                                success = BA_SetNullSelectedCells(subAoiPath, fileCombine, subAoiPath, outputFile,
+                                                                    maskFolder, BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)),
                                                                     whereClause)
                                 If success = BA_ReturnCode.Success Then
                                     'Delete temporary combine file

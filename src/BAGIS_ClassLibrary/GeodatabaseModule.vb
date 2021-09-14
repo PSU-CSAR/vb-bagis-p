@@ -386,60 +386,22 @@ Public Module GeodatabaseModule
 
     ' Generates a new raster replacing NoData cells with a selected value. The replacement
     ' extent may be masked if a mask file path is provided
-    Public Function BA_ReplaceNoDataCellsGDB(ByVal inputFolder As String, ByVal inputFile As String, _
-                                          ByVal outputFolder As String, ByVal outputFile As String, _
-                                          ByVal replaceValue As Integer, ByVal maskFolder As String, _
+    Public Function BA_ReplaceNoDataCells(ByVal inputFolder As String, ByVal inputFile As String,
+                                          ByVal outputFolder As String, ByVal outputFile As String,
+                                          ByVal replaceValue As String, ByVal maskFolder As String,
                                           ByVal maskFile As String) As BA_ReturnCode
-        Dim mapAlgebraOp As ESRI.ArcGIS.SpatialAnalyst.IMapAlgebraOp = New ESRI.ArcGIS.SpatialAnalyst.RasterMapAlgebraOp
-        Dim inputGeodataset As IGeoDataset = Nothing
-        Dim pRasterDataset As IRasterDataset3 = Nothing
-        Dim isNullGeodataset As IGeoDataset = Nothing
-        Dim outputGeodataset As IGeoDataset = Nothing
-        Dim maskFeatureClass As IFeatureClass = Nothing
-        Dim maskGeodataset As IGeoDataset = Nothing
-        Dim workspaceFactory As IWorkspaceFactory = New FileGDBWorkspaceFactory()
-        Dim workspace As IWorkspace = Nothing
-        Dim pEnv As IRasterAnalysisEnvironment = Nothing
         Dim retVal As BA_ReturnCode = BA_ReturnCode.UnknownError
 
         Try
-            inputGeodataset = BA_OpenRasterFromGDB(inputFolder, inputFile)
-            If inputGeodataset IsNot Nothing Then
-                pRasterDataset = CType(inputGeodataset, IRasterDataset3) ' Explicit cast
-                'Set environment
-                If Not String.IsNullOrEmpty(maskFolder) AndAlso Not String.IsNullOrEmpty(maskFolder) Then
-                    pEnv = CType(mapAlgebraOp, IRasterAnalysisEnvironment)  ' Explicit cast
-                    maskFeatureClass = BA_OpenFeatureClassFromGDB(maskFolder, maskFile)
-                    maskGeodataset = CType(maskFeatureClass, IGeoDataset)
-                    pEnv.Mask = maskGeodataset
-                    ' Set the analysis extent to match the mask
-                    Dim extentProvider As Object = CType(maskGeodataset.Extent, Object)
-                    pEnv.SetExtent(esriRasterEnvSettingEnum.esriRasterEnvValue, extentProvider)
-                    workspace = workspaceFactory.OpenFromFile(outputFolder, 0)
-                    pEnv.OutWorkspace = workspace
-                End If
-                mapAlgebraOp.BindRaster(pRasterDataset, "noData1")
-                isNullGeodataset = mapAlgebraOp.Execute("Con(IsNull([noData1]), " & replaceValue & ", [noData1])")
-                If isNullGeodataset IsNot Nothing Then
-                    BA_SaveRasterDatasetGDB(isNullGeodataset, outputFolder, BA_RASTER_FORMAT, outputFile)
-                    retVal = BA_ReturnCode.Success
-                End If
-            End If
+            Dim inputPath As String = inputFolder + "\" + inputFile
+            Dim outputpath As String = outputFolder + "\" + outputFile
+            Dim expression As String = "Con(IsNull('" + inputPath + "'), " + replaceValue + ", '" + inputPath + "')"
+            Dim maskPath As String = maskFolder + "\" + maskFile
+            retVal = BA_RasterCalculator(outputpath, expression, "", maskPath)
             Return retVal
         Catch ex As Exception
-            MsgBox("BA_ReplaceNoDataCellsGDB Exception: " & ex.Message)
+            MsgBox("BA_ReplaceNoDataCells Exception: " & ex.Message)
             Return retVal
-        Finally
-            mapAlgebraOp.UnbindRaster("noData1")
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(pEnv)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(maskGeodataset)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(maskFeatureClass)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(outputGeodataset)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(isNullGeodataset)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(inputGeodataset)
-            'ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(workspaceFactory)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(workspace)
-            ESRI.ArcGIS.ADF.ComReleaser.ReleaseCOMObject(mapAlgebraOp)
         End Try
 
     End Function
@@ -1515,60 +1477,29 @@ Public Module GeodatabaseModule
 
     'Set selected cells to null
     'Uses Raster Calculator SetNull syntax
-    Public Function BA_SetNullSelectedCellsGDB(ByVal inputFolder As String, ByVal inputFile As String,
-                                              ByVal outputFolder As String, ByVal outputFile As String, _
-                                              ByVal maskFolder As String, ByVal maskFile As String, _
+    Public Function BA_SetNullSelectedCells(ByVal inputFolder As String, ByVal inputFile As String,
+                                              ByVal outputFolder As String, ByVal outputFile As String,
+                                              ByVal maskFolder As String, ByVal maskFile As String,
                                               ByVal whereClause As String) As BA_ReturnCode
-        Dim mapAlgebraOp As ESRI.ArcGIS.SpatialAnalyst.IMapAlgebraOp = New ESRI.ArcGIS.SpatialAnalyst.RasterMapAlgebraOp
-        Dim inputGeodataset As IGeoDataset = Nothing
-        Dim pRasterDataset As IRasterDataset3 = Nothing
-        Dim isNullGeodataset As IGeoDataset = Nothing
-        Dim maskFeatureClass As IFeatureClass = Nothing
-        Dim maskGeodataset As IGeoDataset = Nothing
-        Dim workspaceFactory As IWorkspaceFactory = New FileGDBWorkspaceFactory()
-        Dim workspace As IWorkspace = Nothing
-        Dim pEnv As IRasterAnalysisEnvironment = Nothing
         Dim success As BA_ReturnCode = BA_ReturnCode.UnknownError
 
         Try
             If BA_File_Exists(outputFolder + "\" + outputFile, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
                 Dim retVal As Short = BA_RemoveRasterFromGDB(outputFolder, outputFile)
             End If
-            inputGeodataset = BA_OpenRasterFromGDB(inputFolder, inputFile)
-            If inputGeodataset IsNot Nothing Then
-                pRasterDataset = CType(inputGeodataset, IRasterDataset3) ' Explicit cast
-                'Set environment
-                If Not String.IsNullOrEmpty(maskFolder) AndAlso Not String.IsNullOrEmpty(maskFolder) Then
-                    pEnv = CType(mapAlgebraOp, IRasterAnalysisEnvironment)  ' Explicit cast
-                    maskFeatureClass = BA_OpenFeatureClassFromGDB(maskFolder, maskFile)
-                    maskGeodataset = CType(maskFeatureClass, IGeoDataset)
-                    pEnv.Mask = maskGeodataset
-                    ' Set the analysis extent to match the mask
-                    Dim extentProvider As Object = CType(maskGeodataset.Extent, Object)
-                    pEnv.SetExtent(esriRasterEnvSettingEnum.esriRasterEnvValue, extentProvider)
-                    workspace = workspaceFactory.OpenFromFile(outputFolder, 0)
-                    pEnv.OutWorkspace = workspace
-                End If
-                mapAlgebraOp.BindRaster(pRasterDataset, "noData1")
-                'sample where clause:  == 3
-                isNullGeodataset = mapAlgebraOp.Execute("SetNull([noData1]" & whereClause & ",[noData1])")
-                If isNullGeodataset IsNot Nothing Then
-                    BA_SaveRasterDatasetGDB(isNullGeodataset, outputFolder, BA_RASTER_FORMAT, outputFile)
-                    success = BA_ReturnCode.Success
-                End If
-            End If
+
+            Dim inputPath As String = inputFolder + "\" + inputFile
+            Dim outputpath As String = outputFolder + "\" + outputFile
+            'Dim expression As String = "Con(IsNull('" + inputPath + "'), " + replaceValue + ", '" + inputPath + "')"
+            Dim expression As String = "SetNull('" + inputPath + "'" + whereClause + ",'" + inputPath + "')"
+            Dim maskPath As String = maskFolder + "\" + maskFile
+            success = BA_RasterCalculator(outputpath, expression, "", maskPath)
+
+
             Return success
         Catch ex As Exception
-            MsgBox("BA_ReplaceNoDataCellsGDB Exception: " & ex.Message)
+            MsgBox("BA_SetNullSelectedCells Exception: " & ex.Message)
             Return success
-        Finally
-            mapAlgebraOp.UnbindRaster("noData1")
-            inputGeodataset = Nothing
-            pRasterDataset = Nothing
-            isNullGeodataset = Nothing
-            workspace = Nothing
-            GC.WaitForPendingFinalizers()
-            GC.Collect()
         End Try
 
     End Function

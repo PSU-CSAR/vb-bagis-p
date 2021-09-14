@@ -1010,7 +1010,7 @@ Public Class FrmProfileBuilder
                         If CboSubAoiId.SelectedIndex > -1 Then
                             Dim subAOIIdLayer As String = CStr(CboSubAoiId.SelectedItem)
                             LblStatus.Text = "Appending SubAOI ID to parameter table"
-                            Dim snapRasterPath As String = BA_GeodatabasePath(m_aoi.FilePath, GeodatabaseNames.Aoi, True) & BA_EnumDescription(AOIClipFile.AOIExtentCoverage)
+                            Dim snapRasterPath As String = BA_GeodatabasePath(m_aoi.FilePath, GeodatabaseNames.Aoi) + BA_EnumDescription(PublicPath.AoiGrid)
                             BA_AppendSubAOIIdToParameterTable(m_aoi.FilePath, selHruName, subAOIIdLayer, paramTable, snapRasterPath)
                         End If
                     End If

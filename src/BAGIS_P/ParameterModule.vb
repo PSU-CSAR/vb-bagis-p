@@ -1283,8 +1283,8 @@ Module ParameterModule
             If BA_File_Exists(valueFilePath & "\" & tempOutput, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
                 BA_RemoveRasterFromGDB(valueFilePath, tempOutput)
             End If
-            Dim success As BA_ReturnCode = BA_ReplaceNoDataCellsGDB(valueFilePath, subAoiLayerName, valueFilePath, _
-                                                                    tempOutput, -1, maskFolder, BA_EnumDescription(AOIClipFile.AOIExtentCoverage))
+            Dim success As BA_ReturnCode = BA_ReplaceNoDataCells(valueFilePath, subAoiLayerName, valueFilePath,
+                                                                    tempOutput, "-1", maskFolder, BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)))
             success = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_HRU_ID, valueFilePath & "\" & tempOutput, _
                                                 zoneFilePath, tableName, snapRasterPath, StatisticsTypeString.MAJORITY)
             'Remove temp file
