@@ -390,7 +390,7 @@
     <Compile Include="Objects\ServerSettings.vb" />
     <Compile Include="Objects\Settings.vb" />
     <Compile Include="Objects\DataSource.vb" />
-    <Compile Include="Objects\SubAOI.vb" />
+    <Compile Include="Objects\Subbasin.vb" />
     <Compile Include="ParameterModule.vb" />
     <Compile Include="ProfileModule.vb" />
     <Compile Include="ToolboxModule.vb" />

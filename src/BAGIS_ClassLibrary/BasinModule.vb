@@ -702,8 +702,8 @@ Public Module BasinModule
         Return vectorList
     End Function
 
-    'Get a list of SubAOI paths inside a given AOI
-    Public Function BA_GetListOfSubAoiPaths(ByVal aoiPath As String) As List(Of String)
+    'Get a list of Subbasin paths inside a given AOI
+    Public Function BA_GetListOfSubbasinPaths(ByVal aoiPath As String) As List(Of String)
         Dim folderList As IList(Of String) = New List(Of String)
         Dim dirInfo As DirectoryInfo = New DirectoryInfo(aoiPath)
         Dim subDirectories As DirectoryInfo() = dirInfo.GetDirectories

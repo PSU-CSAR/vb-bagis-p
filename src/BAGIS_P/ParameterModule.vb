@@ -1155,28 +1155,29 @@ Module ParameterModule
         End Try
     End Function
 
-    'Sort the selected subAOI's by maxAccumulation value
+    'Sort the selected subbasins's by maxAccumulation value
     'And assign an ID
-    Public Sub BA_CalculateSubAoiId(ByRef subAoiTable As Hashtable)
-        Dim sortedArray(subAoiTable.Keys.Count - 1) As SubAOI
+    Public Sub BA_CalculateSubbasinId(ByRef subAoiTable As Hashtable)
+        Dim sortedArray(subAoiTable.Keys.Count - 1) As Subbasin
         Dim i As Integer = 0
         For Each sName As String In subAoiTable.Keys
-            Dim sAoi As SubAOI = subAoiTable(sName)
+            Dim sAoi As Subbasin = subAoiTable(sName)
             sortedArray(i) = sAoi
             i += 1
         Next
-        System.Array.Sort(sortedArray, SubAOI.maxAccumAscending)
+        System.Array.Sort(sortedArray, Subbasin.maxAccumAscending)
         Dim id As Integer = 1
         For j As Integer = 0 To sortedArray.GetUpperBound(0)
-            Dim sAoi As SubAOI = sortedArray(j)
+            Dim sAoi As Subbasin = sortedArray(j)
             sAoi.Id = id
             subAoiTable(sAoi.Name) = sAoi
             id += 1
         Next
     End Sub
 
-    Public Sub BA_UpdateSubAoiAttributeTable(ByVal folderName As String, ByVal fileName As String, _
-                                             ByVal subAoiTable As Hashtable)
+    Public Sub BA_UpdateSubAoiAttributeTable(ByVal folderName As String, ByVal fileName As String,
+                                             ByVal subAoiTable As Hashtable, ByVal maxSubBasinId As Int16,
+                                             ByVal whereClause As String)
         Dim pRasterBandCollection As IRasterBandCollection = Nothing
         Dim pRasterBand As IRasterBand = Nothing
         Dim pTable As ITable = Nothing
@@ -1227,7 +1228,7 @@ Module ParameterModule
                 End If
 
                 For Each pName As String In subAoiTable.Keys
-                    Dim sAoi As SubAOI = subAoiTable(pName)
+                    Dim sAoi As SubBasin = subAoiTable(pName)
                     Dim sb As StringBuilder = New StringBuilder
                     sb.Append(BA_FIELD_VALUE & " IN (")
                     Dim valuesList As IList(Of Integer) = sAoi.CombineValueList
@@ -1248,6 +1249,16 @@ Module ParameterModule
                         pRow = pCursor.NextRow
                     Loop
                 Next
+                ' Update the cells that aren't in a subbasin
+                pQF.WhereClause = whereClause
+                pCursor = pTable.Update(pQF, False)
+                pRow = pCursor.NextRow  'there will only be one row
+                If pRow IsNot Nothing Then
+                    pRow.Value(idxSubAoiId) = maxSubBasinId + 1
+                    pRow.Value(idxName) = "Undefined"
+                    pRow.Value(idxGaugeNumber) = "Unknown"
+                    pCursor.UpdateRow(pRow)
+                End If
             End If
         Catch ex As Exception
             Debug.Print("BA_UpdateSubAoiAttributeTable Exception: " & ex.Message)

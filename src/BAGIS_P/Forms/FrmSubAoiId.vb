@@ -24,9 +24,9 @@ Public Class FrmSubAoiId
         If aoi IsNot Nothing Then
             Try
                 TxtAoiPath.Text = aoi.FilePath
-                Me.Text = "Manage SubAOI Id Layers (AOI: " & aoi.Name & aoi.ApplicationVersion & " )"
+                Me.Text = "Manage SubbasinId Layers (AOI: " & aoi.Name & aoi.ApplicationVersion & " )"
 
-                RefreshSubAoiGrid()
+                RefreshSubbasinGrid()
                 RefreshGrdId()
                 'Bring the window to the front
                 Me.WindowState = FormWindowState.Normal
@@ -38,28 +38,28 @@ Public Class FrmSubAoiId
         End If
     End Sub
 
-    Private Sub RefreshSubAoiGrid()
-        GrdSubAoi.Rows.Clear()
-        Dim subAoiPaths As IList(Of String) = BA_GetListOfSubAoiPaths(TxtAoiPath.Text)
-        For Each subAoi As String In subAoiPaths
-            Dim sName As String = BA_GetBareName(subAoi)
+    Private Sub RefreshSubbasinGrid()
+        GrdSubbasin.Rows.Clear()
+        Dim subbasinPaths As IList(Of String) = BA_GetListOfSubbasinPaths(TxtAoiPath.Text)
+        For Each subbasin As String In subbasinPaths
+            Dim sName As String = BA_GetBareName(subbasin)
             '---create a row---
             Dim item As New DataGridViewRow
-            item.CreateCells(GrdSubAoi)
+            item.CreateCells(GrdSubbasin)
             item.Cells(0).Value = sName
-            GrdSubAoi.Rows.Add(item)
+            GrdSubbasin.Rows.Add(item)
         Next
         'De-select any rows
-        If GrdSubAoi.Rows.Count > 0 Then
-            GrdSubAoi.CurrentCell = Nothing
-            GrdSubAoi.ClearSelection()
-            GrdSubAoi.Refresh()
+        If GrdSubbasin.Rows.Count > 0 Then
+            GrdSubbasin.CurrentCell = Nothing
+            GrdSubbasin.ClearSelection()
+            GrdSubbasin.Refresh()
         End If
         'Manage display button
-        If GrdSubAoi.Rows.Count > 0 Then
-            BtnDisplaySubAoi.Enabled = True
+        If GrdSubbasin.Rows.Count > 0 Then
+            BtnDisplaySubbasin.Enabled = True
         Else
-            BtnDisplaySubAoi.Enabled = False
+            BtnDisplaySubbasin.Enabled = False
         End If
     End Sub
 
@@ -67,7 +67,7 @@ Public Class FrmSubAoiId
         Me.Close()
     End Sub
 
-    Private Sub BtnDisplaySubAoi_Click(sender As System.Object, e As System.EventArgs) Handles BtnDisplaySubAoi.Click
+    Private Sub BtnDisplaySubbasin_Click(sender As System.Object, e As System.EventArgs) Handles BtnDisplaySubbasin.Click
         Dim pFSymbol As ISimpleFillSymbol = New SimpleFillSymbol
         Dim pColorRamp As IColorRamp = New PresetColorRamp
         Dim pStyleGallery As IStyleGallery = Nothing
@@ -94,12 +94,12 @@ Public Class FrmSubAoiId
 
             'assign value to the colorramp
             With pColorRamp
-                .Size = GrdSubAoi.Rows.Count
+                .Size = GrdSubbasin.Rows.Count
                 .CreateRamp(True)
             End With
 
             Dim i As Integer = 0
-            For Each pRow As DataGridViewRow In GrdSubAoi.Rows
+            For Each pRow As DataGridViewRow In GrdSubbasin.Rows
                 Dim includeSub As Boolean = pRow.Cells(1).Value
                 Dim displayName As String = pRow.Cells(0).Value
                 If includeSub = True Then
@@ -174,7 +174,7 @@ Public Class FrmSubAoiId
             'refresh the active view
             My.Document.ActivatedView.PartialRefresh(esriViewDrawPhase.esriViewGeography, Nothing, Nothing)
         Catch ex As Exception
-            Debug.Print("BtnDisplaySubAoi_Click " & ex.Message)
+            Debug.Print("BtnDisplaySubbasin_Click " & ex.Message)
         Finally
             pFSymbol = Nothing
             pColorRamp = Nothing
@@ -185,7 +185,7 @@ Public Class FrmSubAoiId
         End Try
     End Sub
 
-    Private Sub BtnCreateSubAoi_Click(sender As System.Object, e As System.EventArgs) Handles BtnCreateSubAoi.Click
+    Private Sub BtnCreateSubbasin_Click(sender As System.Object, e As System.EventArgs) Handles BtnCreateSubbasin.Click
         ' Create/configure a step progressor
         Dim pStepProg As IStepProgressor = Nothing
         Dim progressDialog2 As IProgressDialog2 = Nothing
@@ -198,28 +198,28 @@ Public Class FrmSubAoiId
             Dim message, title As String
             Dim defaultValue As String = Nothing
             Dim outputFile As String = Nothing
-            Dim subAoiPath As String = TxtAoiPath.Text & BA_EnumDescription(PublicPath.BagisSubAoiGdb)
+            Dim subbasinPath As String = TxtAoiPath.Text & BA_EnumDescription(PublicPath.BagisSubAoiGdb)
 
             ' Set prompt.
-            message = "Enter a name for the SubAOI Id layer:"
+            message = "Enter a name for the Subbasin Id layer:"
             ' Set title.
-            title = "Create SubAOI Id Layer"
+            title = "Create Subbasin Id Layer"
 
             ' Display message, title, and default value.
             outputFile = InputBox(message, title, defaultValue, 150, 150)
             ' If user has clicked Cancel, set myValue to defaultValue 
             If String.IsNullOrEmpty(outputFile) Then
-                MessageBox.Show("You did not enter a name for the SubAOI Id layer. No layer will be created.", title, _
+                MessageBox.Show("You did not enter a name for the Subbasin Id layer. No layer will be created.", title,
                                 MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Exit Sub
             Else
-                If BA_File_Exists(subAoiPath & "\" & outputFile, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
-                    Dim returnValue As DialogResult = MessageBox.Show("A file exists with that name. Do you wish to overwrite it?" & vbCrLf & "This action cannot be undone.", title, _
+                If BA_File_Exists(subbasinPath & "\" & outputFile, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
+                    Dim returnValue As DialogResult = MessageBox.Show("A file exists with that name. Do you wish to overwrite it?" & vbCrLf & "This action cannot be undone.", title,
                                                                       MessageBoxButtons.YesNo, MessageBoxIcon.Information)
                     If returnValue <> Windows.Forms.DialogResult.Yes Then
                         Exit Sub
                     Else
-                        BA_RemoveRasterFromGDB(subAoiPath, outputFile)
+                        BA_RemoveRasterFromGDB(subbasinPath, outputFile)
                     End If
                 End If
             End If
@@ -229,98 +229,101 @@ Public Class FrmSubAoiId
             pStepProg.Show()
             progressDialog2.ShowDialog()
             pStepProg.Step()
-            'Create subaoi.gdb in aoi if it doesn't exist; This is where we store the subaoi layers
+            'Create subaoi.gdb in aoi if it doesn't exist; This is where we store the subbasin layers
             Dim success As BA_ReturnCode = BA_ReturnCode.UnknownError
-            If Not BA_Folder_ExistsWindowsIO(subAoiPath) Then
-                Dim gdbName As String = BA_GetBareName(subAoiPath)
+            If Not BA_Folder_ExistsWindowsIO(subbasinPath) Then
+                Dim gdbName As String = BA_GetBareName(subbasinPath)
                 success = BA_CreateFileGdb(TxtAoiPath.Text, gdbName)
             Else
                 success = BA_ReturnCode.Success
             End If
             If success = BA_ReturnCode.Success Then
-                'The list of the grid values for the combined subAOI layer; In same order as subAoiList
-                Dim subAoiTable As Hashtable = New Hashtable
+                'The list of the grid values for the combined subbasin layer; In same order as subbasinList
+                Dim subbasinTable As Hashtable = New Hashtable
                 Dim fileBase As String = "subTemp"
-                Dim fileCombine As String = "combTemp"
                 Dim maskFolder As String = BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Aoi)
                 Dim i As Integer = 1
-                For Each pRow As DataGridViewRow In GrdSubAoi.Rows
+                For Each pRow As DataGridViewRow In GrdSubbasin.Rows
                     Dim includeSub As Boolean = pRow.Cells(1).Value
                     If includeSub = True Then
-                        progressDialog2.Description = "Replacing NoData cells in subAOI layers"
+                        progressDialog2.Description = "Replacing NoData cells in subbasin layers"
                         pStepProg.Step()
                         Dim displayName As String = pRow.Cells(0).Value
-                        Dim pSubAoi As SubAOI = New SubAOI(displayName)
-                        pSubAoi.TempLayerName = fileBase & i
-                        subAoiTable(displayName) = pSubAoi
+                        Dim pSubbasin As SubBasin = New SubBasin(displayName)
+                        pSubbasin.TempLayerName = fileBase & i
+                        subbasinTable(displayName) = pSubbasin
                         Dim aoiGdbPath As String = BA_GeodatabasePath(displayName, GeodatabaseNames.Aoi)
                         Dim inputFolder As String = TxtAoiPath.Text & "\" & aoiGdbPath
                         'Delete raster if it exists before creating new one
-                        If BA_File_Exists(subAoiPath & "\" & fileBase & i, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
-                            BA_RemoveRasterFromGDB(subAoiPath, fileBase & i)
+                        If BA_File_Exists(subbasinPath & "\" & fileBase & i, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
+                            BA_RemoveRasterFromGDB(subbasinPath, fileBase & i)
                         End If
-                        'Query and set max accumulation value on subAoi object
-                        Dim accumValue As Integer = BA_QueryRasterFromPoint(inputFolder, BA_EnumDescription(MapsFileName.PourPoint), _
+                        'Query and set max accumulation value on subbasin object
+                        Dim accumValue As Integer = BA_QueryRasterFromPoint(inputFolder, BA_EnumDescription(MapsFileName.PourPoint),
                                                                        BA_GeodatabasePath(TxtAoiPath.Text, GeodatabaseNames.Surfaces),
                                                                        BA_EnumDescription(MapsFileName.flow_accumulation_gdb))
-                        pSubAoi.MaxAccumValue = accumValue
-                        Dim gaugeNumber As String = BA_QueryStringFieldFromVector(inputFolder, BA_EnumDescription(MapsFileName.PourPoint), _
+                        pSubbasin.MaxAccumValue = accumValue
+                        Dim gaugeNumber As String = BA_QueryStringFieldFromVector(inputFolder, BA_EnumDescription(MapsFileName.PourPoint),
                                                                                   BA_FIELD_AWDB_ID)
-                        pSubAoi.GaugeNumber = gaugeNumber
-                        subAoiTable(displayName) = pSubAoi
+                        pSubbasin.GaugeNumber = gaugeNumber
+                        subbasinTable(displayName) = pSubbasin
                         success = BA_ReplaceNoDataCells(inputFolder, BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)),
-                                                           subAoiPath, pSubAoi.TempLayerName, "-1", maskFolder,
+                                                           subbasinPath, pSubbasin.TempLayerName, "-1", maskFolder,
                                                            BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)))
                         If success = BA_ReturnCode.Success Then
-                            pSubAoi.TempFilePath = subAoiPath & "\" & pSubAoi.TempLayerName
-                            subAoiTable(displayName) = pSubAoi
+                            pSubbasin.TempFilePath = subbasinPath & "\" & pSubbasin.TempLayerName
+                            subbasinTable(displayName) = pSubbasin
                         End If
                         i += 1
                     End If
                 Next
                 If success = BA_ReturnCode.Success Then
-                    progressDialog2.Description = "Calculating subAOI ID values"
+                    progressDialog2.Description = "Calculating subbasin ID values"
                     pStepProg.Step()
-                    BA_CalculateSubAoiId(subAoiTable)
-                    progressDialog2.Description = "Generating combined subAOI layer"
+                    BA_CalculateSubbasinId(subbasinTable)
+                    progressDialog2.Description = "Generating combined subbasin layer"
                     pStepProg.Step()
                     Dim maskFilePath As String = maskFolder & BA_EnumDescription(PublicPath.AoiGrid)
                     Dim combineList As IList(Of String) = New List(Of String)
-                    For Each pKey As String In subAoiTable.Keys
-                        Dim sAoi As SubAOI = subAoiTable(pKey)
+                    Dim maxId As Int16 = 0
+                    For Each pKey As String In subbasinTable.Keys
+                        Dim sAoi As SubBasin = subbasinTable(pKey)
                         combineList.Add(sAoi.TempFilePath)
+                        If sAoi.Id > maxId Then
+                            maxId = sAoi.Id
+                        End If
                     Next
-                    success = BA_ZoneOverlay(maskFilePath, combineList, subAoiPath, fileCombine, _
+                    success = BA_ZoneOverlay(maskFilePath, combineList, subbasinPath, outputFile,
                                              False, True, maskFilePath, WorkspaceType.Geodatabase)
                     If success = BA_ReturnCode.Success Then
                         progressDialog2.Description = "Appending attributes to subAOI layer"
                         pStepProg.Step()
                         'Delete temporary SubAOI layers
-                        For Each pKey As String In subAoiTable.Keys
-                            Dim sAoi As SubAOI = subAoiTable(pKey)
-                            BA_RemoveRasterFromGDB(subAoiPath, sAoi.TempLayerName)
+                        For Each pKey As String In subbasinTable.Keys
+                            Dim sAoi As SubBasin = subbasinTable(pKey)
+                            BA_RemoveRasterFromGDB(subbasinPath, sAoi.TempLayerName)
                         Next
-                        pGeodataset = BA_OpenRasterFromGDB(subAoiPath, fileCombine)
+                        pGeodataset = BA_OpenRasterFromGDB(subbasinPath, outputFile)
                         If pGeodataset IsNot Nothing Then
                             pRasterBandCollection = CType(pGeodataset, IRasterBandCollection)
                             pRasterBand = pRasterBandCollection.Item(0)
                             pTable = pRasterBand.AttributeTable
                             Dim idxValue As Integer = pTable.FindField(BA_FIELD_VALUE)
-                            Dim sortedArray(subAoiTable.Keys.Count - 1) As SubAOI
+                            Dim sortedArray(subbasinTable.Keys.Count - 1) As SubBasin
                             Dim j As Integer = 0
-                            For Each sName As String In subAoiTable.Keys
-                                Dim sAoi As SubAOI = subAoiTable(sName)
+                            For Each sName As String In subbasinTable.Keys
+                                Dim sAoi As SubBasin = subbasinTable(sName)
                                 sortedArray(j) = sAoi
                                 j += 1
                             Next
                             'Sort the subAOI's so we get the lowest ID's first
-                            System.Array.Sort(sortedArray, SubAOI.maxAccumAscending)
+                            System.Array.Sort(sortedArray, SubBasin.maxAccumAscending)
                             'Keep track of which combine codes have been assigned to a SubAOI
                             Dim usedCombineCodes As IList(Of Integer) = New List(Of Integer)
                             'Loop through the sorted sub AOI's
                             For k As Integer = 0 To sortedArray.GetUpperBound(0)
                                 'Get all the rows assigned to that SubAOI
-                                Dim sAoi As SubAOI = sortedArray(k)
+                                Dim sAoi As SubBasin = sortedArray(k)
                                 pQF.WhereClause = """" & sAoi.TempLayerName & """ = 1"
                                 Dim pCursor As ICursor = pTable.Search(pQF, False)
                                 Dim pRow As IRow = pCursor.NextRow
@@ -337,7 +340,7 @@ Public Class FrmSubAoiId
                                     pRow = pCursor.NextRow
                                 Loop
                                 sAoi.CombineValueList = combineValList
-                                subAoiTable(sAoi.Name) = sAoi
+                                subbasinTable(sAoi.Name) = sAoi
                                 pRow = Nothing
                                 pCursor = Nothing
                             Next
@@ -355,26 +358,17 @@ Public Class FrmSubAoiId
                                 If usedCombineCodes.Contains(nextValue) Then
                                     'Do nothing; the Value is used
                                 Else
-                                    whereClause = " == " & nextValue
+                                    whereClause = BA_FIELD_VALUE + " = " + CStr(nextValue)
                                     Exit Do
                                 End If
-                                'Debug.WriteLine(nextValue)
                                 valuesEnum.MoveNext()
                                 nextValue = Convert.ToInt32(valuesEnum.Current)
                             Loop
                             valuesCursor = Nothing
                             pDataStatistics = Nothing
                             valuesEnum = Nothing
-                            'Recode noData value to noData
                             If Not String.IsNullOrEmpty(whereClause) Then
-                                success = BA_SetNullSelectedCells(subAoiPath, fileCombine, subAoiPath, outputFile,
-                                                                    maskFolder, BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)),
-                                                                    whereClause)
-                                If success = BA_ReturnCode.Success Then
-                                    'Delete temporary combine file
-                                    BA_RemoveRasterFromGDB(subAoiPath, fileCombine)
-                                    BA_UpdateSubAoiAttributeTable(subAoiPath, outputFile, subAoiTable)
-                                End If
+                                BA_UpdateSubAoiAttributeTable(subbasinPath, outputFile, subbasinTable, maxId, whereClause)
                             End If
                         End If
                     End If
@@ -437,7 +431,7 @@ Public Class FrmSubAoiId
                 Me.Text = "Manage SubAOI Id Layers (AOI: " & aoiName & pAoi.ApplicationVersion & " )"
                 bagisPExt.aoi = pAoi
 
-                RefreshSubAoiGrid()
+                RefreshSubbasinGrid()
                 RefreshGrdId()
                 'Bring the window to the front
                 Me.WindowState = FormWindowState.Normal
@@ -479,12 +473,12 @@ Public Class FrmSubAoiId
         End If
     End Sub
 
-    Private Sub GrdSubAoi_CellContentClick(sender As Object, e As System.Windows.Forms.DataGridViewCellEventArgs) Handles GrdSubAoi.CellContentClick
+    Private Sub GrdSubAoi_CellContentClick(sender As Object, e As System.Windows.Forms.DataGridViewCellEventArgs) Handles GrdSubbasin.CellContentClick
         Dim idxColumn As Integer = e.ColumnIndex
         'We changed one of the checkboxes
         If idxColumn = 1 Then
             Dim selectedLayers As Integer = 0
-            For Each pRow As DataGridViewRow In GrdSubAoi.Rows
+            For Each pRow As DataGridViewRow In GrdSubbasin.Rows
                 Dim selected As Boolean = Convert.ToBoolean(pRow.Cells(idxColumn).EditedFormattedValue)
                 If selected = True Then
                     selectedLayers += 1
@@ -492,9 +486,9 @@ Public Class FrmSubAoiId
                 End If
             Next
             If selectedLayers > 0 Then
-                BtnCreateSubAoi.Enabled = True
+                BtnCreateSubbasin.Enabled = True
             Else
-                BtnCreateSubAoi.Enabled = False
+                BtnCreateSubbasin.Enabled = False
             End If
         End If
     End Sub
