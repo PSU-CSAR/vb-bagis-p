@@ -75,8 +75,8 @@
     Public Const BA_FIELD_ERAMS_ID As String = "ERAMS_ID"
     Public Const BA_FIELD_FLOW_ACCUM As String = "FLOW_ACC"
     'field names for subAoi functionality in BAGIS-P
-    Public Const BA_FIELD_SUB_AOI_ID As String = "SUB_AOI_ID"
-    Public Const BA_FIELD_SUB_AOI_NAME As String = "NAME"
+    Public Const BA_FIELD_SUB_BASIN_ID As String = "SUB_BASIN_ID"
+    Public Const BA_FIELD_SUB_BASIN_NAME As String = "NAME"
     Public Const BA_FIELD_GAUGE_NUMBER As String = "GAUGE_NUMBER"
     Public Const BA_FIELD_AWDB_ID As String = "awdb_id"
     Public Const BA_FIELD_TIMBER_ELEV As String = "TIMBER_ELEV"

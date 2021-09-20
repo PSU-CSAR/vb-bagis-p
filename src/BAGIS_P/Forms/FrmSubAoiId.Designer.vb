@@ -24,14 +24,16 @@ Partial Class FrmSubAoiId
     Private Sub InitializeComponent()
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.TxtAoiPath = New System.Windows.Forms.TextBox()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.BtnSelectAoi = New System.Windows.Forms.Button()
         Me.GrdSubbasin = New System.Windows.Forms.DataGridView()
+        Me.sName = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.Include = New System.Windows.Forms.DataGridViewCheckBoxColumn()
         Me.BtnDisplaySubbasin = New System.Windows.Forms.Button()
         Me.BtnCreateSubbasin = New System.Windows.Forms.Button()
         Me.Label2 = New System.Windows.Forms.Label()
@@ -39,13 +41,11 @@ Partial Class FrmSubAoiId
         Me.BtnDelete = New System.Windows.Forms.Button()
         Me.BtnDisplayId = New System.Windows.Forms.Button()
         Me.GrdId = New System.Windows.Forms.DataGridView()
+        Me.DataGridViewTextBoxColumn1 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.DataGridViewCheckBoxColumn1 = New System.Windows.Forms.DataGridViewCheckBoxColumn()
         Me.BtnClose = New System.Windows.Forms.Button()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.BtnRename = New System.Windows.Forms.Button()
-        Me.sName = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.Include = New System.Windows.Forms.DataGridViewCheckBoxColumn()
-        Me.DataGridViewTextBoxColumn1 = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.DataGridViewCheckBoxColumn1 = New System.Windows.Forms.DataGridViewCheckBoxColumn()
         CType(Me.GrdSubbasin, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.GrdId, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -56,7 +56,7 @@ Partial Class FrmSubAoiId
         Me.TxtAoiPath.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TxtAoiPath.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(0, Byte), Integer), CType(CType(192, Byte), Integer))
         Me.TxtAoiPath.Location = New System.Drawing.Point(232, 12)
-        Me.TxtAoiPath.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.TxtAoiPath.Margin = New System.Windows.Forms.Padding(4)
         Me.TxtAoiPath.Name = "TxtAoiPath"
         Me.TxtAoiPath.ReadOnly = True
         Me.TxtAoiPath.Size = New System.Drawing.Size(681, 26)
@@ -77,7 +77,7 @@ Partial Class FrmSubAoiId
         '
         Me.BtnSelectAoi.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnSelectAoi.Location = New System.Drawing.Point(5, 7)
-        Me.BtnSelectAoi.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnSelectAoi.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnSelectAoi.Name = "BtnSelectAoi"
         Me.BtnSelectAoi.Size = New System.Drawing.Size(140, 34)
         Me.BtnSelectAoi.TabIndex = 63
@@ -107,17 +107,34 @@ Partial Class FrmSubAoiId
         DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.GrdSubbasin.DefaultCellStyle = DataGridViewCellStyle3
         Me.GrdSubbasin.Location = New System.Drawing.Point(7, 74)
-        Me.GrdSubbasin.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.GrdSubbasin.Margin = New System.Windows.Forms.Padding(4)
         Me.GrdSubbasin.Name = "GrdSubbasin"
         Me.GrdSubbasin.Size = New System.Drawing.Size(703, 185)
         Me.GrdSubbasin.TabIndex = 66
+        '
+        'sName
+        '
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.sName.DefaultCellStyle = DataGridViewCellStyle2
+        Me.sName.HeaderText = "Subbasin Name"
+        Me.sName.Name = "sName"
+        Me.sName.ReadOnly = True
+        Me.sName.Width = 400
+        '
+        'Include
+        '
+        Me.Include.HeaderText = "Selected"
+        Me.Include.Name = "Include"
+        Me.Include.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.Include.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic
+        Me.Include.Width = 75
         '
         'BtnDisplaySubbasin
         '
         Me.BtnDisplaySubbasin.Enabled = False
         Me.BtnDisplaySubbasin.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnDisplaySubbasin.Location = New System.Drawing.Point(7, 266)
-        Me.BtnDisplaySubbasin.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnDisplaySubbasin.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnDisplaySubbasin.Name = "BtnDisplaySubbasin"
         Me.BtnDisplaySubbasin.Size = New System.Drawing.Size(233, 34)
         Me.BtnDisplaySubbasin.TabIndex = 67
@@ -129,9 +146,9 @@ Partial Class FrmSubAoiId
         Me.BtnCreateSubbasin.Enabled = False
         Me.BtnCreateSubbasin.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnCreateSubbasin.Location = New System.Drawing.Point(247, 266)
-        Me.BtnCreateSubbasin.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnCreateSubbasin.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnCreateSubbasin.Name = "BtnCreateSubbasin"
-        Me.BtnCreateSubbasin.Size = New System.Drawing.Size(427, 34)
+        Me.BtnCreateSubbasin.Size = New System.Drawing.Size(462, 34)
         Me.BtnCreateSubbasin.TabIndex = 69
         Me.BtnCreateSubbasin.Text = "Create Subbasin ID Layer Using Selected Subbasin(s)"
         Me.BtnCreateSubbasin.UseVisualStyleBackColor = True
@@ -163,7 +180,7 @@ Partial Class FrmSubAoiId
         Me.BtnDelete.Enabled = False
         Me.BtnDelete.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnDelete.Location = New System.Drawing.Point(244, 586)
-        Me.BtnDelete.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnDelete.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnDelete.Name = "BtnDelete"
         Me.BtnDelete.Size = New System.Drawing.Size(220, 34)
         Me.BtnDelete.TabIndex = 73
@@ -175,7 +192,7 @@ Partial Class FrmSubAoiId
         Me.BtnDisplayId.Enabled = False
         Me.BtnDisplayId.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnDisplayId.Location = New System.Drawing.Point(5, 586)
-        Me.BtnDisplayId.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnDisplayId.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnDisplayId.Name = "BtnDisplayId"
         Me.BtnDisplayId.Size = New System.Drawing.Size(233, 34)
         Me.BtnDisplayId.TabIndex = 72
@@ -205,16 +222,33 @@ Partial Class FrmSubAoiId
         DataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.GrdId.DefaultCellStyle = DataGridViewCellStyle6
         Me.GrdId.Location = New System.Drawing.Point(7, 346)
-        Me.GrdId.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.GrdId.Margin = New System.Windows.Forms.Padding(4)
         Me.GrdId.Name = "GrdId"
         Me.GrdId.Size = New System.Drawing.Size(703, 185)
         Me.GrdId.TabIndex = 71
+        '
+        'DataGridViewTextBoxColumn1
+        '
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.DataGridViewTextBoxColumn1.DefaultCellStyle = DataGridViewCellStyle5
+        Me.DataGridViewTextBoxColumn1.HeaderText = "SubbasinId Layer Name"
+        Me.DataGridViewTextBoxColumn1.Name = "DataGridViewTextBoxColumn1"
+        Me.DataGridViewTextBoxColumn1.ReadOnly = True
+        Me.DataGridViewTextBoxColumn1.Width = 400
+        '
+        'DataGridViewCheckBoxColumn1
+        '
+        Me.DataGridViewCheckBoxColumn1.HeaderText = "Selected"
+        Me.DataGridViewCheckBoxColumn1.Name = "DataGridViewCheckBoxColumn1"
+        Me.DataGridViewCheckBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.DataGridViewCheckBoxColumn1.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic
+        Me.DataGridViewCheckBoxColumn1.Width = 75
         '
         'BtnClose
         '
         Me.BtnClose.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnClose.Location = New System.Drawing.Point(716, 588)
-        Me.BtnClose.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnClose.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnClose.Name = "BtnClose"
         Me.BtnClose.Size = New System.Drawing.Size(87, 31)
         Me.BtnClose.TabIndex = 82
@@ -238,46 +272,12 @@ Partial Class FrmSubAoiId
         Me.BtnRename.Enabled = False
         Me.BtnRename.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnRename.Location = New System.Drawing.Point(469, 586)
-        Me.BtnRename.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.BtnRename.Margin = New System.Windows.Forms.Padding(4)
         Me.BtnRename.Name = "BtnRename"
         Me.BtnRename.Size = New System.Drawing.Size(240, 34)
         Me.BtnRename.TabIndex = 84
         Me.BtnRename.Text = "Rename Selected Layer(s)"
         Me.BtnRename.UseVisualStyleBackColor = True
-        '
-        'sName
-        '
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.sName.DefaultCellStyle = DataGridViewCellStyle2
-        Me.sName.HeaderText = "Subbasin Name"
-        Me.sName.Name = "sName"
-        Me.sName.ReadOnly = True
-        Me.sName.Width = 400
-        '
-        'Include
-        '
-        Me.Include.HeaderText = "Selected"
-        Me.Include.Name = "Include"
-        Me.Include.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.Include.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic
-        Me.Include.Width = 75
-        '
-        'DataGridViewTextBoxColumn1
-        '
-        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.DataGridViewTextBoxColumn1.DefaultCellStyle = DataGridViewCellStyle5
-        Me.DataGridViewTextBoxColumn1.HeaderText = "SubbasinId Layer Name"
-        Me.DataGridViewTextBoxColumn1.Name = "DataGridViewTextBoxColumn1"
-        Me.DataGridViewTextBoxColumn1.ReadOnly = True
-        Me.DataGridViewTextBoxColumn1.Width = 400
-        '
-        'DataGridViewCheckBoxColumn1
-        '
-        Me.DataGridViewCheckBoxColumn1.HeaderText = "Selected"
-        Me.DataGridViewCheckBoxColumn1.Name = "DataGridViewCheckBoxColumn1"
-        Me.DataGridViewCheckBoxColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.DataGridViewCheckBoxColumn1.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic
-        Me.DataGridViewCheckBoxColumn1.Width = 75
         '
         'FrmSubAoiId
         '
@@ -298,7 +298,7 @@ Partial Class FrmSubAoiId
         Me.Controls.Add(Me.TxtAoiPath)
         Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.BtnSelectAoi)
-        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "FrmSubAoiId"
         Me.ShowIcon = False
         Me.Text = "Manage Subbasin Id Layers"

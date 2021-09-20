@@ -101,6 +101,7 @@
     </Reference>
     <Reference Include="ESRI.ArcGIS.Desktop.AddIns">
       <HintPath>..\..\..\..\Program Files (x86)\ArcGIS\DeveloperKit10.5\bin\ESRI.ArcGIS.Desktop.AddIns.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="ESRI.ArcGIS.Display, Version=10.2.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -200,7 +201,7 @@
     <Compile Include="Buttons\BtnPublicProfileBuilder.vb" />
     <Compile Include="Buttons\BtnModel.vb" />
     <Compile Include="Buttons\BtnLocalProfileBuilder.vb" />
-    <Compile Include="Buttons\BtnSubAOIIdTool.vb" />
+    <Compile Include="Buttons\BtnSubbasinIdTool.vb" />
     <Compile Include="Buttons\BtnTimberlineTool.vb" />
     <Compile Include="Buttons\BtnViewLog.vb" />
     <Compile Include="Config.Designer.vb">

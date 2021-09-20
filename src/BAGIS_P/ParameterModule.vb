@@ -1175,8 +1175,8 @@ Module ParameterModule
         Next
     End Sub
 
-    Public Sub BA_UpdateSubAoiAttributeTable(ByVal folderName As String, ByVal fileName As String,
-                                             ByVal subAoiTable As Hashtable, ByVal maxSubBasinId As Int16,
+    Public Sub BA_UpdateSubbasinAttributeTable(ByVal folderName As String, ByVal fileName As String,
+                                             ByVal subbasinTable As Hashtable, ByVal maxSubBasinId As Int16,
                                              ByVal whereClause As String)
         Dim pRasterBandCollection As IRasterBandCollection = Nothing
         Dim pRasterBand As IRasterBand = Nothing
@@ -1190,30 +1190,30 @@ Module ParameterModule
                 pRasterBand = pRasterBandCollection.Item(0)
                 pTable = pRasterBand.AttributeTable
                 'Create update fields if they don't exist
-                Dim idxSubAoiId As Integer = -1
+                Dim idxSubbasinId As Integer = -1
                 Dim idxName As Integer = -1
                 Dim idxGaugeNumber As Integer = -1
 
-                idxSubAoiId = pTable.FindField(BA_FIELD_SUB_AOI_ID)
-                If idxSubAoiId < 0 Then
+                idxSubbasinId = pTable.FindField(BA_FIELD_SUB_BASIN_ID)
+                If idxSubbasinId < 0 Then
                     Dim pFieldId As IFieldEdit = New Field
                     With pFieldId
                         .Type_2 = esriFieldType.esriFieldTypeInteger
-                        .Name_2 = BA_FIELD_SUB_AOI_ID
+                        .Name_2 = BA_FIELD_SUB_BASIN_ID
                     End With
                     pTable.AddField(pFieldId)
-                    idxSubAoiId = pTable.FindField(BA_FIELD_SUB_AOI_ID)
+                    idxSubbasinId = pTable.FindField(BA_FIELD_SUB_BASIN_ID)
                 End If
 
-                idxName = pTable.FindField(BA_FIELD_SUB_AOI_NAME)
+                idxName = pTable.FindField(BA_FIELD_SUB_BASIN_NAME)
                 If idxName < 0 Then
                     Dim pFieldName As IFieldEdit = New Field
                     With pFieldName
                         .Type_2 = esriFieldType.esriFieldTypeString
-                        .Name_2 = BA_FIELD_SUB_AOI_NAME
+                        .Name_2 = BA_FIELD_SUB_BASIN_NAME
                     End With
                     pTable.AddField(pFieldName)
-                    idxName = pTable.FindField(BA_FIELD_SUB_AOI_NAME)
+                    idxName = pTable.FindField(BA_FIELD_SUB_BASIN_NAME)
                 End If
 
                 idxGaugeNumber = pTable.FindField(BA_FIELD_GAUGE_NUMBER)
@@ -1227,11 +1227,11 @@ Module ParameterModule
                     idxGaugeNumber = pTable.FindField(BA_FIELD_GAUGE_NUMBER)
                 End If
 
-                For Each pName As String In subAoiTable.Keys
-                    Dim sAoi As SubBasin = subAoiTable(pName)
+                For Each pName As String In subbasinTable.Keys
+                    Dim sBasin As Subbasin = subbasinTable(pName)
                     Dim sb As StringBuilder = New StringBuilder
                     sb.Append(BA_FIELD_VALUE & " IN (")
-                    Dim valuesList As IList(Of Integer) = sAoi.CombineValueList
+                    Dim valuesList As IList(Of Integer) = sBasin.CombineValueList
                     For Each sVal As Integer In valuesList
                         sb.Append(sVal & ",")
                     Next
@@ -1242,9 +1242,9 @@ Module ParameterModule
                     pCursor = pTable.Update(pQF, False)
                     pRow = pCursor.NextRow
                     Do Until pRow Is Nothing
-                        pRow.Value(idxSubAoiId) = sAoi.Id
-                        pRow.Value(idxName) = sAoi.Name
-                        pRow.Value(idxGaugeNumber) = sAoi.GaugeNumber
+                        pRow.Value(idxSubbasinId) = sBasin.Id
+                        pRow.Value(idxName) = sBasin.Name
+                        pRow.Value(idxGaugeNumber) = sBasin.GaugeNumber
                         pCursor.UpdateRow(pRow)
                         pRow = pCursor.NextRow
                     Loop
@@ -1254,14 +1254,14 @@ Module ParameterModule
                 pCursor = pTable.Update(pQF, False)
                 pRow = pCursor.NextRow  'there will only be one row
                 If pRow IsNot Nothing Then
-                    pRow.Value(idxSubAoiId) = maxSubBasinId + 1
+                    pRow.Value(idxSubbasinId) = maxSubBasinId + 1
                     pRow.Value(idxName) = "Undefined"
                     pRow.Value(idxGaugeNumber) = "Unknown"
                     pCursor.UpdateRow(pRow)
                 End If
             End If
         Catch ex As Exception
-            Debug.Print("BA_UpdateSubAoiAttributeTable Exception: " & ex.Message)
+            Debug.Print("BA_UpdateSubbasinAttributeTable Exception: " & ex.Message)
         Finally
             pRasterBand = Nothing
             pRasterBandCollection = Nothing
@@ -1271,13 +1271,13 @@ Module ParameterModule
         End Try
     End Sub
 
-    Public Sub BA_AppendSubAOIIdToParameterTable(ByVal aoiPath As String, ByVal hruName As String, ByVal subAoiLayerName As String, _
+    Public Sub BA_AppendSubbasinIdToParameterTable(ByVal aoiPath As String, ByVal hruName As String, ByVal subAoiLayerName As String,
                                                  ByVal paramTableName As String, ByVal snapRasterPath As String)
         'Run zonal stats with Marjority option to create table
         Dim zoneFilePath As String = BA_GetHruPathGDB(aoiPath, PublicPath.HruDirectory, hruName)
         Dim zoneFileName As String = BA_StandardizeShapefileName(BA_EnumDescription(PublicPath.HruZonesVector), False, False)
         Dim valueFilePath As String = aoiPath & BA_EnumDescription(PublicPath.BagisSubAoiGdb)
-        Dim tableName As String = "tmpSubAoi"
+        Dim tableName As String = "tmpSubbasin"
         Dim subTable As ITable = Nothing
         Dim subCursor As ICursor = Nothing
         Dim subRow As IRow = Nothing
@@ -1296,7 +1296,7 @@ Module ParameterModule
             End If
             Dim success As BA_ReturnCode = BA_ReplaceNoDataCells(valueFilePath, subAoiLayerName, valueFilePath,
                                                                     tempOutput, "-1", maskFolder, BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)))
-            success = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_HRU_ID, valueFilePath & "\" & tempOutput, _
+            success = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_HRU_ID, valueFilePath & "\" & tempOutput,
                                                 zoneFilePath, tableName, snapRasterPath, StatisticsTypeString.MAJORITY)
             'Remove temp file
             If BA_File_Exists(valueFilePath & "\" & tempOutput, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
@@ -1329,16 +1329,16 @@ Module ParameterModule
                         pTable = BA_OpenTableFromGDB(tableFolder, paramTableName)
                         If pTable IsNot Nothing Then
                             Dim idxPHruId As Integer = pTable.FindField(BA_FIELD_HRU_ID)
-                            Dim idxPSubId As Integer = pTable.FindField(BA_FIELD_SUB_AOI_ID)
-                            'Check to see if the SUB_AOI_ID field exists; If it doesn't, add it
+                            Dim idxPSubId As Integer = pTable.FindField(BA_FIELD_SUB_BASIN_ID)
+                            'Check to see if the SUB_BASIN_ID field exists; If it doesn't, add it
                             If idxPSubId < 1 Then
                                 Dim pFieldSub As IFieldEdit = New Field
                                 With pFieldSub
                                     .Type_2 = esriFieldType.esriFieldTypeInteger
-                                    .Name_2 = BA_FIELD_SUB_AOI_ID
+                                    .Name_2 = BA_FIELD_SUB_BASIN_ID
                                 End With
                                 pTable.AddField(pFieldSub)
-                                idxPSubId = pTable.FindField(BA_FIELD_SUB_AOI_ID)
+                                idxPSubId = pTable.FindField(BA_FIELD_SUB_BASIN_ID)
                             End If
                             'Cursor through rows on parameterTable
                             pCursor = pTable.Update(Nothing, False)
@@ -1356,7 +1356,7 @@ Module ParameterModule
                 End If
             End If
         Catch ex As Exception
-            Debug.Print("BA_AppendSubAOIIdToParameterTable Exception: " & ex.Message)
+            Debug.Print("BA_AppendSubbasinIdToParameterTable Exception: " & ex.Message)
         Finally
             subTable = Nothing
             subCursor = Nothing

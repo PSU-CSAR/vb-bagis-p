@@ -89,8 +89,8 @@ Public Class FrmProfileBuilder
             BtnViewLog.Visible = False
             LblNoData.Visible = False
             LblCompletedProfiles.Visible = False
-            'Hide subAoi panel
-            PnlSubAoi.Visible = False
+            'Hide subbasin panel
+            PnlSubbasin.Visible = False
             'Resize form
             Me.Height = Me.Height + 30
             Me.Width = Me.Width - 230
@@ -175,7 +175,7 @@ Public Class FrmProfileBuilder
                     RefreshProfileData()
                     pStepProg.Step()
                     RefreshMethodData()
-                    LoadSubAOIPanel()
+                    LoadSubbasinPanel()
 
                     'Re-Initialize m_methodStatusTable
                     m_methodStatusTable = New Hashtable
@@ -256,22 +256,22 @@ Public Class FrmProfileBuilder
                 m_dataTable = BA_LoadDataSources(BA_GetLocalSettingsPath(m_aoi.FilePath))
                 BA_AppendUnitsToDataSources(m_dataTable, m_aoi.FilePath)
                 Dim prismLayersExist As Boolean = False
-                BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
+                BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit,
                      m_depthUnit, m_degreeUnit, prismLayersExist)
 
-                If m_slopeUnit = SlopeUnit.Missing Or _
-                    m_elevUnit = MeasurementUnit.Missing Or _
+                If m_slopeUnit = SlopeUnit.Missing Or
+                    m_elevUnit = MeasurementUnit.Missing Or
                     (m_depthUnit = MeasurementUnit.Missing And prismLayersExist) Then
                     Dim frmDataUnits As FrmDataUnits = New FrmDataUnits(m_aoi, m_slopeUnit, m_elevUnit, m_depthUnit, prismLayersExist)
                     frmDataUnits.ShowDialog()
                     'Update with changes
-                    BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit, _
+                    BA_SetMeasurementUnitsForAoi(m_aoi.FilePath, m_dataTable, m_slopeUnit, m_elevUnit,
                                                  m_depthUnit, m_degreeUnit, prismLayersExist)
                 End If
 
                 RefreshProfileData()
                 RefreshMethodData()
-                LoadSubAOIPanel()
+                LoadSubbasinPanel()
 
                 'Re-Initialize m_methodStatusTable
                 m_methodStatusTable = New Hashtable
@@ -292,7 +292,7 @@ Public Class FrmProfileBuilder
                 Dim hruFilePath As String = BA_GetHruPathGDB(m_aoi.FilePath, PublicPath.HruDirectory, dri.Name) & BA_EnumDescription(PublicPath.HruGrid)
                 Dim hruXmlFilePath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, dri.Name) & BA_EnumDescription(PublicPath.HruXml)
                 ' Add hru to the list if the grid exists
-                If BA_File_Exists(hruFilePath, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) And _
+                If BA_File_Exists(hruFilePath, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) And
                    BA_File_ExistsWindowsIO(hruXmlFilePath) Then
                     'Assume hru is discrete raster since we create it to be so
                     'item = New LayerListItem(dri.Name, hruFilePath, LayerType.Raster, True)
@@ -423,7 +423,7 @@ Public Class FrmProfileBuilder
         End If
         'Check for other invalid characters
         If Not IsValidProfileName(TxtProfileName.Text) Then
-            MessageBox.Show("Please enter a valid profile name without spaces or special characters", "Invalid profile name", MessageBoxButtons.OK, _
+            MessageBox.Show("Please enter a valid profile name without spaces or special characters", "Invalid profile name", MessageBoxButtons.OK,
                            MessageBoxIcon.Information)
         End If
         Dim profilesPath As String = Nothing
@@ -1006,12 +1006,12 @@ Public Class FrmProfileBuilder
                     Dim hruPath As String = BA_GetHruPath(m_aoi.FilePath, PublicPath.HruDirectory, selHruName)
                     Dim hruParamPath As String = hruPath & BA_EnumDescription(PublicPath.BagisParamGdb) & BA_EnumDescription(PublicPath.HruProfileStatus)
                     'Append SUB_AOI_ID to parameter table if desired
-                    If CkAppendSubAoi.Checked = True Then
-                        If CboSubAoiId.SelectedIndex > -1 Then
-                            Dim subAOIIdLayer As String = CStr(CboSubAoiId.SelectedItem)
-                            LblStatus.Text = "Appending SubAOI ID to parameter table"
+                    If CkAppendSubbasin.Checked = True Then
+                        If CboSubbasinId.SelectedIndex > -1 Then
+                            Dim subbasinIdLayer As String = CStr(CboSubbasinId.SelectedItem)
+                            LblStatus.Text = "Appending Subbasin ID to parameter table"
                             Dim snapRasterPath As String = BA_GeodatabasePath(m_aoi.FilePath, GeodatabaseNames.Aoi) + BA_EnumDescription(PublicPath.AoiGrid)
-                            BA_AppendSubAOIIdToParameterTable(m_aoi.FilePath, selHruName, subAOIIdLayer, paramTable, snapRasterPath)
+                            BA_AppendSubbasinIdToParameterTable(m_aoi.FilePath, selHruName, subbasinIdLayer, paramTable, snapRasterPath)
                         End If
                     End If
                     'Replace no data values with -99 because OMS-PRMS cannot handle null values
@@ -1056,7 +1056,7 @@ Public Class FrmProfileBuilder
                             Dim profilePath As String = BA_GetLocalProfilesDir(aoiPath)
                             Dim profileId As Integer = GetNextLocalProfileId(profilePath)
                             Dim pExt As BagisPExtension = BagisPExtension.GetExtension
-                            Dim exProfile As Profile = New Profile(profileId, copyProfile.Name, _
+                            Dim exProfile As Profile = New Profile(profileId, copyProfile.Name,
                                                                    ProfileClass.BA_Local, copyProfile.Description, pExt.version)
                             Dim exMethodList As List(Of String) = New List(Of String)
                             '3. Get the method path for the aoi
@@ -1067,8 +1067,8 @@ Public Class FrmProfileBuilder
                                 If copyMethod IsNot Nothing Then
                                     Dim methodId As Integer = GetNextMethodId(methodPath)
                                     '5. Create a copy of the method so we don't mutate the original
-                                    Dim exMethod As Method = New Method(methodId, copyMethod.Name, _
-                                                                        copyMethod.Description, copyMethod.ToolboxName, _
+                                    Dim exMethod As Method = New Method(methodId, copyMethod.Name,
+                                                                        copyMethod.Description, copyMethod.ToolboxName,
                                                                         copyMethod.ModelName, copyMethod.ModelLabel, copyMethod.ToolBoxPath)
                                     exMethod.ModelParameters = copyMethod.ModelParameters
                                     '6. Save the method to the aoi
@@ -1176,7 +1176,7 @@ Public Class FrmProfileBuilder
             For Each mName As String In m_selProfile.MethodNames
                 Dim hruMethod As Method = hruMethodTable(mName)
                 pMethod = m_methodTable(mName)
-                If pMethod IsNot Nothing AndAlso hruMethod IsNot Nothing AndAlso _
+                If pMethod IsNot Nothing AndAlso hruMethod IsNot Nothing AndAlso
                     hruMethod.Status = MethodStatus.Verified AndAlso hruMethod.UseMethod = True Then
                     Dim pFilledParameters As List(Of ModelParameter) = New List(Of ModelParameter)
                     pModel = BA_OpenModel(pMethod.ToolBoxPath, pMethod.ToolboxName, pMethod.ModelName)
@@ -1296,7 +1296,7 @@ Public Class FrmProfileBuilder
                 Dim success As BA_ReturnCode = BA_ReturnCode.UnknownError
                 success = VerifyAOIAttributeTable()
                 If success <> BA_ReturnCode.Success Then
-                    MessageBox.Show("Unable to verify attribute for AOI: " & m_aoi.Name, "Bad attribute table", MessageBoxButtons.OK, _
+                    MessageBox.Show("Unable to verify attribute for AOI: " & m_aoi.Name, "Bad attribute table", MessageBoxButtons.OK,
                         MessageBoxIcon.Error)
                     Exit Sub
                 End If
@@ -1322,12 +1322,12 @@ Public Class FrmProfileBuilder
                         'Create Default.gdb in aoi if it doesn't exist
                         success = BA_CheckDefaultWorkspace(m_aoi.FilePath)
                         If success <> BA_ReturnCode.Success Then
-                            MessageBox.Show("Unable to create default.gdb for AOI: " & m_aoi.Name, "Write error", MessageBoxButtons.OK, _
+                            MessageBox.Show("Unable to create default.gdb for AOI: " & m_aoi.Name, "Write error", MessageBoxButtons.OK,
                                             MessageBoxIcon.Error)
                             Exit Sub
                         End If
                     Else
-                        MessageBox.Show("Unable to create params.gdb for AOI: " & m_aoi.Name, "Write error", MessageBoxButtons.OK, _
+                        MessageBox.Show("Unable to create params.gdb for AOI: " & m_aoi.Name, "Write error", MessageBoxButtons.OK,
                                         MessageBoxIcon.Error)
                         Exit Sub
                     End If
@@ -1448,7 +1448,7 @@ Public Class FrmProfileBuilder
                                         If params IsNot Nothing Then
                                             For Each pParam As ModelParameter In params
                                                 Dim modelParam As SystemModelParameterName = BA_GetSystemModelParameterName(pParam.Name)
-                                                If modelParam = SystemModelParameterName.sys_slope_path AndAlso _
+                                                If modelParam = SystemModelParameterName.sys_slope_path AndAlso
                                                     m_slopeUnit = SlopeUnit.Degree Then
                                                     'progressDialog2.Description = "Recalculating slope layer to use percent"
                                                     'pStepProg.Step()
@@ -1468,8 +1468,8 @@ Public Class FrmProfileBuilder
                                                         sTag.Append(BA_ZUNIT_CATEGORY_TAG & MeasurementUnitType.Slope.ToString & "; ")
                                                         sTag.Append(BA_ZUNIT_VALUE_TAG & BA_EnumDescription(newSlopeUnit) & ";")
                                                         sTag.Append(BA_BAGIS_TAG_SUFFIX)
-                                                        success = BA_UpdateMetadata(surfacesFolder, BA_GetBareName(BA_EnumDescription(PublicPath.Slope)), _
-                                                                          LayerType.Raster, BA_XPATH_TAGS, _
+                                                        success = BA_UpdateMetadata(surfacesFolder, BA_GetBareName(BA_EnumDescription(PublicPath.Slope)),
+                                                                          LayerType.Raster, BA_XPATH_TAGS,
                                                                           sTag.ToString, BA_BAGIS_TAG_PREFIX.Length)
                                                         If success <> BA_ReturnCode.Success Then
                                                             hruMethod.Status = MethodStatus.Invalid
@@ -1721,33 +1721,33 @@ Public Class FrmProfileBuilder
         End If
     End Sub
 
-    Private Sub LoadSubAOIPanel()
-        CboSubAoiId.Items.Clear()
-        Dim subAoiGdbPath As String = TxtAoiPath.Text & BA_EnumDescription(PublicPath.BagisSubAoiGdb)
-        If BA_Folder_ExistsWindowsIO(subAoiGdbPath) Then
+    Private Sub LoadSubbasinPanel()
+        CboSubbasinId.Items.Clear()
+        Dim subbasinGdbPath As String = TxtAoiPath.Text & BA_EnumDescription(PublicPath.BagisSubAoiGdb)
+        If BA_Folder_ExistsWindowsIO(subbasinGdbPath) Then
             Dim rasterList As String() = Nothing
             Dim vectorList As String() = Nothing
-            BA_ListLayersinGDB(subAoiGdbPath, rasterList, vectorList)
+            BA_ListLayersinGDB(subbasinGdbPath, rasterList, vectorList)
             'rasterList has an empty first position as a holdover from VBA
             For i As Integer = 1 To rasterList.GetUpperBound(0)
-                CboSubAoiId.Items.Add(rasterList(i))
+                CboSubbasinId.Items.Add(rasterList(i))
             Next
-            If CboSubAoiId.Items.Count > 0 Then
-                CboSubAoiId.SelectedIndex = 0
-                CkAppendSubAoi.Checked = True
+            If CboSubbasinId.Items.Count > 0 Then
+                CboSubbasinId.SelectedIndex = 0
+                CkAppendSubbasin.Checked = True
             End If
         End If
     End Sub
 
-    Private Sub CboSubAoiId_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CboSubAoiId.SelectedIndexChanged
-        If CboSubAoiId.SelectedIndex > -1 Then
-            Dim subAoiGdbPath As String = TxtAoiPath.Text & BA_EnumDescription(PublicPath.BagisSubAoiGdb)
-            Dim valuesEnum As IEnumerator = BA_QueryUniqueValuesFromRasterGDB(subAoiGdbPath, CStr(CboSubAoiId.SelectedItem), BA_FIELD_VALUE)
+    Private Sub CboSubbasinId_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CboSubbasinId.SelectedIndexChanged
+        If CboSubbasinId.SelectedIndex > -1 Then
+            Dim subbasinGdbPath As String = TxtAoiPath.Text & BA_EnumDescription(PublicPath.BagisSubAoiGdb)
+            Dim valuesEnum As IEnumerator = BA_QueryUniqueValuesFromRasterGDB(subbasinGdbPath, CStr(CboSubbasinId.SelectedItem), BA_FIELD_VALUE)
             Dim i As Integer = 0
             Do Until valuesEnum.MoveNext = False
                 i += 1
             Loop
-            TxtSubAoiCount.Text = i
+            TxtSubbasinCount.Text = i
             valuesEnum = Nothing
         End If
     End Sub
