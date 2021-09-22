@@ -1194,26 +1194,26 @@ Module ParameterModule
                 Dim idxName As Integer = -1
                 Dim idxGaugeNumber As Integer = -1
 
-                idxSubbasinId = pTable.FindField(BA_FIELD_SUB_BASIN_ID)
+                idxSubbasinId = pTable.FindField(BA_FIELD_HRU_SUBBASIN)
                 If idxSubbasinId < 0 Then
                     Dim pFieldId As IFieldEdit = New Field
                     With pFieldId
                         .Type_2 = esriFieldType.esriFieldTypeInteger
-                        .Name_2 = BA_FIELD_SUB_BASIN_ID
+                        .Name_2 = BA_FIELD_HRU_SUBBASIN
                     End With
                     pTable.AddField(pFieldId)
-                    idxSubbasinId = pTable.FindField(BA_FIELD_SUB_BASIN_ID)
+                    idxSubbasinId = pTable.FindField(BA_FIELD_HRU_SUBBASIN)
                 End If
 
-                idxName = pTable.FindField(BA_FIELD_SUB_BASIN_NAME)
+                idxName = pTable.FindField(BA_FIELD_SUBBASIN_NAME)
                 If idxName < 0 Then
                     Dim pFieldName As IFieldEdit = New Field
                     With pFieldName
                         .Type_2 = esriFieldType.esriFieldTypeString
-                        .Name_2 = BA_FIELD_SUB_BASIN_NAME
+                        .Name_2 = BA_FIELD_SUBBASIN_NAME
                     End With
                     pTable.AddField(pFieldName)
-                    idxName = pTable.FindField(BA_FIELD_SUB_BASIN_NAME)
+                    idxName = pTable.FindField(BA_FIELD_SUBBASIN_NAME)
                 End If
 
                 idxGaugeNumber = pTable.FindField(BA_FIELD_GAUGE_NUMBER)
@@ -1284,26 +1284,18 @@ Module ParameterModule
         Dim pTable As ITable = Nothing
         Dim pCursor As ICursor = Nothing
         Dim pRow As IRow = Nothing
+        Dim pRasterBandCollection As IRasterBandCollection = Nothing
+        Dim pRasterBand As IRasterBand = Nothing
+        Dim pRasterTable As ITable = Nothing
+        Dim pRasterCursor As ICursor = Nothing
+        Dim pRasterRow As IRow = Nothing
 
         Try
-
-            'Replace NoData with -1 in mask of aoi so we don't get bad results
-            Dim tempOutput As String = "tmpOut"
-            Dim maskFolder As String = BA_GeodatabasePath(aoiPath, GeodatabaseNames.Aoi)
-            'Remove old temp file if it is there
-            If BA_File_Exists(valueFilePath & "\" & tempOutput, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
-                BA_RemoveRasterFromGDB(valueFilePath, tempOutput)
-            End If
-            Dim success As BA_ReturnCode = BA_ReplaceNoDataCells(valueFilePath, subAoiLayerName, valueFilePath,
-                                                                    tempOutput, "-1", maskFolder, BA_GetBareName(BA_EnumDescription(PublicPath.AoiGrid)))
-            success = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_HRU_ID, valueFilePath & "\" & tempOutput,
+            Dim success As BA_ReturnCode = BA_ZonalStatisticsAsTable(zoneFilePath, zoneFileName, BA_FIELD_HRU_ID, valueFilePath & "\" & subAoiLayerName,
                                                 zoneFilePath, tableName, snapRasterPath, StatisticsTypeString.MAJORITY)
-            'Remove temp file
-            If BA_File_Exists(valueFilePath & "\" & tempOutput, WorkspaceType.Geodatabase, esriDatasetType.esriDTRasterDataset) Then
-                BA_RemoveRasterFromGDB(valueFilePath, tempOutput)
-            End If
             'Put values in a Hashtable that can be queried
             Dim idTable As Hashtable = New Hashtable
+            Dim subbasinTable As Hashtable = New Hashtable  'Secondary lookup hashtable for hru_subbasin values
             If success = BA_ReturnCode.Success Then
                 subTable = BA_OpenTableFromGDB(zoneFilePath, tableName)
                 If subTable IsNot Nothing Then
@@ -1313,7 +1305,7 @@ Module ParameterModule
                     Dim idxHruId As Integer = subTable.FindField(BA_FIELD_HRU_ID)
                     Do Until subRow Is Nothing
                         Dim key As String = Convert.ToString(subRow.Value(idxHruId))
-                        Dim majValue As String = Convert.ToInt32(subRow.Value(idxMajority))
+                        Dim majValue As String = Convert.ToString(subRow.Value(idxMajority))
                         'Only add subAOIId to table if it's valid
                         If majValue > -1 Then
                             idTable(key) = majValue
@@ -1322,6 +1314,27 @@ Module ParameterModule
                     Loop
                     'Delete table
                     success = BA_Remove_TableFromGDB(zoneFilePath, tableName)
+                    'Populate the subbasin hashtable with the hru_subbasin value rather than the value (id) resulting 
+                    'from zonal statistics
+                    pRasterBandCollection = BA_OpenRasterFromGDB(valueFilePath, subAoiLayerName)
+                    If pRasterBandCollection IsNot Nothing Then
+                        pRasterBand = pRasterBandCollection.Item(0)
+                        pRasterTable = pRasterBand.AttributeTable
+                        pRasterCursor = pRasterTable.Search(Nothing, False)
+                        pRasterRow = pRasterCursor.NextRow
+                        Dim idxValueId = pRasterTable.FindField(BA_FIELD_VALUE)
+                        Dim idxSubbasinId = pRasterTable.FindField(BA_FIELD_HRU_SUBBASIN)
+                        Do Until pRasterRow Is Nothing
+                            Dim value As String = CStr(pRasterRow.Value(idxValueId))
+                            Dim hrusubbasin As String = CStr(pRasterRow.Value(idxSubbasinId))
+                            For Each key As String In idTable.Keys
+                                If idTable(key).Equals(value) Then
+                                    subbasinTable(key) = hrusubbasin    'Add hru_subbasin value to subbasin table
+                                End If
+                            Next
+                            pRasterRow = pRasterCursor.NextRow
+                        Loop
+                    End If
                     If success = BA_ReturnCode.Success Then
                         Dim hruPath As String = "PleaseReturn"
                         Dim tempStr As String = BA_GetBareName(zoneFilePath, hruPath)
@@ -1329,23 +1342,23 @@ Module ParameterModule
                         pTable = BA_OpenTableFromGDB(tableFolder, paramTableName)
                         If pTable IsNot Nothing Then
                             Dim idxPHruId As Integer = pTable.FindField(BA_FIELD_HRU_ID)
-                            Dim idxPSubId As Integer = pTable.FindField(BA_FIELD_SUB_BASIN_ID)
-                            'Check to see if the SUB_BASIN_ID field exists; If it doesn't, add it
+                            Dim idxPSubId As Integer = pTable.FindField(BA_FIELD_HRU_SUBBASIN)
+                            'Check to see if the HRU_SUBBASIN field exists; If it doesn't, add it
                             If idxPSubId < 1 Then
                                 Dim pFieldSub As IFieldEdit = New Field
                                 With pFieldSub
                                     .Type_2 = esriFieldType.esriFieldTypeInteger
-                                    .Name_2 = BA_FIELD_SUB_BASIN_ID
+                                    .Name_2 = BA_FIELD_HRU_SUBBASIN
                                 End With
                                 pTable.AddField(pFieldSub)
-                                idxPSubId = pTable.FindField(BA_FIELD_SUB_BASIN_ID)
+                                idxPSubId = pTable.FindField(BA_FIELD_HRU_SUBBASIN)
                             End If
                             'Cursor through rows on parameterTable
                             pCursor = pTable.Update(Nothing, False)
                             pRow = pCursor.NextRow
                             Do Until pRow Is Nothing
                                 Dim strHruId As String = Convert.ToString(pRow.Value(idxPHruId))
-                                Dim subId As Integer = idTable(strHruId)
+                                Dim subId As Integer = subbasinTable(strHruId)
                                 'If HRU_ID doesn't exist in hashtable, populate with a zero
                                 pRow.Value(idxPSubId) = subId
                                 pCursor.UpdateRow(pRow)
@@ -1364,6 +1377,11 @@ Module ParameterModule
             pTable = Nothing
             pCursor = Nothing
             pRow = Nothing
+            pRasterBandCollection = Nothing
+            pRasterBand = Nothing
+            pRasterTable = Nothing
+            pRasterCursor = Nothing
+            pRasterRow = Nothing
         End Try
     End Sub
 
