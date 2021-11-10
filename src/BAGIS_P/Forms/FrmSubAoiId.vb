@@ -420,23 +420,27 @@ Public Class FrmSubAoiId
 
             'check AOI/BASIN status
             Dim success As BA_ReturnCode = BA_CheckAoiStatus(DataPath, My.ArcMap.Application.hWnd, My.ArcMap.Document)
-
-            'attempt to set default projection to Albers
-            success = BA_SetDefaultProjection(My.ArcMap.Application)
             If success = BA_ReturnCode.Success Then
-                Dim aoiName As String = BA_GetBareName(DataPath)
-                Dim pAoi As Aoi = New Aoi(aoiName, DataPath, Nothing, bagisPExt.version)
-                TxtAoiPath.Text = pAoi.FilePath
-                'ResetForm()
-                Me.Text = "Manage Subbasin Id Layers (AOI: " & aoiName & pAoi.ApplicationVersion & " )"
-                bagisPExt.aoi = pAoi
+                'attempt to set default projection to Albers
+                success = BA_SetDefaultProjection(My.ArcMap.Application)
+                If success = BA_ReturnCode.Success Then
+                    Dim aoiName As String = BA_GetBareName(DataPath)
+                    Dim pAoi As Aoi = New Aoi(aoiName, DataPath, Nothing, bagisPExt.version)
+                    TxtAoiPath.Text = pAoi.FilePath
+                    'ResetForm()
+                    Me.Text = "Manage Subbasin Id Layers (AOI: " & aoiName & pAoi.ApplicationVersion & " )"
+                    bagisPExt.aoi = pAoi
 
-                RefreshSubbasinGrid()
-                RefreshGrdId()
-                'Bring the window to the front
-                Me.WindowState = FormWindowState.Normal
-                Me.BringToFront()
+                    RefreshSubbasinGrid()
+                    RefreshGrdId()
+                End If
+            Else
+                TxtAoiPath.Text = ""
+                Me.Text = "Manage Subbasin Id Layers (AOI:  )"
             End If
+            'Bring the window to the front
+            Me.WindowState = FormWindowState.Normal
+            Me.BringToFront()
         Catch ex As Exception
             MessageBox.Show("BtnSelectAoi_Click Exception: " & ex.Message)
         End Try
