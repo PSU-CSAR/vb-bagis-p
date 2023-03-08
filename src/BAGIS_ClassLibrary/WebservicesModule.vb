@@ -12,7 +12,6 @@ Imports System.Windows.Forms
 
 Public Module WebservicesModule
 
-    Public Const BA_WebServerName = "https://test.ebagis.geog.pdx.edu"
     Public Const BA_EbagisApiVersion = "0.1"
 
     'return values
