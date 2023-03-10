@@ -451,7 +451,7 @@ Public Class FrmDataManager
     End Sub
 
     Private Function QueryDefaultDataSources() As IList(Of BagisImageService)
-        Dim settingsUrl As String = "https://raw.githubusercontent.com/PSU-CSAR/bagis-conf/main/settings/bagis-p.json"
+        Dim settingsUrl As String = "https://raw.githubusercontent.com/PSU-CSAR/vb-bagis-p/master/settings/bagis-p.json"
         Dim req As System.Net.WebRequest = System.Net.WebRequest.Create(settingsUrl)
         Try
             Dim mySettings As ServerSettings = New ServerSettings()
