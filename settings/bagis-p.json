@@ -1,0 +1,68 @@
+{
+  "datasources": [
+    {
+      "id": 4,
+      "name": "JH_Coef_Aug_Tmax",
+      "source": "http://bagis.geog.pdx.edu/arcgis/services/BAGIS_Databin/PRISM_1991_2020_tmax_august/ImageServer",
+      "description": "August Max Temperature for JH_Coef estimation",
+      "jhCoeff": "JH_Coef_Aug_Tmax"
+    },
+    {
+      "id": 5,
+      "name": "JH_Coef_Aug_Tmin",
+      "source": "http://bagis.geog.pdx.edu/arcgis/services/BAGIS_Databin/PRISM_1991_2020_tmin_august/ImageServer",
+      "description": "August Min Temperature for JH_Coef estimation",
+      "jhCoeff": "JH_Coef_Aug_Tmin"
+    },
+    {
+      "id": 6,
+      "name": "JH_Coef_Jul_Tmin",
+      "source": "http://bagis.geog.pdx.edu/arcgis/services/BAGIS_Databin/PRISM_1991_2020_tmin_july/ImageServer",
+      "description": "July Min Temperature for JH_Coef estimation",
+      "jhCoeff": "JH_Coef_Jul_Tmin"
+    },
+    {
+      "id": 7,
+      "name": "JH_Coef_Jul_Tmax",
+      "source": "http://bagis.geog.pdx.edu/arcgis/services/BAGIS_Databin/PRISM_1991_2020_tmax_july/ImageServer",
+      "description": "July Max Temperature for JH_Coef estimation",
+      "jhCoeff": "JH_Coef_Jul_Tmax"
+    },
+    {
+      "id": 8,
+      "name": "Landfire_CC",
+      "source": "http://bagis.geog.pdx.edu/arcgis/services/BAGIS_Databin/LF_us_130cc/ImageServer",
+      "description": "Landfire_CC, cover density for tree type. This cover density layer is used only for the estimation of rad_trncf parameter."
+    },
+    {
+      "id": 9,
+      "name": "Landfire_EVC_CC",
+      "source": "http://bagis.geog.pdx.edu/arcgis/services/BAGIS_Databin/LF_us_130evc_cc/ImageServer",
+      "description": "Cover Density from Landfire EVC layer. This layer includes cover density for all vegetation types (trees, grass, shrub)"
+    },
+    {
+      "id": 10,
+      "name": "Landfire_EVT",
+      "source": "http://bagis.geog.pdx.edu/arcgis/services/BAGIS_Databin/LF_us_140evt/ImageServer",
+      "description": "Landfire Existing Vegetation"
+    },
+    {
+      "id": 11,
+      "name": "NLCD_Impervious",
+      "source": "http://bagis.geog.pdx.edu/arcgis/services/BAGIS_Databin/NLCD_2019_impervious/ImageServer",
+      "description": "NLCD % Impervious"
+    },
+    {
+      "id": 12,
+      "name": "Soil",
+      "source": "http://bagis.geog.pdx.edu/arcgis/services/BAGIS_Databin/STATSGO_BAGIS_muid/ImageServer",
+      "description": "Soil"
+    },
+    {
+      "id": 13,
+      "name": "Soil_Texture",
+      "source": "http://bagis.geog.pdx.edu/arcgis/services/BAGIS_Databin/STATSGO_BAGIS_texture/ImageServer",
+      "description": "Soil_Texture"
+    }
+  ]
+}
